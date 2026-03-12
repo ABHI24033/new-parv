@@ -1,0 +1,73 @@
+import mongoose from "mongoose";
+
+const loanHistorySchema = new mongoose.Schema({
+    loan_provider_bank: String,
+    total_loan_amount: String,
+    current_emi: String,
+    remaining_amount: String,
+}, { _id: false });
+
+const goldLoanSchema = new mongoose.Schema(
+    {
+        folderName: { type: String, required: true },
+
+        loan_amount: { type: String, required: true },
+        id_of_connector: String,
+        name_of_connector: String,
+
+        applicant_name: { type: String, required: true },
+        fathers_name: String,
+        mothers_name: String,
+        phone_no: String,
+        alt_phone_no: String,
+        pan: String,
+        dob: String,
+
+        // Permanent Address
+        permanent_building_name: String,
+        permanent_street_name: String,
+        permanent_landmark: String,
+        permanent_city: String,
+        permanent_district: String,
+        permanent_state: String,
+        permanent_pincode: String,
+
+        // Present Address
+        present_building_name: String,
+        present_street_name: String,
+        present_landmark: String,
+        present_city: String,
+        present_district: String,
+        present_state: String,
+        present_pincode: String,
+
+        same_as_permanent_address: Boolean,
+
+        // Employment
+        saving_account_bank_name: String,
+        saving_account_turnover: String,
+        loan_start_date: String,
+        monthly_emi: String,
+
+        loanHistory: [loanHistorySchema],
+
+        // Documents (Cloudinary URLs)
+        aadhar_front: String,
+        aadhar_back: String,
+        personal_pan_upload: String,
+        house_electricity: String,
+        other_doc1: String,
+        other_doc2: String,
+
+        loanType: { type: String, default: "Gold" },
+        status: {
+            type: String,
+            enum: ["Pending", "Approved", "Disbursed", "Rejected"],
+            default: "Pending"
+        },
+        isDeleted: { type: Boolean, default: false }
+    },
+    { timestamps: true }
+);
+
+export default mongoose.model("GoldLoan", goldLoanSchema);

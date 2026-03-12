@@ -1,0 +1,191 @@
+
+import { ArrowRightCircle } from "lucide-react";
+import Image from "next/image";
+import { VehicleLoanData } from "../data/VehicleLoanData";
+
+// Component: Header
+function Header() {
+    return (
+        <header className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-800">Home Loans</h1>
+            <p className="text-gray-600 mt-2">
+                Get financing for whatever you need now. Achieve all your goals and aspirations with the right kind of help, exactly when you need it.
+            </p>
+        </header>
+    );
+}
+function AboutBusinessLoan({ item }) {
+    return (
+        <header className=" mb-6">
+            {/* <h1 className="text-4xl font-bold text-gray-800">Home </h1> */}
+            <p className="text-gray-600 text-lg mt-2">
+                {item?.description}
+            </p>
+        </header>
+    );
+}
+
+
+const FeatresCard = ({ data }) => {
+    return (
+        <div>
+            <div className="group relative w-full bg-gray-100 rounded-2xl p-4 transition-all duration-500 max-md:max-w-md max-md:mx-auto md:h-64 xl:p-7 hover:bg-indigo-600">
+                <div className="bg-white rounded-full flex justify-center items-center mb-5 w-14 h-14 ">
+
+                    <img src={data?.icon} alt="icons" />
+
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-3 capitalize transition-all duration-500 group-hover:text-white">{data?.title}</h4>
+                <p className="text-sm font-normal text-gray-500 transition-all duration-500 leading-5 group-hover:text-white">
+                    {data?.desc}
+                </p>
+            </div>
+        </div>
+    )
+}
+
+// Component: Features
+function Features({ data }) {
+    return (
+        <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Features of Business Loan</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    data?.map((item, index) => {
+                        return (
+                            <FeatresCard data={item} key={index} />
+                        )
+                    })
+                }
+            </div>
+        </section>
+    );
+}
+
+const ElegibilityCard = ({ item }) => {
+    return (
+        <div
+            className="bg-white shadow-[0_4px_12px_-5px_rgba(0,0,0,0.4)] p-6 w-full max-w-sm rounded-lg font-[sans-serif] overflow-hidden mx-auto mt-4">
+            <div className="inline-block rounded-full py-2 px-3">
+                <img src={item?.img} alt="icons" className="w-16 rounded-full" />
+            </div>
+
+            <div className="mt-4">
+                <h3 className="text-xl font-bold text-gray-800">{item?.title}</h3>
+                <p className="mt-2 text-sm text-gray-500">{item?.desc}</p>
+            </div>
+        </div>
+    )
+}
+
+// Component: Eligibility
+function Eligibility({ items }) {
+    return (
+        <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Eligibility Criteria</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                {
+                    items?.map((item, index) => {
+                        return (
+                            <ElegibilityCard item={item} key={index} />
+                        )
+                    })
+                }
+            </div>
+        </section>
+    );
+}
+
+// Component: Loan Types
+function LoanTypes({ items }) {
+    return (
+        <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Types of Home Loans</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    items?.map((item, index) => {
+                        return (
+                            <div className="p-4 bg-white rounded-lg shadow" key={index}>
+                                <Image 
+                                src={item?.img}
+                                alt={item?.type}
+                                width={200}
+                                height={200}
+                                className="w-full h-52"
+                                />
+                                <h3 className="font-bold text-gray-800">{item?.type}</h3>
+                                <p className="text-gray-600 mt-2">{item?.description}</p>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        </section>
+    );
+}
+
+// Component: Additional Details
+function AdditionalDetails({ items }) {
+    return (
+        <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Additional Details</h2>
+            <ol className="list-decimal list-inside pl-5 text-gray-600 space-y-3">
+                {
+                    items?.map((item, index) => {
+                        return (
+                            <li key={index}>
+                                <span className="font-semibold">{item?.benefit}:</span> {item?.detail}
+                            </li>
+                        )
+                    })
+                }
+            </ol>
+        </section>
+    );
+}
+
+// Component: Documents Required
+function DocumentsRequired({ items }) {
+    return (
+        <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Documents Required</h2>
+            <ul className="list-disc space-y-4  grid-cols-1 md:grid-cols-3 gap-3 list-inside text-gray-600">
+                {
+                    items?.map((item, index) => {
+                        return (
+                            <li key={index} className="border p-4 rounded-lg" >
+                                <span className="font-semibold">{item?.type}</span>
+                                <ul className="ml-6 space-y-1">
+                                    {item?.details.map((item, index) => (
+                                        <li key={index} className="flex gap-2 items-center">
+                                            <ArrowRightCircle size={17} />
+                                            <span className='w-[90%]'>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </li>
+                        )
+                    })
+                }
+            </ul>
+        </section>
+    );
+}
+// Main Page Component
+export default function VehicleLoanPage() {
+    return (
+        <div className="p-4 md:p-8 max-w-7xl mx-auto w-full ">
+            {/* <Header /> */}
+            <div className="">
+                <AboutBusinessLoan item={VehicleLoanData} />
+                <Features data={VehicleLoanData?.features} />
+                <Eligibility items={VehicleLoanData?.eligibility} />
+                <LoanTypes items={VehicleLoanData?.loanTypes} />
+                <AdditionalDetails items={VehicleLoanData?.additionalBenefits} />
+                <DocumentsRequired items={VehicleLoanData?.documents} />
+            </div>
+
+
+        </div>
+    );
+}

@@ -1,0 +1,21 @@
+"use client";
+
+import React from "react";
+import { useSearchParams } from "next/navigation";
+import { useRMDetails } from "@/hooks/rm/useRMData";
+import ProfilePage from "@/components/common/ProfilePage";
+
+export default function Profile() {
+  const searchParam = useSearchParams();
+  const id = searchParam.get("userId");
+
+  const { data, isLoading, isError } = useRMDetails(id);
+  const user = data?.data;
+
+
+  return (
+    <div>
+      <ProfilePage user={user} isError={isError} isLoading={isLoading} />
+    </div>
+  );
+}

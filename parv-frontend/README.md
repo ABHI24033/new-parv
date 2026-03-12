@@ -1,0 +1,4 @@
+connectorID
+date
+status
+type
