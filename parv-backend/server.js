@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import loanRoutes from './routes/loanRoutes.js';
 import leadRoutes from './routes/leadRoutes.js';
+import loanEnquiryRoutes from "./routes/loanEnquiryRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -46,6 +47,9 @@ app.use('/api/loans', loanRoutes);
 
 // Lead Routes
 app.use('/api/leads', leadRoutes);
+
+// Loan Enquiry Routes
+app.use("/api/loan-enquiry", loanEnquiryRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

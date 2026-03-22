@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { loanEnquiryApi } from "@/lib/api/loanEnquiry";
 import { Button } from "@/components/ui/button";
+import { AlertModal } from "@/components/common/Modals";
 import {
   Dialog,
   DialogContent,
@@ -16,20 +17,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Eye, MoreVertical } from "lucide-react";
+import { Eye, MoreVertical, Trash } from "lucide-react";
 import { formatDateToString } from "@/lib/dateformate";
+
+const statusOptions = ["pending", "approved", "rejected"];
 
 const EnquiryDetails = ({ enquiry }) => {
   if (!enquiry) return null;
 
   return (
     <div className="space-y-2 text-sm">
-      {/* <p>
+      <p>
         <strong>DSA ID:</strong> {enquiry?.DSAID || "-"}
       </p>
       <p>
         <strong>DSA Name:</strong> {enquiry?.DSAName || "-"}
-      </p> */}
+      </p>
       <p>
         <strong>Loan Product:</strong> {enquiry?.loanProduct || "-"}
       </p>
@@ -71,12 +74,16 @@ const EnquiryDetails = ({ enquiry }) => {
   );
 };
 
-export default function LoanEnquiryPage() {
+const LoanEnquiryAdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [enquiries, setEnquiries] = useState([]);
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   const fetchEnquiries = async () => {
     setLoading(true);
@@ -94,15 +101,54 @@ export default function LoanEnquiryPage() {
     fetchEnquiries();
   }, []);
 
+  const handleOpenDetails = (enquiry) => {
+    setSelected(enquiry);
+    setDetailsOpen(true);
+  };
+
+  const handleUpdateStatus = async (id, status) => {
+    try {
+      const res = await loanEnquiryApi.updateStatus(id, status);
+      const updated = res?.data?.data;
+
+      setEnquiries((prev) =>
+        prev.map((e) => (e?._id === id ? updated || { ...e, status } : e))
+      );
+      toast.success("Status updated successfully");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update status.");
+    }
+  };
+
+  const confirmDelete = (id) => {
+    setSelectedDeleteId(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    startTransition(async () => {
+      try {
+        await loanEnquiryApi.delete(selectedDeleteId);
+        setEnquiries((prev) => prev.filter((e) => e?._id !== selectedDeleteId));
+        toast.success("Enquiry deleted successfully");
+      } catch (error) {
+        toast.error(error?.response?.data?.message || "Failed to delete enquiry.");
+      } finally {
+        setDeleteModalOpen(false);
+        setSelectedDeleteId(null);
+      }
+    });
+  };
+
   return (
-    <div className="px-5">
+    <div className="p-6">
       <Toaster />
-      <h3 className="text-xl font-semibold px-5 py-4">Loan Enquiry Data</h3>
+      <h1 className="text-2xl font-bold mb-4">Loan Enquiries</h1>
 
       {loading ? (
-        <p className="text-gray-500 px-5">Loading enquiries...</p>
+        <p className="text-gray-500">Loading enquiries...</p>
       ) : enquiries?.length === 0 ? (
-        <p className="text-gray-500 text-sm px-5">No enquiries found.</p>
+        <p className="text-gray-500 text-sm">No enquiries found.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg shadow-md">
           <table className="min-w-full text-sm border border-gray-200">
@@ -173,14 +219,29 @@ export default function LoanEnquiryPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => {
-                            setSelected(item);
-                            setDetailsOpen(true);
-                          }}
+                          onClick={() => handleOpenDetails(item)}
                           className="cursor-pointer"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           View details
+                        </DropdownMenuItem>
+
+                        {statusOptions.map((s) => (
+                          <DropdownMenuItem
+                            key={s}
+                            onClick={() => handleUpdateStatus(item?._id, s)}
+                            className="cursor-pointer"
+                          >
+                            Set {s}
+                          </DropdownMenuItem>
+                        ))}
+
+                        <DropdownMenuItem
+                          onClick={() => confirmDelete(item?._id)}
+                          className="cursor-pointer hover:text-red-400 hover:bg-red-50"
+                        >
+                          <Trash className="w-4 h-4 mr-2" />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -200,6 +261,16 @@ export default function LoanEnquiryPage() {
           <EnquiryDetails enquiry={selected} />
         </DialogContent>
       </Dialog>
+
+      <AlertModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        isLoading={isPending}
+      />
     </div>
   );
-}
+};
+
+export default LoanEnquiryAdminPage;
+

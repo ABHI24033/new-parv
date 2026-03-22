@@ -191,26 +191,26 @@ export const AdminSidebar = {
       url: "/dashboard/admin/signup",
       icon: UserPlus2Icon,
     },
-    {
-      title: "Blogs",
-      url: "/dashboard/admin/blogs",
-      icon: LucideNotebookPen,
-    },
-    {
-      title: "Testimonials",
-      url: "/dashboard/admin/testimonials",
-      icon: MessageSquareText,
-    },
-    {
-      title: "Contact us",
-      url: "/dashboard/admin/contact_data",
-      icon: Contact2Icon,
-    },
-    {
-      title: "Career applications",
-      url: "/dashboard/admin/careers",
-      icon: UserPlus2Icon,
-    },
+    // {
+    //   title: "Blogs",
+    //   url: "/dashboard/admin/blogs",
+    //   icon: LucideNotebookPen,
+    // },
+    // {
+    //   title: "Testimonials",
+    //   url: "/dashboard/admin/testimonials",
+    //   icon: MessageSquareText,
+    // },
+    // {
+    //   title: "Contact us",
+    //   url: "/dashboard/admin/contact_data",
+    //   icon: Contact2Icon,
+    // },
+    // {
+    //   title: "Career applications",
+    //   url: "/dashboard/admin/careers",
+    //   icon: UserPlus2Icon,
+    // },
   ],
 };
 
