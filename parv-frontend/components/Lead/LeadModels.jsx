@@ -89,8 +89,8 @@ export const LeadDialog = ({ lead }) => {
               </SelectContent>
             </Select>
 
-            <Button onClick={handleSave} disabled={isPending || !status}>
-              {isPending ? "Saving..." : "Save"}
+            <Button onClick={handleSave} disabled={updateStatusMutation.isPending || !status}>
+              {updateStatusMutation.isPending ? "Saving..." : "Save"}
             </Button>
           </div>
           {message && <p className="text-sm mt-2">{message}</p>}

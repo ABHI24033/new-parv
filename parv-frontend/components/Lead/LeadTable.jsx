@@ -84,7 +84,7 @@ export default function LeadsTable() {
                 <tbody>
                     {leads?.length > 0 &&
                         leads?.map((lead) => (
-                            <tr key={lead?.id} className="border-t">
+                            <tr key={lead?._id} className="border-t">
                                 <td className="p-2">{lead?.date}</td>
                                 <td className="p-2">{lead?.leadName}</td>
                                 <td className="p-2">{lead?.profession}</td>
@@ -102,7 +102,7 @@ export default function LeadsTable() {
                                             <div className="flex flex-col gap-1">
                                                 <LeadDialog lead={lead} />
                                                 <RemarksModal
-                                                    leadId={lead?.id}
+                                                    leadId={lead?._id}
                                                     remarks={lead?.remarks}
                                                     user={user?.profile}
                                                     fetchLeads={refetch}
@@ -116,7 +116,7 @@ export default function LeadsTable() {
                                                 </button>
                                                 <button
                                                     onClick={() =>
-                                                        setDeleteModal({ open: true, leadId: lead?.id })
+                                                        setDeleteModal({ open: true, leadId: lead?._id })
                                                     }
                                                     className="flex items-center gap-1 cursor-pointer px-2 py-1 rounded-md hover:bg-red-100 text-red-600 transition-colors"
                                                 >
@@ -144,7 +144,7 @@ export default function LeadsTable() {
                 onClose={() => setDeleteModal({ open: false, leadId: null })}
                 open={deleteModal.open}
                 onConfirm={() => handleDelete(deleteModal.leadId)}
-                isLoading={deleteLeadMutation.isPending}
+                // isLoading={deleteLeadMutation.isPending}
                 heading="Are you sure?"
                 message="This action cannot be undone. Are you sure you want to permanently delete this lead?"
                 btnText="Delete"
@@ -160,7 +160,7 @@ export default function LeadsTable() {
                         <LeadForm
                             setOpen={() => setEditLead(null)}
                             defaultValues={editLead} // 👈 pre-fills form
-                            onSuccess={fetchLeads}
+                            onSuccess={refetch}
                         />
                     </DialogContent>
                 </Dialog>
@@ -172,7 +172,7 @@ export default function LeadsTable() {
                     size="sm"
                     variant="outline"
                     disabled={pagination.currentPage <= 1}
-                    onClick={() => fetchLeads(null, pagination.currentPage - 1)}
+                    onClick={() => handlePageChange(pagination.currentPage - 1, null)}
                 >
                     Previous
                 </Button>
@@ -183,7 +183,7 @@ export default function LeadsTable() {
                     size="sm"
                     variant="outline"
                     disabled={pagination.currentPage >= pagination.totalPages}
-                    onClick={() => fetchLeads(pagination.lastDocId, pagination.currentPage + 1)}
+                    onClick={() => handlePageChange(pagination.currentPage + 1, paginationData.lastDocId)}
                 >
                     Next
                 </Button>

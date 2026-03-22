@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import api from "@/api/api";
 import toast from "react-hot-toast";
 
 /**
@@ -10,7 +10,8 @@ export function useAddLead() {
 
   return useMutation({
     mutationFn: async (data) => {
-      return await apiClient.post("/leads", data);
+      const res = await api.post("/leads", data);
+      return res.data;
     },
     onSuccess: (response) => {
       if (response.success) {
@@ -35,7 +36,8 @@ export function useGetLeads(pageSize = 10, startAfterDocId = null, currentPage =
       if (startAfterDocId) params.startAfterDocId = startAfterDocId;
       if (month) params.month = month;
       if (year) params.year = year;
-      return await apiClient.get("/leads", params);
+      const res = await api.get("/leads", { params });
+      return res.data;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -48,7 +50,8 @@ export function useGetAllLeads() {
   return useQuery({
     queryKey: ["leads", "all"],
     queryFn: async () => {
-      return await apiClient.get("/leads/all");
+      const res = await api.get("/leads/all");
+      return res.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -62,7 +65,8 @@ export function useUpdateLead() {
 
   return useMutation({
     mutationFn: async ({ id, data }) => {
-      return await apiClient.put(`/leads/${id}`, data);
+      const res = await api.put(`/leads/${id}`, data);
+      return res.data;
     },
     onSuccess: (response) => {
       if (response.success) {
@@ -84,7 +88,8 @@ export function useUpdateLeadStatus() {
 
   return useMutation({
     mutationFn: async ({ id, newStatus }) => {
-      return await apiClient.patch(`/leads/${id}/status`, { status: newStatus });
+      const res = await api.patch(`/leads/${id}/status`, { status: newStatus });
+      return res.data;
     },
     onSuccess: (response) => {
       if (response.success) {
@@ -106,7 +111,8 @@ export function useDeleteLead() {
 
   return useMutation({
     mutationFn: async (id) => {
-      return await apiClient.delete(`/leads/${id}`);
+      const res = await api.delete(`/leads/${id}`);
+      return res.data;
     },
     onSuccess: (response) => {
       if (response.success) {
@@ -128,7 +134,8 @@ export function useAddLeadRemark() {
 
   return useMutation({
     mutationFn: async ({ leadId, remarkData }) => {
-      return await apiClient.post(`/leads/${leadId}/remarks`, remarkData);
+      const res = await api.post(`/leads/${leadId}/remarks`, remarkData);
+      return res.data;
     },
     onSuccess: (response) => {
       if (response.success) {

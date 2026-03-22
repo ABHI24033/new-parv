@@ -2,27 +2,23 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useAddLead, useUpdateLead } from "@/hooks/useLead";
 import toast, { Toaster } from "react-hot-toast";
 import { formSchema } from "./LeadFormValidation";
 import { AlertModal } from "../common/Modals";
 import { useState, useEffect } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowLeft, RefreshCw, Save } from "lucide-react";
+import { FormSectionCard } from "@/components/forms/reusable/FormSectionCard";
+import { FormInput } from "@/components/forms/reusable/FormInput";
+import { FormSelect } from "@/components/forms/reusable/FormSelect";
 
-export default function LeadForm({ setOpen, defaultValues,onSuccess }) {
+export default function LeadForm({ setOpen, defaultValues, onSuccess }) {
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
         reset,
         formState: { errors },
     } = useForm({
@@ -92,226 +88,224 @@ export default function LeadForm({ setOpen, defaultValues,onSuccess }) {
     }
 
     return (
-        <div>
+        <div className="bg-white/50 w-full h-full flex flex-col">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 id="leadForm"
-                className="space-y-4 w-full mx-auto p-4"
+                className="w-full mx-auto space-y-6 flex-grow"
             >
                 <Toaster />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {/* Date */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Date</label>
-                        <Input type="date" {...register("date")} />
-                        {errors?.date && (
-                            <p className="text-red-500 text-sm">{errors?.date?.message}</p>
-                        )}
+                
+                <FormSectionCard title="Lead Information" description="Basic details regarding the lead entry.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormInput
+                            type="date"
+                            label="Entry Date"
+                            id="date"
+                            error={errors?.date?.message}
+                            required
+                            {...register("date")}
+                        />
+                        <FormInput
+                            type="month"
+                            label="Month & Year"
+                            id="monthYear"
+                            error={errors?.monthYear?.message}
+                            required
+                            {...register("monthYear")}
+                        />
+                        <FormInput
+                            label="Lead Name"
+                            id="leadName"
+                            placeholder="Full Name"
+                            error={errors?.leadName?.message}
+                            required
+                            {...register("leadName")}
+                        />
+                        <FormSelect
+                            label="Profession"
+                            id="profession"
+                            value={watch("profession") || ""}
+                            onChange={(value) => setValue("profession", value)}
+                            error={errors?.profession?.message}
+                            required
+                            options={[
+                                { value: "salaried", label: "Salaried" },
+                                { value: "self-employed ", label: "Self-employed" },
+                                { value: "businessMan", label: "Businessman" },
+                                { value: "unemployed", label: "Unemployed" },
+                                { value: "SENP", label: "SENP" },
+                            ]}
+                        />
                     </div>
+                </FormSectionCard>
 
-                    {/* Month and Year */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Month and Year</label>
-                        <Input type="month" {...register("monthYear")} />
-                        {errors?.monthYear && (
-                            <p className="text-red-500 text-sm">
-                                {errors?.monthYear?.message}
-                            </p>
-                        )}
+                <FormSectionCard title="Contact Details" description="Communication and location info.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <FormInput
+                            label="Contact No"
+                            id="contactNo"
+                            placeholder="10-digit number"
+                            error={errors?.contactNo?.message}
+                            required
+                            {...register("contactNo")}
+                        />
+                        <FormInput
+                            label="WhatsApp No"
+                            id="whatsappNo"
+                            placeholder="10-digit number"
+                            error={errors?.whatsappNo?.message}
+                            required
+                            {...register("whatsappNo")}
+                        />
+                        <FormInput
+                            type="email"
+                            label="Email Address"
+                            id="email"
+                            placeholder="Email address"
+                            error={errors?.email?.message}
+                            {...register("email")}
+                        />
+                        <FormInput
+                            label="State"
+                            id="state"
+                            placeholder="State"
+                            error={errors?.state?.message}
+                            required
+                            {...register("state")}
+                        />
+                        <FormInput
+                            label="Town/City"
+                            id="city"
+                            placeholder="Town/City"
+                            error={errors?.city?.message}
+                            required
+                            {...register("city")}
+                        />
+                        <FormInput
+                            label="Pincode"
+                            id="pincode"
+                            placeholder="6-digit pincode"
+                            error={errors?.pincode?.message}
+                            required
+                            {...register("pincode")}
+                        />
                     </div>
+                </FormSectionCard>
 
-                    {/* Lead Name */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Lead Name</label>
-                        <Input placeholder="Lead Name" {...register("leadName")} />
-                        {errors?.leadName && (
-                            <p className="text-red-500 text-sm">
-                                {errors?.leadName?.message}
-                            </p>
-                        )}
+                <FormSectionCard title="Tracking & Status" description="Lead sourcing and follow-up tracking.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <FormSelect
+                            label="Lead Source"
+                            id="leadSource"
+                            value={watch("leadSource") || ""}
+                            onChange={(value) => setValue("leadSource", value)}
+                            error={errors?.leadSource?.message}
+                            required
+                            options={[
+                                { value: "Facebook campaign", label: "Facebook campaign" },
+                                { value: "existing customer", label: "Existing customer" },
+                                { value: "self-sourced", label: "Self-sourced" },
+                                { value: "connector/DSA", label: "Connector/DSA" },
+                                { value: "direct customer", label: "Direct customer" },
+                                { value: "referred by customer", label: "Referred by customer" },
+                                { value: "website", label: "Website" },
+                                { value: "Online (Google/similar)", label: "Online (Google/similar)" },
+                                { value: "Just dial enquiry", label: "Just dial enquiry" },
+                                { value: "n/a", label: "N/A" },
+                            ]}
+                        />
+                        <FormSelect
+                            label="Loan Product"
+                            id="loanProduct"
+                            value={watch("loanProduct") || ""}
+                            onChange={(value) => setValue("loanProduct", value)}
+                            error={errors?.loanProduct?.message}
+                            required
+                            options={[
+                                { value: "personal loan", label: "Personal Loan" },
+                                { value: "business", label: "Business Loan" },
+                                { value: "term", label: "Term Loan" },
+                                { value: "ODICON/Individual/CC", label: "ODICON/Individual/CC" },
+                                { value: "home", label: "Home Loan" },
+                                { value: "gold", label: "Gold Loan" },
+                                { value: "group", label: "Group Loan" },
+                                { value: "LAP", label: "LAP Loan" },
+                                { value: "plot/flat purchase", label: "Plot/Flat Purchase Loan" },
+                                { value: "bike loan", label: "Bike Loan" },
+                                { value: "car loan", label: "Car Loan" },
+                                { value: "refinance", label: "Refinance" },
+                                { value: "micro loan", label: "Micro Loan" },
+                            ]}
+                        />
+                        <FormSelect
+                            label="Lead Status"
+                            id="leadStatus"
+                            value={watch("leadStatus") || ""}
+                            onChange={(value) => setValue("leadStatus", value)}
+                            error={errors?.leadStatus?.message}
+                            required
+                            options={[
+                                { value: "new", label: "New" },
+                                { value: "call not connected", label: "Call Not Connected" },
+                                { value: "unqualified lead", label: "Unqualified Lead" },
+                                { value: "rejected", label: "Rejected" },
+                                { value: "qualified lead", label: "Qualified Lead" },
+                                { value: "customer denied", label: "Customer Denied" },
+                                { value: "documents pending", label: "Documents pending" },
+                                { value: "move to application", label: "Move to Application" },
+                            ]}
+                        />
+                        <FormInput
+                            type="date"
+                            label="Calling Date"
+                            id="callingDate"
+                            error={errors?.callingDate?.message}
+                            required
+                            {...register("callingDate")}
+                        />
+                        <FormInput
+                            type="date"
+                            label="Next Follow-up Date"
+                            id="followupDate"
+                            error={errors?.followupDate?.message}
+                            required
+                            {...register("followupDate")}
+                        />
                     </div>
+                </FormSectionCard>
 
-                    {/* Profession */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Profession</label>
-                        <Select
-                            onValueChange={(value) => setValue("profession", value)}
-                            defaultValue={defaultValues?.profession || ""}
+                {/* Bottom Action Bar */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-zinc-200">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                        className="w-full sm:w-auto min-w-[120px] rounded-xl font-semibold border-zinc-200"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back
+                    </Button>
+                    <div className="flex w-full sm:w-auto items-center gap-3">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => reset()}
+                            className="w-full sm:w-auto min-w-[120px] rounded-xl font-semibold bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                         >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Profession" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="salaried">Salaried</SelectItem>
-                                <SelectItem value="self-employed ">
-                                    Self-employed
-                                </SelectItem>
-                                <SelectItem value="businessMan">Businessman</SelectItem>
-                                <SelectItem value="unemployed">Unemployed</SelectItem>
-                                <SelectItem value="SENP">
-                                    SENP
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors?.profession && (
-                            <p className="text-red-500 text-sm">
-                                {errors?.profession?.message}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Contact No */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Contact No</label>
-                        <Input placeholder="Contact No" {...register("contactNo")} />
-                        {errors?.contactNo && (
-                            <p className="text-red-500 text-sm">
-                                {errors?.contactNo?.message}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* WhatsApp No */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">WhatsApp No</label>
-                        <Input placeholder="WhatsApp No" {...register("whatsappNo")} />
-                        {errors?.whatsappNo && <p className="text-red-500 text-sm">{errors?.whatsappNo?.message}</p>}
-                    </div>
-
-                    {/* Email */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Email</label>
-                        <Input type="email" placeholder="Email" {...register("email")} />
-                        {errors?.email && <p className="text-red-500 text-sm">{errors?.email?.message}</p>}
-                    </div>
-
-                    {/* Lead Source */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Lead Source</label>
-                        <Select onValueChange={(value) => setValue("leadSource", value)}
-                            defaultValue={defaultValues?.leadSource || ""}
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Reset
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full sm:w-auto min-w-[140px] rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
                         >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Lead Source" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Facebook campaign">Facebook campaign</SelectItem>
-                                <SelectItem value="existing customer">Existing customer</SelectItem>
-                                <SelectItem value="self-sourced">Self-sourced</SelectItem>
-                                <SelectItem value="connector/DSA">Connector/DSA</SelectItem>
-                                <SelectItem value="direct customer">Direct customer</SelectItem>
-                                <SelectItem value="referred by customer">Referred by customer</SelectItem>
-                                <SelectItem value="website">Website</SelectItem>
-                                <SelectItem value="Online (Google/similar)">Online (Google/similar)</SelectItem>
-                                <SelectItem value="Just dial enquiry">Just dial enquiry</SelectItem>
-                                <SelectItem value="n/a">N/A </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors?.leadSource && <p className="text-red-500 text-sm">{errors?.leadSource?.message}</p>}
+                            <Save className="w-4 h-4 mr-2" />
+                            {isLoading ? "Saving..." : defaultValues?.id ? "Update Lead" : "Submit"}
+                        </Button>
                     </div>
-
-                    {/* Loan Product */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Loan Product</label>
-                        <Select onValueChange={(value) => setValue("loanProduct", value)}
-                            defaultValue={defaultValues?.loanProduct || ""}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Loan Product" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="personal loan">Personal Loan</SelectItem>
-                                <SelectItem value="business">Business Loan</SelectItem>
-                                <SelectItem value="term">Term Loan</SelectItem>
-                                <SelectItem value="ODICON/Individual/CC">ODICON/Individual/CC</SelectItem>
-                                <SelectItem value="home">Home Loan</SelectItem>
-                                <SelectItem value="gold">Gold Loan</SelectItem>
-                                <SelectItem value="group">Group Loan</SelectItem>
-                                <SelectItem value="LAP">LAP Loan</SelectItem>
-                                <SelectItem value="plot/flat purchase">Plot/Flat Purchase Loan</SelectItem>
-                                <SelectItem value="bike loan">Bike Loan</SelectItem>
-                                <SelectItem value="car loan">Car Loan</SelectItem>
-                                <SelectItem value="refinance">Refinance</SelectItem>
-                                <SelectItem value="micro loan">Micro Loan</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors?.loanProduct && <p className="text-red-500 text-sm">{errors?.loanProduct?.message}</p>}
-                    </div>
-
-                    {/* Lead Status */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Lead Status</label>
-                        <Select onValueChange={(value) => setValue("leadStatus", value)}
-                            defaultValue={defaultValues?.leadStatus || ""}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select Lead Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="new">New</SelectItem>
-                                <SelectItem value="call not connected">Call Not Connected</SelectItem>
-                                <SelectItem value="unqualified lead">Unqualified Lead</SelectItem>
-                                <SelectItem value="rejected">Rejected</SelectItem>
-                                <SelectItem value="qualified lead">Qualified Lead</SelectItem>
-                                <SelectItem value="customer denied">Customer Denied</SelectItem>
-                                <SelectItem value="documents pending">Documents Pending</SelectItem>
-                                <SelectItem value="move to application">Move to Application</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {errors?.leadStatus && <p className="text-red-500 text-sm">{errors?.leadStatus?.message}</p>}
-                    </div>
-
-                    {/* Calling Date */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Calling Date</label>
-                        <Input type="date" {...register("callingDate")} />
-                        {errors?.callingDate && <p className="text-red-500 text-sm">{errors?.callingDate?.message}</p>}
-                    </div>
-
-                    {/* Next Follow-up Date */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Next Follow-up Date</label>
-                        <Input type="date" {...register("followupDate")} />
-                        {errors?.followupDate && <p className="text-red-500 text-sm">{errors?.followupDate?.message}</p>}
-                    </div>
-
-                    {/* State */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">State</label>
-                        <Input placeholder="State" {...register("state")} />
-                        {errors?.state && <p className="text-red-500 text-sm">{errors?.state?.message}</p>}
-                    </div>
-
-                    {/* City */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Town/City</label>
-                        <Input placeholder="Town/City" {...register("city")} />
-                        {errors?.city && <p className="text-red-500 text-sm">{errors?.city?.message}</p>}
-                    </div>
-
-                    {/* Pincode */}
-                    <div className="flex flex-col space-y-1">
-                        <label className="text-sm font-medium">Pincode</label>
-                        <Input placeholder="Pincode" {...register("pincode")} />
-                        {errors?.pincode && <p className="text-red-500 text-sm">{errors?.pincode?.message}</p>}
-                    </div>
-
-                    {/* Remarks / Notes */}
-                    {/* <div className="flex flex-col space-y-1 md:col-span-2">
-                        <label className="text-sm font-medium">Remarks / Notes</label>
-                        <Textarea placeholder="Remarks / Notes" {...register("remarks")} />
-                        {errors?.remarks && <p className="text-red-500 text-sm">{errors?.remarks?.message}</p>}
-                    </div> */}
-
                 </div>
-
-                <Button type="submit" className="w-fit mt-4 float-end">
-                    {isLoading
-                        ? "Saving..."
-                        : defaultValues?.id
-                            ? "Update Lead"
-                            : "Submit"}
-                </Button>
             </form>
 
             {/* Success Modal only for create */}
