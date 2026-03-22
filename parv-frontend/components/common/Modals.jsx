@@ -63,13 +63,13 @@ export const UserSuccessModal = ({
         <p className="text-sm text-gray-600 leading-0">{message}</p>
         {
           buttonText ?
-          <div className="flex w-full justify-end">
-            <Button className="mt-4 w-fit mx-auto float-end" onClick={handleRedirect}>
-              {buttonText}
-            </Button>
-          </div>
-          :
-          <div className="h-8"></div>
+            <div className="flex w-full justify-end">
+              <Button className="mt-4 w-fit mx-auto float-end" onClick={handleRedirect}>
+                {buttonText}
+              </Button>
+            </div>
+            :
+            <div className="h-8"></div>
         }
       </DialogContent>
     </Dialog>
@@ -272,24 +272,97 @@ export const ReportDialog = ({
 };
 
 export const DocsViewModal = ({ url, title, open, onClose }) => {
+  const isPDF = typeof url === "string" && url.toLowerCase().includes(".pdf");
+
   return (
-    <>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className={"min-w-[90vw] min-h-[90vh]"}>
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
-          <div className="w-full">
-            <img src={url} alt={title} className="w-full" />
-            {/* <Image 
-            
-            /> */}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
+    // <Dialog open={open} onOpenChange={onClose}>
+    //   <DialogContent className="max-w-4xl w-[95vw] max-h-[95vh] h-auto flex flex-col overflow-hidden rounded-2xl border-none shadow-2xl bg-white">
+    //     <DialogHeader className="shrink-0 border-b bg-white">
+    //       <DialogTitle className="text-xl font-bold text-gray-800 tabular-nums">{title}</DialogTitle>
+    //     </DialogHeader>
+
+    //     <div className="flex-1 overflow-auto bg-zinc-50/80 flex items-center justify-center">
+    //       {isPDF ? (
+    //         <iframe src={url} className="w-full h-[70vh] rounded-lg border shadow-sm" title={title} />
+    //       ) : (
+    //         <div className="relative group w-full h-full flex items-center justify-center">
+    //           <img
+    //             src={typeof url === "string" ? url : (url instanceof File ? URL.createObjectURL(url) : "")}
+    //             alt={title}
+    //             style={{ width: "700px" }}
+    //             className="max-w-full max-h-[90vh] w-auto h-auto object-contain border-white bg-white"
+    //           />
+    //         </div>
+    //       )}
+    //     </div>
+
+    //     <DialogFooter className="p-4 bg-white border-t shrink-0 flex justify-end">
+    //       <Button
+    //         variant="outline"
+    //         onClick={onClose}
+    //         className="font-bold border-zinc-200 hover:bg-zinc-50 rounded-xl px-10 h-11"
+    //       >
+    //         Close
+    //       </Button>
+    //     </DialogFooter>
+    //   </DialogContent>
+    // </Dialog>
+
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="w-[95vw] max-w-5xl h-fit p-0 flex flex-col overflow-hidden rounded-2xl border-none shadow-2xl bg-white">
+
+        {/* Header */}
+        <DialogHeader className="px-5 border-b bg-white flex flex-row items-center justify-between">
+          <DialogTitle className="text-lg md:text-xl font-semibold text-gray-800 truncate">
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto bg-zinc-100 flex items-center justify-center">
+
+          {isPDF ? (
+            <iframe
+              src={url}
+              title={title}
+              className="w-full h-full rounded-xl border bg-white shadow-sm"
+            />
+          ) : (
+            <div className="w-full h-full flex justify-center">
+              <img
+                src={
+                  typeof url === "string"
+                    ? url
+                    : url instanceof File
+                      ? URL.createObjectURL(url)
+                      : ""
+                }
+                alt={title}
+                style={{
+                  maxHeight: "500px"
+                }}
+                className="max-w-full max-h-full object-contain rounded-xl shadow bg-white"
+              />
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <DialogFooter className="px-4 py-3 border-t bg-white flex justify-end">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="rounded-xl px-6 md:px-8 h-10 md:h-11 font-medium"
+          >
+            Close
+          </Button>
+        </DialogFooter>
+
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 
 

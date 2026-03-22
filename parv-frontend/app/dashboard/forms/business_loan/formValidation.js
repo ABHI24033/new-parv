@@ -42,6 +42,7 @@ export const loanApplicationSchema = z
       .string()
       .min(1, "Phone Number is required.")
       .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+    email: z.string().min(1, "Email is required.").email("Invalid email address."),
     alt_phone_no: z
       .string()
       .optional()
@@ -56,7 +57,7 @@ export const loanApplicationSchema = z
     aadhar: z
       .string()
       .min(12, "Addhar Number is required."),
-      // .refine(isValidPan, "Invalid PAN Number format."),
+    // .refine(isValidPan, "Invalid PAN Number format."),
     dob: z
       .string()
       .min(1, "Date of Birth is required.")
@@ -65,7 +66,14 @@ export const loanApplicationSchema = z
         "Applicant must be at least 21 years old."
       ),
     marital_status: z.string().min(1, "Marital Status is required."),
-    spouse_name: z.string().optional(), // Now optional at this level, conditional logic in superRefine
+    spouse_name: z.string().optional(),
+    have_coapplicant: z.string().optional(),
+    co_applicant_dob: z.string().optional(),
+    co_applicant_name: z.string().optional(),
+    co_applicant_address: z.string().optional(),
+    co_applicant_phone: z.string().optional(),
+    co_occupation: z.string().optional(),
+    relation_with_applicant: z.string().optional(),
 
     permanent_building_name: z
       .string()
@@ -110,14 +118,14 @@ export const loanApplicationSchema = z
     saving_account_turnover: z
       .string()
       .min(1, "Saving Account Turnover is required."),
-    
+
     // file_income_tax: z.string().min(1, "Income tax filing status is required."),
     itr_1_upload: z.any().optional(), // Conditional logic in superRefine
     itr_2_upload: z.any().optional(), // Conditional logic in superRefine
     is_family_files_income_tax: z
       .string()
       .min(1, "Family income tax status is required."),
-   
+
     property_location: z.string().optional(), // Conditional logic in superRefine
     who_own_property: z.string().optional(), // Conditional logic in superRefine
     have_17_kahta_agri_land: z
@@ -161,10 +169,59 @@ export const loanApplicationSchema = z
     form_3: z.any().optional(), // Conditional in superRefine
     itr_2023_2024: z.any().optional(), // Conditional in superRefine
     itr_2024_2025: z.any().optional(), // Conditional in superRefine
-   
-    other_doc: z.any().optional(), // Optional file upload
+
+    address_proof: z
+      .any()
+      .refine(
+        (val) => val instanceof File || typeof val == "string",
+        "Address Proof is required."
+      ),
+    other_doc_1: z
+      .any()
+      .refine(
+        (val) => val instanceof File || typeof val == "string",
+        "Other Document 1 is required."
+      ),
+    other_doc_2: z
+      .any()
+      .refine(
+        (val) => val instanceof File || typeof val == "string",
+        "Other Document 2 is required."
+      ),
+    references: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Full Name is required."),
+          relation: z.string().min(1, "Relation is required."),
+          phone: z
+            .string()
+            .min(1, "Phone Number is required.")
+            .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+          village: z.string().min(1, "Village / Town is required."),
+          street: z.string().min(1, "Street Name is required."),
+          district: z.string().min(1, "District is required."),
+          pincode: z
+            .string()
+            .min(1, "Pincode is required.")
+            .refine((val) => /^\d{6}$/.test(val), "Pincode must be 6 digits."),
+          profession: z.string().min(1, "Profession is required."),
+        })
+      )
+      .min(1, "At least one reference is required.")
+      .max(2, "Maximum 2 references allowed.")
   })
   .superRefine((data, ctx) => {
+    // Check for duplicate phone numbers in references
+    if (data.references && data.references.length > 1) {
+      const phones = data.references.map((r) => r.phone).filter((p) => !!p);
+      if (new Set(phones).size !== phones.size) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate contact numbers across references are not allowed.",
+          path: ["references"],
+        });
+      }
+    }
     // Conditional validations using superRefine
     if (data.marital_status === "Married" && !data.spouse_name) {
       ctx.addIssue({
@@ -172,6 +229,21 @@ export const loanApplicationSchema = z
         message: "Spouse Name is required if married.",
         path: ["spouse_name"],
       });
+    }
+
+    if (data.have_coapplicant === "Yes") {
+      if (!data.co_applicant_name) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Co-applicant Name is required.", path: ["co_applicant_name"] });
+      }
+      if (!data.co_applicant_dob) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Co-applicant DOB is required.", path: ["co_applicant_dob"] });
+      }
+      if (!data.co_occupation) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Occupation is required.", path: ["co_occupation"] });
+      }
+      if (!data.relation_with_applicant) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Relation is required.", path: ["relation_with_applicant"] });
+      }
     }
 
     if (!data.same_as_permanent_address) {
@@ -276,6 +348,12 @@ export const stepFields = {
     "dob",
     "marital_status",
     "spouse_name",
+    "have_coapplicant",
+    "co_applicant_dob",
+    "co_applicant_name",
+    "co_occupation",
+    "relation_with_applicant",
+    "email",
     "permanent_building_name",
     "permanent_street_name",
     "permanent_landmark",
@@ -319,6 +397,10 @@ export const stepFields = {
     "needs_of_documents",
   ],
   3: [
+    // References
+    "references",
+  ],
+  4: [
     // Documents
     "applicant_selfie",
     "aadhar_front",
@@ -332,8 +414,9 @@ export const stepFields = {
     "itr_2024_2025",
     "bank_statement",
     "shop_front",
-    "house_electricity",
-    "other_doc",
+    "address_proof",
+    "other_doc_1",
+    "other_doc_2",
   ],
 };
 
@@ -344,22 +427,18 @@ export const stepFields = {
  * @returns {object} An object where keys are field names and values are error messages (or null).
  */
 export const validateFields = (formData, fieldNames) => {
-  const shape = fieldNames.reduce((acc, key) => {
-    // Ensure the key exists in the original schema to pick it
-    if (loanApplicationSchema._def.schema.shape[key]) {
-      acc[key] = loanApplicationSchema._def.schema.shape[key];
-    }
-    return acc;
-  }, {});
-
-  const subsetSchema = z.object(shape);
-
-  const result = subsetSchema.safeParse(formData);
+  const result = loanApplicationSchema.safeParse(formData);
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
+      const pathString = err.path.join(".");
+      // Check if the error path matches one of our requested field names
+      // or if it's a sub-path of a requested field (e.g. references.0.name for references)
+      if (
+        fieldNames.includes(pathString) ||
+        fieldNames.some((fn) => pathString.startsWith(`${fn}.`))
+      ) {
+        errors[pathString] = err.message;
       }
     });
   }

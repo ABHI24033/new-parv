@@ -47,7 +47,7 @@ export const useUnifiedLoans = () => {
         ...(search ? { search } : {}),
       };
 
-      const response = await api.get("/loans/unified", { params });
+      const response = await api.get("/loans", { params });
       if (response.data?.success) {
         setData(response.data.data || []);
         setTotalCount(response.data.totalCount || response.data.total || 0);

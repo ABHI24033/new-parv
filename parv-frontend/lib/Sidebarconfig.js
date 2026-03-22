@@ -173,7 +173,7 @@ export const AdminSidebar = {
     },
     {
       title: "Applied Loans",
-      url: "/dashboard/view/loans",
+      url: "/dashboard/loans",
       icon: HandCoinsIcon,
     },
     {

@@ -33,8 +33,8 @@ const fileSchemaRequired = z
   .refine(
     (file) => {
       // 1. Allow pre-existing URL string or if it's not a new file (though the previous check should handle this)
-      if (typeof file === "string") return true; 
-      
+      if (typeof file === "string") return true;
+
       // 2. Validate size for new File uploads
       return file instanceof File && file.size <= MAX_FILE_SIZE;
     },
@@ -43,8 +43,8 @@ const fileSchemaRequired = z
   .refine(
     (file) => {
       // 1. Allow pre-existing URL string
-      if (typeof file === "string") return true; 
-      
+      if (typeof file === "string") return true;
+
       // 2. Validate type for new File uploads
       return ACCEPTED_FILE_TYPES.includes(file?.type);
     },
@@ -56,7 +56,7 @@ const memberSchema = z.object({
   name: z.string().min(1, "Name is required"),
   phone: z.string().min(10, "Phone must be at least 10 digits"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  whatsapp_number: z.string().min(10,"what's app number must be 10 digits "),
+  whatsapp_number: z.string().min(10, "what's app number must be 10 digits "),
   husband_name: z.string().optional().or(z.literal("")),
   husband_phone: z.string().optional().or(z.literal("")),
   husband_profession: z.string().optional().or(z.literal("")),
@@ -72,7 +72,7 @@ const memberSchema = z.object({
     husband_aadhar_front: fileSchema,
     husband_aadhar_back: fileSchema,
     husband_voter_id: fileSchema,
-    joint_photo:fileSchema,
+    joint_photo: fileSchema,
   }),
 });
 
@@ -90,6 +90,27 @@ export const groupLoanSchema = z.object({
   group_district: z.string().min(1, "District is required"),
   group_pincode: z.string().min(6, "Pincode must be at least 6 digits"),
   members: z.array(memberSchema).min(1, "At least one member is required"),
+  references: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Full Name is required."),
+        relation: z.string().min(1, "Relation is required."),
+        phone: z
+          .string()
+          .min(1, "Phone Number is required.")
+          .refine((val) => /^\d{10}$/.test(val), "Invalid Phone Number (10 digits required)."),
+        village: z.string().min(1, "Village / Town is required."),
+        street: z.string().min(1, "Street Name is required."),
+        district: z.string().min(1, "District is required."),
+        pincode: z
+          .string()
+          .min(1, "Pincode is required.")
+          .refine((val) => /^\d{6}$/.test(val), "Pincode must be 6 digits."),
+        profession: z.string().min(1, "Profession is required."),
+      })
+    )
+    .min(1, "At least one reference is required.")
+    .max(2, "Maximum 2 references allowed."),
 });
 
 // 🔹 Step fields (you can adjust as per UI steps)
@@ -99,17 +120,30 @@ export const stepFields = {
     "loan_amount",
     "id_of_connector",
     "name_of_connector",
-    "group_size",
     "group_name",
+    "group_size",
     "nearest_branch",
+  ],
+  2: [
     "group_village",
     "group_post",
     "group_police_station",
     "group_district",
     "group_pincode",
   ],
-  2: ["members"], // whole members array will be validated
-  3: ["members.documents"], // nested docs (optional step if you split docs separately)
+  3: ["members.name", "members.phone", "members.whatsapp_number"],
+  4: [
+    "members.has_own_house",
+    "members.have_any_current_loan",
+    "members.past_loan_record",
+  ],
+  5: ["references"],
+  6: [
+    "members.documents.aadhar_front",
+    "members.documents.aadhar_back",
+    "members.documents.photo",
+  ],
+  7: [], // Review
 };
 
 
@@ -161,35 +195,43 @@ export const stepFields = {
 // normalize dot/bracket paths: "members[0].documents.aadhar_front" -> "members.0.documents.aadhar_front"
 const normalizePath = (p) => p.replace(/\[(\d+)\]/g, ".$1");
 
-export const validateFields = (
-  formData,
-  fieldNames
-) => {
+export const validateFields = (formData, fieldNames) => {
   const result = groupLoanSchema.safeParse(formData);
   const errors = {};
 
   if (!result.success) {
-    // build full error map with normalized paths
     const zodErrorsByPath = result.error.errors.reduce((acc, err) => {
       const path = (err.path || []).map((p) => String(p)).join(".");
       const norm = normalizePath(path);
-      if (!acc[norm]) acc[norm] = err.message; // keep first message
+      if (!acc[norm]) acc[norm] = err.message;
       return acc;
-    }, {} );
+    }, {});
 
     fieldNames.forEach((rawField) => {
       const field = normalizePath(rawField);
 
-      // collect all matching errors (not just one)
       Object.entries(zodErrorsByPath).forEach(([errPath, message]) => {
+        // 1. Exact match or starts with (for objects)
         if (errPath === field || errPath.startsWith(field + ".")) {
-          errors[errPath] = message; // key by deep path (works with inputs having id=members.0.phone)
+          errors[errPath] = message;
+          return;
+        }
+
+        // 2. Handle array field wildcards (e.g. "members.name" matches "members.0.name")
+        // We transform "members.name" -> /^members\.\d+\.name(\.|$)/
+        const regexPattern = field
+          .replace(/\./g, "\\.")
+          .replace(/members/g, "members\\.\\d+");
+        const regex = new RegExp("^" + regexPattern + "(\\.|$)");
+
+        if (regex.test(errPath)) {
+          errors[errPath] = message;
         }
       });
     });
   }
 
-  return errors; 
+  return errors;
 };
 
 

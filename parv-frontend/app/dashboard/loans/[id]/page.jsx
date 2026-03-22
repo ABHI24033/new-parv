@@ -75,7 +75,7 @@ export default function LoanDetailsPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await api.get(`/loans/unified/${id}`);
+        const res = await api.get(`/loans/${id}`);
         if (!cancelled && res.data?.success) {
           setLoanType(res.data.loanType || "");
           setLoanKey(res.data.loanKey || "");

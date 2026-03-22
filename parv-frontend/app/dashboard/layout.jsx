@@ -173,6 +173,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   SidebarInset,
@@ -201,14 +202,21 @@ import { useAuth } from "@/context/AuthContext";
 
 const Layout = ({ children }) => {
   const { user, logout, loading } = useAuth();
+  const router = useRouter();
   const [segments, setSegments] = useState([]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
   useEffect(() => {
     const parts = window.location.pathname.split("/").filter(Boolean);
     setSegments(parts);
   }, []);
 
-  if (loading) return <Spinner />;
+  if (loading || !user) return <Spinner />;
 
   const initials =
     user?.full_name
@@ -251,14 +259,14 @@ const Layout = ({ children }) => {
                 <PopoverTrigger>
                   <Avatar className="w-10 h-10 bg-gray-800 cursor-pointer">
                     {
-                      user?.photo?
-                      <>
-                      <AvatarImage src={user?.photo} alt="user profile picture" />
-                      </>
-                      :
-                    <AvatarFallback className="bg-gray-700 text-white">
-                      {initials}
-                    </AvatarFallback>
+                      user?.photo ?
+                        <>
+                          <AvatarImage src={user?.photo} alt="user profile picture" />
+                        </>
+                        :
+                        <AvatarFallback className="bg-gray-700 text-white">
+                          {initials}
+                        </AvatarFallback>
                     }
                   </Avatar>
                 </PopoverTrigger>

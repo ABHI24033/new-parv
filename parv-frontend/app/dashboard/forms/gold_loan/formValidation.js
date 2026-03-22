@@ -102,6 +102,12 @@ export const loanApplicationSchema = z
     saving_account_turnover: z
       .string()
       .min(1, "Saving account turnover is required."),
+    applicant_selfie: z
+      .any()
+      .refine(
+        (val) => val instanceof File || typeof val == "string",
+        "Applicant Selfie is required."
+      ),
     aadhar_front: z
       .any()
       .refine(
@@ -126,8 +132,40 @@ export const loanApplicationSchema = z
         (val) => val instanceof File || typeof val == "string",
         "Present address proof (electricity bill) is required."
       ),
+    references: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Full Name is required."),
+          relation: z.string().min(1, "Relation is required."),
+          phone: z
+            .string()
+            .min(1, "Phone Number is required.")
+            .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+          village: z.string().min(1, "Village / Town is required."),
+          street: z.string().min(1, "Street Name is required."),
+          district: z.string().min(1, "District is required."),
+          pincode: z
+            .string()
+            .min(1, "Pincode is required.")
+            .refine((val) => /^\d{6}$/.test(val), "Pincode must be 6 digits."),
+          profession: z.string().min(1, "Profession is required."),
+        })
+      )
+      .min(1, "At least one reference is required.")
+      .max(2, "Maximum 2 references allowed."),
   })
   .superRefine((data, ctx) => {
+    // Check for duplicate phone numbers in references
+    if (data.references && data.references.length > 1) {
+      const phones = data.references.map((r) => r.phone).filter((p) => !!p);
+      if (new Set(phones).size !== phones.size) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate contact numbers across references are not allowed.",
+          path: ["references"],
+        });
+      }
+    }
     // Conditional validation for Present Address based on same_as_permanent_address
     if (!data.same_as_permanent_address) {
       if (!data.present_building_name)
@@ -180,7 +218,6 @@ export const loanApplicationSchema = z
 export const stepFields = {
   0: [], // Instructions
   1: [
-    // Personal Details
     "loan_amount",
     "id_of_connector",
     "name_of_connector",
@@ -191,6 +228,8 @@ export const stepFields = {
     "alt_phone_no",
     "pan",
     "dob",
+  ],
+  2: [
     "present_building_name",
     "present_street_name",
     "present_landmark",
@@ -207,22 +246,11 @@ export const stepFields = {
     "permanent_pincode",
     "same_as_permanent_address",
   ],
-  2: [
-    // Employment & Loans
-    "saving_account_bank_name",
-    "saving_account_turnover",
-    "total_loan_amount",
-    "loan_start_date",
-    "loan_provider_bank",
-    "monthly_emi",
-  ],
-  3: [
-    // Documents
-    "aadhar_front",
-    "aadhar_back",
-    "personal_pan_upload",
-    "house_electricity",
-  ],
+  3: ["saving_account_bank_name", "saving_account_turnover"],
+  4: ["total_loan_amount", "loan_start_date", "loan_provider_bank", "monthly_emi"],
+  5: ["references"],
+  6: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity"],
+  7: [],
 };
 
 /**
@@ -232,21 +260,16 @@ export const stepFields = {
  * @returns {object} An object where keys are field names and values are error messages (or null).
  */
 export const validateFields = (formData, fieldNames) => {
-  const shape = fieldNames.reduce((acc, key) => {
-    // Ensure the key exists in the original schema to pick it
-    if (loanApplicationSchema._def.schema.shape[key]) {
-      acc[key] = loanApplicationSchema._def.schema.shape[key];
-    }
-    return acc;
-  }, {});
-
-  const subsetSchema = z.object(shape);
-  const result = subsetSchema.safeParse(formData);
+  const result = loanApplicationSchema.safeParse(formData);
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
+      const pathString = err.path.join(".");
+      if (
+        fieldNames.includes(pathString) ||
+        fieldNames.some((fn) => pathString.startsWith(`${fn}.`))
+      ) {
+        errors[pathString] = err.message;
       }
     });
   }
@@ -263,9 +286,8 @@ export const validateAllFields = (formData) => {
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
-      }
+      const pathString = err.path.join(".");
+      errors[pathString] = err.message;
     });
   }
   return errors;

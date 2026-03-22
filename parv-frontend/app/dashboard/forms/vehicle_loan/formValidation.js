@@ -49,12 +49,13 @@ export const loanApplicationSchema = z
     phone_no: z
       .string()
       .min(1, "Phone Number is required.")
-      .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+      .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+    email: z.string().email("Invalid email address").optional(),
     alt_phone_no: z
       .string()
       .optional()
       .refine(
-        (val) => !val || isValidPhone(val),
+        (val) => !val || /^\d{10}$/.test(val),
         "Invalid Alternate Phone Number (10 digits required)."
       ),
     pan: z
@@ -141,26 +142,98 @@ export const loanApplicationSchema = z
       .min(1, "17 khata agriculture land status is required."),
     needs_of_documents: z.array(z.string()).optional(),
 
+    have_current_account: z
+      .string()
+      .min(1, "Current account status is required."),
+    have_coapplicant: z.string().optional(),
 
-    // documnets
-    // applicant_selfie: z
-    //   .instanceof(File)
-    //   .refine((file) => file.size > 0, { message: "Applicant selfie is required." }),
-
-    // aadhar_front: z
-    //   .instanceof(File)
-    //   .refine((file) => file.size > 0, { message: "Aadhar front is required." }),
-
-    // aadhar_back: z
-    //   .instanceof(File)
-    //   .refine((file) => file.size > 0, { message: "Aadhar back is required." }),
-
-    // personal_pan: z
-    //   .instanceof(File)
-    //   .refine((file) => file.size > 0, { message: "PAN card is required." }),
-
+    applicant_selfie: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.length > 0),
+        "Applicant selfie is required."
+      ),
+    aadhar_front: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.length > 0),
+        "Aadhar front is required."
+      ),
+    aadhar_back: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.length > 0),
+        "Aadhar back is required."
+      ),
+    personal_pan: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.length > 0),
+        "PAN is required."
+      ),
+    address_prooof: z.any().optional(),
+    coapplicant_aadhar_front: z.any().optional(),
+    coapplicant_aadhar_back: z.any().optional(),
+    coapplicant_pan: z.any().optional(),
+    salary_slip_1: z.any().optional(),
+    salary_slip_2: z.any().optional(),
+    salary_slip_3: z.any().optional(),
+    form_16_itr_1: z.any().optional(),
+    form_16_itr_2: z.any().optional(),
+    electricity_bill: z.any().optional(),
+    business_images: z.any().optional(),
+    business_proof: z.any().optional(),
+    itr_1: z.any().optional(),
+    itr_2: z.any().optional(),
+    another_1: z.any().optional(),
+    another_2: z.any().optional(),
+    another_3: z.any().optional(),
+    sale_deed: z.any().optional(),
+    mutation: z.any().optional(),
+    rashid: z.any().optional(),
+    lpc: z.any().optional(),
+    property_pic: z.any().optional(),
+    property_map: z.any().optional(),
+    chain_deed: z.any().optional(),
+    guarantor_aadhar_front: z.any().optional(),
+    guarantor_aadhar_back: z.any().optional(),
+    guarantor_pan: z.any().optional(),
+    vehicle_quotation: z.any().optional(),
+    owner_book: z.any().optional(),
+    references: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Full Name is required."),
+          relation: z.string().min(1, "Relation is required."),
+          phone: z
+            .string()
+            .min(1, "Phone Number is required.")
+            .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+          village: z.string().min(1, "Village / Town is required."),
+          street: z.string().min(1, "Street Name is required."),
+          district: z.string().min(1, "District is required."),
+          pincode: z
+            .string()
+            .min(1, "Pincode is required.")
+            .refine((val) => /^\d{6}$/.test(val), "Pincode must be 6 digits."),
+          profession: z.string().min(1, "Profession is required."),
+        })
+      )
+      .min(1, "At least one reference is required.")
+      .max(2, "Maximum 2 references allowed."),
   })
   .superRefine((data, ctx) => {
+    // Check for duplicate phone numbers in references
+    if (data.references && data.references.length > 1) {
+      const phones = data.references.map((r) => r.phone).filter((p) => !!p);
+      if (new Set(phones).size !== phones.size) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate contact numbers across references are not allowed.",
+          path: ["references"],
+        });
+      }
+    }
     // Conditional validations for Personal Details
     if (data.marital_status === "Married" && !data.spouse_name) {
       ctx.addIssue({
@@ -231,13 +304,6 @@ export const loanApplicationSchema = z
           message: "Business age is required for Business profession.",
           path: ["company_age"],
         });
-      if (!data.registration_paper || data.registration_paper.length === 0)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "At least one registration paper must be selected for Business profession.",
-          path: ["registration_paper"],
-        });
     } else if (data.profession === "Job") {
       if (!data.current_company_name)
         ctx.addIssue({
@@ -277,16 +343,15 @@ export const loanApplicationSchema = z
         });
     }
   });
+
 export const stepFields = {
-  0: [],
+  0: [], // Instructions
   1: [
     "which_vehicle",
     "when_purchase",
     "estimated_cost",
     "loan_you_need",
     "profession",
-  ],
-  2: [
     "loan_amount",
     "id_of_connector",
     "name_of_connector",
@@ -294,12 +359,15 @@ export const stepFields = {
     "fathers_name",
     "mothers_name",
     "phone_no",
+    "email",
     "alt_phone_no",
     "pan",
     "aadhar",
     "dob",
     "marital_status",
     "spouse_name",
+  ],
+  2: [
     "permanent_building_name",
     "permanent_street_name",
     "permanent_landmark",
@@ -326,6 +394,8 @@ export const stepFields = {
     "job_tenure",
     "job_experience",
     "monthly_income",
+  ],
+  4: [
     "have_current_account",
     "current_account_bank_name",
     "name_in_current_account",
@@ -333,16 +403,49 @@ export const stepFields = {
     "current_account_turnover",
     "saving_account_bank_name",
     "saving_account_turnover",
-    "loan_provider_bank",
-    "total_loan_amount_prev",
-    "current_emi",
-    "remaining_amount",
     "have_property_for_mortage",
     "property_location",
     "who_own_property",
     "have_17_kahta_agri_land",
     "needs_of_documents",
   ],
+  5: ["references"],
+  6: [
+    "applicant_selfie",
+    "aadhar_front",
+    "aadhar_back",
+    "personal_pan",
+    "address_prooof",
+    "coapplicant_aadhar_front",
+    "coapplicant_aadhar_back",
+    "coapplicant_pan",
+    "salary_slip_1",
+    "salary_slip_2",
+    "salary_slip_3",
+    "form_16_itr_1",
+    "form_16_itr_2",
+    "electricity_bill",
+    "business_images",
+    "business_proof",
+    "itr_1",
+    "itr_2",
+    "another_1",
+    "another_2",
+    "another_3",
+    "sale_deed",
+    "mutation",
+    "rashid",
+    "lpc",
+    "property_pic",
+    "property_map",
+    "chain_deed",
+    "guarantor_aadhar_front",
+    "guarantor_aadhar_back",
+    "guarantor_pan",
+    "vehicle_quotation",
+    "owner_book",
+  ],
+  7: [],
 };
 
 /**
@@ -352,21 +455,16 @@ export const stepFields = {
  * @returns {object} An object where keys are field names and values are error messages (or null).
  */
 export const validateFields = (formData, fieldNames) => {
-  const shape = fieldNames.reduce((acc, key) => {
-    if (loanApplicationSchema._def.schema.shape[key]) {
-      acc[key] = loanApplicationSchema._def.schema.shape[key];
-    }
-    return acc;
-  }, {});
-
-  const subsetSchema = z.object(shape);
-
-  const result = subsetSchema.safeParse(formData);
+  const result = loanApplicationSchema.safeParse(formData);
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
+      const pathString = err.path.join(".");
+      if (
+        fieldNames.includes(pathString) ||
+        fieldNames.some((fn) => pathString.startsWith(`${fn}.`))
+      ) {
+        errors[pathString] = err.message;
       }
     });
   }
@@ -383,9 +481,8 @@ export const validateAllFields = (formData) => {
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
-      }
+      const pathString = err.path.join(".");
+      errors[pathString] = err.message;
     });
   }
   return errors;

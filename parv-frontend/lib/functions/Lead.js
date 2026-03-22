@@ -1,73 +1,4 @@
 
-// // import * as XLSX from "xlsx";
-// // import { saveAs } from "file-saver";
-// // import { getAllLeads } from "../actions/leadgeneration";
-
-// // export const downloadLeadExcel = async () => {
-// //   // const token = await useUserState.user.getIdToken();
-// //   const allData = await getAllLeads();
-
-// //   if (!allData || allData.length === 0) {
-// //     toast.error("No loan data found.");
-// //     return;
-// //   }
-
-// //   const flattenedData = allData?.data?.map((entry, i) => ({
-// //     "S. No": i + 1,
-// //     //   "date": entry?.date || "",
-// //     "monthYear": entry.monthYear || "",
-// //     "leadName": entry.leadName || "",
-// //     "Mother's Name": entry.profession || "",
-// //     "Phone": entry.contactNo || "",
-// //     "Alt Phone": entry.whatsappNo || "",
-// //     "Email": entry.email || "",
-// //     "Lead Source": entry.leadSource || "",
-// //     "Loan Product": entry.loanProduct || "",
-// //     "Lead Status": entry.leadStatus || "",
-// //     "Calling Date": entry.callingDate || "",
-// //     "Followup Date": entry.followupDate || "",
-// //     "State": entry.state || "",
-// //     "City": entry.city || "",
-// //     "Pincode": entry.pincode || "",
-// //     "Remarks": entry.remarks,
-// //     "Created Date": entry.date
-// //       ? new Date(entry.date).toLocaleString()
-// //       : "",
-// //   }));
-
-// //   const worksheet = XLSX.utils.json_to_sheet(flattenedData);
-// //   const wscols = Object.keys(flattenedData[0]).map(() => ({ wch: 25 }));
-// //   worksheet["!cols"] = wscols;
-
-// //   const range = XLSX.utils.decode_range(worksheet["!ref"]);
-// //   for (let C = range.s.c; C <= range.e.c; ++C) {
-// //     const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-// //     if (!worksheet[cellAddress]) continue;
-// //     worksheet[cellAddress].s = {
-// //       font: { bold: true },
-// //       alignment: { horizontal: "center" },
-// //     };
-// //   }
-
-// //   const workbook = XLSX.utils.book_new();
-// //   XLSX.utils.book_append_sheet(workbook, worksheet, "All Loan Data");
-
-// //   const excelBuffer = XLSX.write(workbook, {
-// //     bookType: "xlsx",
-// //     type: "array",
-// //   });
-
-// //   const blob = new Blob([excelBuffer], {
-// //     type:
-// //       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-// //   });
-
-// //   saveAs(blob, `LEAD_DATA_${new Date().toISOString().slice(0, 10)}.xlsx`);
-// // };
-
-
-
-
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { getAllLeads } from "../actions/leadgeneration";
@@ -120,18 +51,6 @@ export const downloadLeadExcel = async () => {
     // Set column widths
     const wscols = Object.keys(flattenedData[0]).map(() => ({ wch: 20 }));
     worksheet["!cols"] = wscols;
-
-    // Apply styling to header row
-    // const range = XLSX.utils.decode_range(worksheet["!ref"]);
-    // for (let C = range.s.c; C <= range.e.c; ++C) {
-    //   const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-    //   if (!worksheet[cellAddress]) continue;
-    //   worksheet[cellAddress].s = {
-    //     font: { bold: true, color: { rgb: "FFFFFF" } },
-    //     fill: { fgColor: { rgb: "4472C4" } }, // Blue header background
-    //     alignment: { horizontal: "center", vertical: "center" },
-    //   };
-    // }
 
     const range = XLSX.utils.decode_range(worksheet["!ref"]);
     for (let R = 1; R <= range.e.r; ++R) {

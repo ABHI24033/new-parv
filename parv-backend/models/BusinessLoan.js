@@ -5,16 +5,20 @@ const businessLoanSchema = new mongoose.Schema(
         folderName: { type: String, required: true },
 
         // Prerequisites
-        loan_amount: String,
+        loanId: { type: String, unique: true },
+        amount: { type: String, required: true },
+        loan_amount: String, // Legacy
         id_of_connector: String,
         name_of_connector: String,
         purpose_of_loan: String,
 
         // Personal Information
-        applicant_name: String,
+        applicantName: { type: String, required: true },
+        applicant_name: String, // Legacy
         fathers_name: String,
         mothers_name: String,
-        phone_no: String,
+        phone: { type: String },
+        phone_no: String, // Legacy
         alt_phone_no: String,
         pan: String,
         aadhar: String,
@@ -85,6 +89,7 @@ const businessLoanSchema = new mongoose.Schema(
         other_doc1: String,
         other_doc2: String,
         other_doc3: String,
+        documents: [String],
 
         loanType: { type: String, default: "Business" },
         status: {

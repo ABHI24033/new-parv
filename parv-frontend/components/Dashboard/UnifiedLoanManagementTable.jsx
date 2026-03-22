@@ -165,7 +165,8 @@ const UnifiedLoanManagementTable = ({
               data.map((loan) => (
                 <TableRow key={loan.id} className="hover:bg-gray-50/50">
                   <TableCell className="font-mono text-xs text-gray-600">
-                    {shortId(loan.id)}
+                    {/* {shortId(loan.id)} */}
+                    {loan.loanId}
                   </TableCell>
                   <TableCell className="font-medium text-gray-900">
                     {loan.applicantName || "-"}

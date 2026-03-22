@@ -26,13 +26,17 @@ const vehicleLoanSchema = new mongoose.Schema(
         relation_with_applicant: String,
 
         // Personal Details
-        loan_amount: String,
+        loanId: { type: String, unique: true },
+        amount: { type: String, required: true },
+        loan_amount: String, // Legacy
         id_of_connector: String,
         name_of_connector: String,
-        applicant_name: String,
+        applicantName: { type: String, required: true },
+        applicant_name: String, // Legacy
         fathers_name: String,
         mothers_name: String,
-        phone_no: String,
+        phone: { type: String },
+        phone_no: String, // Legacy
         alt_phone_no: String,
         pan: String,
         aadhar: String,
@@ -125,6 +129,7 @@ const vehicleLoanSchema = new mongoose.Schema(
         guarantor_pan: String,
         vehicle_quotation: String,
         owner_book: String,
+        documents: [String],
 
         loanType: { type: String, default: "Vehicle" },
         status: {

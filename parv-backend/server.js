@@ -6,13 +6,7 @@ import connectDB from './config/database.js';
 import imageUploadRoutes from "./routes/uploads.js";
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import goldLoanRoutes from './routes/GoldLoanRoutes.js';
-import vehicleLoanRoutes from './routes/VehicleLoanRoutes.js';
-import personalLoanRoutes from './routes/PersonalLoanRoutes.js';
-import homeLoanRoutes from './routes/HomeLoanRoutes.js';
-import businessLoanRoutes from './routes/BusinessLoanRoutes.js';
-import groupLoanRoutes from './routes/GroupLoanRoutes.js';
-import unifiedLoanRoutes from "./routes/UnifiedLoanRoutes.js";
+import loanRoutes from './routes/loanRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -26,7 +20,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000' ||'http://localhost:3002',
+  origin: process.env.CLIENT_URL || 'http://localhost:3000' || 'http://localhost:3002',
   credentials: true
 }));
 
@@ -47,13 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 // Loan Routes
-app.use('/api/loans/gold', goldLoanRoutes);
-app.use('/api/loans/vehicle', vehicleLoanRoutes);
-app.use('/api/loans/personal', personalLoanRoutes);
-app.use('/api/loans/home', homeLoanRoutes);
-app.use('/api/loans/business', businessLoanRoutes);
-app.use('/api/loans/group', groupLoanRoutes);
-app.use("/api/loans/unified", unifiedLoanRoutes);
+app.use('/api/loans', loanRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

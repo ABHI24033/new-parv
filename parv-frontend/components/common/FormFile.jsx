@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Upload } from "lucide-react";
+import { Loader2Icon, Upload } from "lucide-react";
 import { X, Loader2, FileUp } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { DocsViewModal } from "./Modals";
@@ -37,7 +37,7 @@ export const FormFileUpload = ({
       )}
 
       {/* FILE PREVIEW TAG */}
-      {value && typeof value === "string" && (
+      {value && typeof value === "string" && !currentlyUploading && (
         <div className="flex items-center justify-between w-full bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-sm animate-in fade-in zoom-in-95 duration-300">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-600 rounded-lg text-white shadow-lg shadow-blue-200">
@@ -77,7 +77,7 @@ export const FormFileUpload = ({
       )}
 
       {/* UPLOAD AREA */}
-      {!value && (
+      {(!value || typeof value !== "string" || currentlyUploading) && (
         <div
           className={cn(
             "relative group flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 transition-all duration-300 bg-gray-50/50 hover:bg-blue-50/30 hover:border-blue-400",
@@ -86,7 +86,7 @@ export const FormFileUpload = ({
         >
           {currentlyUploading ? (
             <div className="flex flex-col items-center gap-3 text-sm font-bold text-blue-600 py-2">
-              <Loader2 className="animate-spin text-blue-600" size={32} />
+              <Loader2Icon className="animate-spin text-blue-600" size={32} />
               <span className="animate-pulse">Uploading Document...</span>
             </div>
           ) : (
@@ -96,7 +96,7 @@ export const FormFileUpload = ({
               </div>
               <div className="text-center space-y-1">
                 <p className="text-sm font-bold text-gray-700">Click to upload {label}</p>
-                <p className="text-xs text-gray-500 font-medium italic">Support: JPG, PNG, PDF (Max 5MB)</p>
+                <p className="text-xs text-gray-500 font-medium italic">Support: JPG, PNG, PDF (Max 2MB)</p>
               </div>
               <Input
                 type="file"

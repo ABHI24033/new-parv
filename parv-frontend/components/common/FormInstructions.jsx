@@ -1,87 +1,96 @@
 import React from 'react'
+import { CheckCircle2, FileText, Smartphone, AlertCircle, Clock, PhoneCall } from 'lucide-react'
+import { Card, CardContent } from "@/components/ui/card"
 
 export const instructionData = {
     title: "Instructions (निर्देश)",
-    description:"please read all instructions carefully before start filling form. (फॉर्म भरने से पहले सभी निर्देशों को ध्यान से पढ़ें।)",
+    description: "Please read all instructions carefully before starting the form. (फॉर्म भरने से पहले सभी निर्देशों को ध्यान से पढ़ें।)",
     points: [
         {
-            heading: "1. Prepare Documents First 📝 (दस्तावेज़ पहले तैयार करें)",
-            text: "Please make ready all necessary documents (ID proof, Income proof, Address proof, and Bank Statements) before you start filling out the form.",
-            hindiText: "फॉर्म भरने से पहले सभी आवश्यक दस्तावेज (आईडी प्रमाण, आय प्रमाण, पता प्रमाण आदि) को तैयार रखें।"
+            icon: FileText,
+            heading: "Prepare Documents First (दस्तावेज़ तैयार करें)",
+            text: "Ready your ID, Income, Address proof, and Bank Statements.",
+            hindiText: "आईडी, आय, पता प्रमाण और बैंक स्टेटमेंट तैयार रखें।",
+            color: "text-blue-600",
+            bgColor: "bg-blue-50"
         },
         {
-            heading: "2. Document Size Limit",
-            text: "The maximum file size for each document upload is **2MB**. Ensure all files are clearly legible and within this limit.",
-            hindiText:"प्रत्येक दस्तावेज़ अपलोड के लिए अधिकतम फ़ाइल आकार **2MB** है। सुनिश्चित करें कि सभी फ़ाइलें स्पष्ट रूप से पढ़ने योग्य हैं और इस सीमा के भीतर हैं।"
+            icon: Smartphone,
+            heading: "Size & Format (फ़ाइल और प्रारूप)",
+            text: "Max 2MB per file. Only JPG, JPEG, PNG, and PDF accepted.",
+            hindiText: "अधिकतम 2MB। केवल JPG, PNG और PDF मान्य हैं।",
+            color: "text-purple-600",
+            bgColor: "bg-purple-50"
         },
         {
-            heading: "2. Document Size Type",
-            text: "You can upload documents in JPG, JPEG, PNG and PDF Only",
-            hindiText:"आप केवल JPG, JPEG, PNG और PDF में दस्तावेज़ अपलोड कर सकते हैं।"
+            icon: CheckCircle2,
+            heading: "Eligibility (पात्रता)",
+            text: "Review eligibility and interest rates before proceeding.",
+            hindiText: "आगे बढ़ने से पहले पात्रता और ब्याज दरों की जांच करें।",
+            color: "text-green-600",
+            bgColor: "bg-green-50"
         },
         {
-            heading: "3. Review Eligibility & Loan Details",
-            text: "Before proceeding, carefully check the minimum loan eligibility criteria and understand the interest rates/tenure options displayed on the previous screen.",
-            hindiText:"आगे बढ़ने से पहले, न्यूनतम ऋण पात्रता मानदंड को ध्यान से जांचें और पिछली स्क्रीन पर प्रदर्शित ब्याज दरों/अवधि विकल्पों को समझें।",
+            icon: AlertCircle,
+            heading: "Accuracy (सटीकता)",
+            text: "Ensure all details match your official documents (* is mandatory).",
+            hindiText: "सुनिश्चित करें कि सभी विवरण दस्तावेजों से मेल खाते हैं।",
+            color: "text-orange-600",
+            bgColor: "bg-orange-50"
         },
         {
-            heading: "4. Accuracy and Mandatory Fields (*)",
-            text: "Ensure all details provided are **accurate and match your official documents**. Fields marked with an asterisk **(\*) are mandatory** and must be filled in to avoid processing delays.",
-            hindiText:"सुनिश्चित करें कि प्रदान किए गए सभी विवरण **सटीक हैं और आपके आधिकारिक दस्तावेजों से मेल खाते हैं**। तारक **(\*) से चिह्नित फ़ील्ड अनिवार्य** हैं और प्रसंस्करण में देरी से बचने के लिए इन्हें भरा जाना चाहिए।",
-        },
-        // {
-        //   heading: "5. Digital Signature/Declaration",
-        //   text: "At the end of the form, you must digitally sign or check the declaration box confirming that all information is true to the best of your knowledge."
-        // },
-        {
-            heading: "5. Processing Timeframe",
-            text: "Once submitted, the application will be reviewed. Standard processing time is typically **5-7 business days**, subject to successful document verification.",
-            hindiText:"एक बार सबमिट होने के बाद, आवेदन की समीक्षा की जाएगी। सफल दस्तावेज़ सत्यापन के अधीन, मानक प्रसंस्करण समय आम तौर पर **5-7 व्यावसायिक दिन** है।",
+            icon: Clock,
+            heading: "Processing Time (प्रसंस्करण समय)",
+            text: "Review takes 5-7 business days after verification.",
+            hindiText: "सत्यापन के बाद समीक्षा में 5-7 कार्य दिन लगते हैं।",
+            color: "text-indigo-600",
+            bgColor: "bg-indigo-50"
         },
         {
-            heading: "6. For Assistance",
-            text: "If you have any questions while filling out the form, contact on +91 7292800809 or parvmultiservices@gmail.com",
-            hindiText:"यदि आपको फॉर्म भरते समय कोई समस्या आती है, तो +91 7292800809 या parvmultiservices@gmail.com पर संपर्क करें।",
+            icon: PhoneCall,
+            heading: "For Assistance (सहायता के लिए)",
+            text: "Call +91 7292800809 or email parvmultiservices@gmail.com",
+            hindiText: "संपर्क करें: +91 7292800809 या parvmultiservices@gmail.com",
+            color: "text-red-600",
+            bgColor: "bg-red-50"
         }
     ]
 };
 
 const FormInstructions = () => {
     return (
-        <div className="w-full flex flex-col min-h-[70vh] ">
-            <div className="max-w-7xl w-full rounded-2xl">
-                <div className="border-b pb-2">
-                    <div className="text-md md:text-xl px-2  md:px-4 font-semibold text-blue-900 flex items-start gap-2">
-                        {instructionData?.title}
-                    </div>
-                    <p className='text-sm text-gray-700 px-4'>{instructionData?.description}</p>
+        <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white ">
+                <div className="relative z-10">
+                    <h2 className="text-lg md:text-xl font-bold mb-2">{instructionData.title}</h2>
+                    <p className="text-blue-100 text-sm max-w-2xl">{instructionData.description}</p>
                 </div>
-                {/* <div className="border-b bg-gradient-to-r from-blue-50 to-white rounded-t-2xl">
-                    <div className="text-md md:text-xl p-2  md:p-4 font-semibold text-blue-900 flex items-start gap-2">
-                        <CheckCircle2 className="text-blue-600 pt-2 w-10 md:w-6 md:h-6" />
-                        {instructionData?.title}
-                    </div>
-                </div> */}
+                <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl" />
+            </div>
 
-                <div className="mt-6 space-y-6 text-gray-700 leading-relaxed">
-                    {instructionData?.points?.map((point, index) => (
-                        <div
-                            key={index}
-                            className="border-l-4 border-blue-200 pl-4 hover:border-blue-400 transition-colors"
-                        >
-                            <p className="font-semibold text-blue-800 text-sm md:text-base">
-                                {/* {point?.heading}: */}
-                                <span className="font-normal text-gray-700 ml-1">
-                                    {index+1}. {point?.text}
-                                </span>
-                                <br />
-                                <span className="font-normal text-gray-700 ml-1">
-                                    {point?.hindiText}
-                                </span>
-                            </p>
-                        </div>
-                    ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {instructionData.points.map((point, index) => (
+                    <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden group">
+                        <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                                <div className={`p-3 rounded-xl ${point.bgColor} ${point.color} transition-transform duration-300 group-hover:scale-110`}>
+                                    <point.icon className="w-6 h-6" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-zinc-800 text-sm tracking-tight">{point.heading}</h3>
+                                    <p className="text-zinc-600 text-[13px] leading-snug">{point.text}</p>
+                                    <p className="text-zinc-400 text-[11px] italic mt-1">{point.hindiText}</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex items-center gap-3 text-amber-800">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <p className="text-xs font-medium">Note: Fields marked with <span className="text-red-600 font-bold">*</span> are mandatory and must be filled to proceed. (नोट: * से चिह्नित फ़ील्ड अनिवार्य हैं।)</p>
             </div>
         </div>
     )

@@ -11,7 +11,7 @@ export default function useFormPersistence(key, data) {
         const savedData = await get(key);
         console.log("Loaded data from IndexedDB:", savedData);
         if (savedData) {
-          data.setFormData(savedData.formData || {});
+          data.setFormData(prev => ({ ...prev, ...(savedData.formData || {}) }));
           data?.setLoanHistory && data?.setLoanHistory(savedData.loanHistory || [{}]);
           data?.setStep(savedData.step || 0);
         }

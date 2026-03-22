@@ -11,14 +11,18 @@ const goldLoanSchema = new mongoose.Schema(
     {
         folderName: { type: String, required: true },
 
-        loan_amount: { type: String, required: true },
+        loanId: { type: String, unique: true },
+        amount: { type: String, required: true },
+        loan_amount: { type: String }, // Legacy
         id_of_connector: String,
         name_of_connector: String,
 
-        applicant_name: { type: String, required: true },
+        applicantName: { type: String, required: true },
+        applicant_name: { type: String }, // Legacy
         fathers_name: String,
         mothers_name: String,
-        phone_no: String,
+        phone: { type: String },
+        phone_no: String, // Legacy
         alt_phone_no: String,
         pan: String,
         dob: String,
@@ -58,6 +62,7 @@ const goldLoanSchema = new mongoose.Schema(
         house_electricity: String,
         other_doc1: String,
         other_doc2: String,
+        documents: [String],
 
         loanType: { type: String, default: "Gold" },
         status: {

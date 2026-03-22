@@ -40,7 +40,7 @@ export const useLoanForm = ({
                 folderName: `${folderPrefix}-${formattedDate}-${randomString}`,
             }));
         }
-    }, [folderPrefix]);
+    }, [folderPrefix, formData.folderName]);
 
     // Connector Info Initialization
     useEffect(() => {
@@ -86,7 +86,15 @@ export const useLoanForm = ({
         const file = files[0];
         if (!file) return;
 
+        // Max 2MB file size validation
+        if (file.size > 2 * 1024 * 1024) {
+            setErrors((prev) => ({ ...prev, [id]: "File size must be less than 2MB" }));
+            toast.error("File size must be less than 2MB");
+            return;
+        }
+
         // Immediately update form data with the File object (temp)
+
         setFormData((prev) => ({ ...prev, [id]: file }));
 
         // Validate the field immediately
@@ -130,6 +138,8 @@ export const useLoanForm = ({
         const fieldsToValidate = stepFields[step];
         if (fieldsToValidate && fieldsToValidate.length > 0) {
             const stepErrors = validateFields(formData, fieldsToValidate);
+            console.log(stepErrors);
+
             if (Object.keys(stepErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...stepErrors }));
                 const firstErrorField = Object.keys(stepErrors)[0];

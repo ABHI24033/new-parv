@@ -71,6 +71,11 @@ export const loanApplicationSchema = z
       ),
     marital_status: z.string().min(1, "Marital Status is required."),
     spouse_name: z.string().optional(),
+    have_coapplicant: z.string().min(1, "Co-applicant selection is required."),
+    co_applicant_name: z.string().optional(),
+    co_applicant_dob: z.string().optional(),
+    co_occupation: z.string().optional(),
+    relation_with_applicant: z.string().optional(),
 
     // Present Address
     present_building_name: z
@@ -155,30 +160,93 @@ export const loanApplicationSchema = z
     personal_pan_upload: z
       .any()
       .refine((val) => val instanceof File || typeof val == "string", "Personal PAN image is required."),
-    
+
     gst_certificate: z.any().optional(), // Optional, or conditional if registration_paper includes GST
     udyam_registration: z.any().optional(), // Optional, or conditional
     form_3: z.any().optional(), // Optional, or conditional
     itr_1: z.any().optional(), // Optional, or conditional
     itr_2: z.any().optional(), // Optional, or conditional
-    // bank_statement: z
-    //   .any()
-    //   .refine((val) => val instanceof File || typeof val == "string", "Bank statement is required."),
-    // shop_front: z
-    //   .any()
-    //   .refine((val) => val instanceof File || typeof val == "string", "Shop front picture is required."),
-    // house_electricity: z
-    //   .any()
-    //   .refine(
-    //     (val) => val instanceof File || typeof val == "string",
-    //     "House electricity bill is required."
-    //   ),
-    // other_doc: z.any().optional(),
-    // rashid: z
-    //   .any()
-    //   .refine((val) => val instanceof File || typeof val == "string", "Rashid document is required."), // New for Home Loan
+    company_image: z.any().optional(),
+    bank_statement: z.any().optional(),
+    shop_front: z.any().optional(),
+    house_electricity: z.any().optional(),
+    other_doc: z.any().optional(),
+    rashid: z.any().optional(),
+    coapplicant_aadhar_front: z.any().optional(),
+    coapplicant_aadhar_back: z.any().optional(),
+    coapplicant_pan: z.any().optional(),
+    salary_slip_1: z.any().optional(),
+    salary_slip_2: z.any().optional(),
+    salary_slip_3: z.any().optional(),
+    sale_deed: z.any().optional(),
+    mutation: z.any().optional(),
+    lpc: z.any().optional(),
+    property_pic: z.any().optional(),
+    property_map: z.any().optional(),
+    chain_deed: z.any().optional(),
+    other_doc1: z.any().optional(),
+    other_doc2: z.any().optional(),
+    other_doc3: z.any().optional(),
+    references: z
+      .array(
+        z.object({
+          name: z.string().min(1, "Full Name is required."),
+          relation: z.string().min(1, "Relation is required."),
+          phone: z
+            .string()
+            .min(1, "Phone Number is required.")
+            .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
+          village: z.string().min(1, "Village / Town is required."),
+          street: z.string().min(1, "Street Name is required."),
+          district: z.string().min(1, "District is required."),
+          pincode: z
+            .string()
+            .min(1, "Pincode is required.")
+            .refine((val) => /^\d{6}$/.test(val), "Pincode must be 6 digits."),
+          profession: z.string().min(1, "Profession is required."),
+        })
+      )
+      .min(1, "At least one reference is required.")
+      .max(2, "Maximum 2 references allowed."),
   })
   .superRefine((data, ctx) => {
+    // Check for duplicate phone numbers in references
+    if (data.references && data.references.length > 1) {
+      const phones = data.references.map((r) => r.phone).filter((p) => !!p);
+      if (new Set(phones).size !== phones.size) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Duplicate contact numbers across references are not allowed.",
+          path: ["references"],
+        });
+      }
+    }
+    if (data.have_coapplicant === "Yes") {
+      if (!data.co_applicant_name)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Co-applicant name is required.",
+          path: ["co_applicant_name"],
+        });
+      if (!data.co_applicant_dob)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Co-applicant DOB is required.",
+          path: ["co_applicant_dob"],
+        });
+      if (!data.co_occupation)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Co-applicant occupation is required.",
+          path: ["co_occupation"],
+        });
+      if (!data.relation_with_applicant)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Relation with applicant is required.",
+          path: ["relation_with_applicant"],
+        });
+    }
     // Conditional validations for Personal Details
     if (data.marital_status === "Married" && !data.spouse_name) {
       ctx.addIssue({
@@ -264,44 +332,34 @@ export const loanApplicationSchema = z
     }
 
     // Conditional validations for Profession -> Property Information
-    if (!data.property_location)
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "Property location is required if you have property for mortgage.",
-        path: ["property_location"],
-      });
-    if (!data.who_own_property)
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "Property owner is required if you have property for mortgage.",
-        path: ["who_own_property"],
-      });
+    if (data.have_property_for_mortage === "Yes") {
+      if (!data.property_location)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Property location is required if you have property for mortgage.",
+          path: ["property_location"],
+        });
+      if (!data.who_own_property)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Property owner is required if you have property for mortgage.",
+          path: ["who_own_property"],
+        });
+    }
 
-
-    // Conditional validations for Business Details (assuming if company_name is filled, others are required)
-    // This is a simplification; a more robust solution might involve a binary "is_business_owner" field.
+    // Conditional validations for Business Details
     if (data.company_name) {
-      // If company name is provided, assume business details are relevant
       if (!data.company_age)
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Business age is required.",
           path: ["company_age"],
         });
-      if (!data.registration_paper || data.registration_paper.length === 0)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "At least one registration paper must be selected.",
-          path: ["registration_paper"],
-        });
     }
 
-    // Conditional validations for Job Details (assuming if current_company_name is filled, others are required)
-    // Similar to business, a binary "is_salaried" field would be more explicit.
+
+    // Conditional validations for Job Details
     if (data.current_company_name) {
-      // If company name is provided, assume job details are relevant
       if (!data.salary_account_bank)
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -333,27 +391,16 @@ export const loanApplicationSchema = z
           path: ["monthly_income"],
         });
     }
-
-    // Documents conditional validations (e.g., if specific registration selected, then corresponding file is required)
-    // This part is complex and depends on explicit rules not fully detailed in the config.
-    // For now, I'll rely on the main schema's refine for File types if they are always required.
-    // If 'itr_1' or 'itr_2' are conditional based on 'file_income_tax' (which is in BusinessLoan config, not HomeLoan directly),
-    // then that logic would need to be added here.
-    // Based on the provided HomeLoan config, itr_1 and itr_2 are just file fields under "Business Documents"
-    // without an explicit binary switch like 'file_income_tax'. I will assume they are optional unless a specific
-    // business registration type requires them. For simplicity, I'll keep them optional in the schema unless
-    // a clear condition is provided.
   });
 
 // Define fields for each step for step-specific validation (flat structure)
 export const stepFields = {
   0: [], // Instructions
   1: [
-    // Personal Details
     "loan_amount",
     "id_of_connector",
     "name_of_connector",
-    "purpose_of_loan",
+    // "purpose_of_loan",
     "loan_type",
     "applicant_name",
     "fathers_name",
@@ -362,9 +409,17 @@ export const stepFields = {
     "email",
     "alt_phone_no",
     "pan",
+    "aadhar",
     "dob",
     "marital_status",
     "spouse_name",
+    "have_coapplicant",
+    "co_applicant_name",
+    "co_applicant_dob",
+    "co_occupation",
+    "relation_with_applicant",
+  ],
+  2: [
     "present_building_name",
     "present_street_name",
     "present_landmark",
@@ -381,55 +436,64 @@ export const stepFields = {
     "permanent_pincode",
     "same_as_permanent_address",
   ],
-  2: [
-    // Profession
-    // Job Details
+  3: [
     "current_company_name",
     "salary_account_bank",
     "savings_account_bank",
     "job_tenure",
     "job_experience",
     "monthly_income",
-    // Business Details
     "company_name",
     "company_age",
     "registration_paper",
-    // Documents (Binary Questions)
     "have_offer_letter",
     "have_tan_no",
     "has_salary_slip",
     "has_bank_statement",
+  ],
+  4: [
     "has_current_loan",
-    // Current Loans
     "total_loan_amount",
     "loan_start_date",
     "loan_provider_bank",
     "monthly_emi",
-    // Property Information
     "have_property_for_mortage",
     "property_location",
     "who_own_property",
     "have_17_kahta_agri_land",
     "needs_of_documents",
   ],
-  3: [
-    // Documents
+  5: ["references"],
+  6: [
     "applicant_selfie",
     "aadhar_front",
     "aadhar_back",
     "personal_pan_upload",
+    "coapplicant_aadhar_front",
+    "coapplicant_aadhar_back",
+    "coapplicant_pan",
+    "salary_slip_1",
+    "salary_slip_2",
+    "salary_slip_3",
+    "other_doc",
     "company_image",
     "gst_certificate",
     "udyam_registration",
     "form_3",
-    "itr_1",
-    "itr_2",
     "bank_statement",
-    "shop_front",
     "house_electricity",
-    "other_doc",
+    "sale_deed",
+    "mutation",
     "rashid",
+    "lpc",
+    "property_pic",
+    "property_map",
+    "chain_deed",
+    "other_doc1",
+    "other_doc2",
+    "other_doc3",
   ],
+  7: [],
 };
 
 /**
@@ -439,23 +503,16 @@ export const stepFields = {
  * @returns {object} An object where keys are field names and values are error messages (or null).
  */
 export const validateFields = (formData, fieldNames) => {
-  const shape = fieldNames.reduce((acc, key) => {
-    console.log(loanApplicationSchema._def.schema.shape[key]);
-    // Ensure the key exists in the original schema to pick it
-    if (loanApplicationSchema._def.schema.shape[key]) {
-      acc[key] = loanApplicationSchema._def.schema.shape[key];
-    }
-    return acc;
-  }, {});
-
-  const subsetSchema = z.object(shape);
-
-  const result = subsetSchema.safeParse(formData);
+  const result = loanApplicationSchema.safeParse(formData);
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
+      const pathString = err.path.join(".");
+      if (
+        fieldNames.includes(pathString) ||
+        fieldNames.some((fn) => pathString.startsWith(`${fn}.`))
+      ) {
+        errors[pathString] = err.message;
       }
     });
   }
@@ -472,9 +529,8 @@ export const validateAllFields = (formData) => {
   const errors = {};
   if (!result.success) {
     result.error.errors.forEach((err) => {
-      if (err.path && err.path.length > 0) {
-        errors[err.path[0]] = err.message;
-      }
+      const pathString = err.path.join(".");
+      errors[pathString] = err.message;
     });
   }
   return errors;

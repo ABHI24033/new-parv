@@ -33,14 +33,19 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
         await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+          `${apiUrl}/auth/refresh-token`,
           { withCredentials: true }
         );
 
         return api(originalRequest); // retry request
       } catch (err) {
-        console.log("Refresh token failed");
+        console.log("Refresh token failed, logging out...");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
       }
     }
 

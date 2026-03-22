@@ -3,19 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 const FormLayout = ({ title, children, description, icon: Icon }) => {
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-10 text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-          {title}
-        </h1>
-        {description && (
-          <p className="text-lg text-gray-500 font-medium">
-            {description}
-          </p>
-        )}
-      </div>
+    <div className="w-full max-w-7xl mx-auto px-4">
       <Card className="border-none bg-white shadow-none ring-0">
-        <CardContent className="p-0">
+        <CardContent className="pb-20 md:pb-0 px-0">
           {children}
         </CardContent>
       </Card>
