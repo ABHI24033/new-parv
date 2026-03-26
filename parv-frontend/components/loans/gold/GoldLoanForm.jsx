@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { del } from "idb-keyval";
-import { useCreateGoldLoan } from "@/hooks/loans/useGoldLoan";
+import { useRouter } from "next/navigation";
+import { useCreateGoldLoan, useUpdateGoldLoan } from "@/hooks/loans/useGoldLoan";
 import FormInstructions from "@/components/common/FormInstructions";
 import { LoanWizardFrame } from "@/components/forms/loans/LoanWizardFrame";
 import { Briefcase, Building2, CheckCircle2, Coins, FileText, Home, Upload, UserRound, Users as UsersIcon } from "lucide-react";
@@ -20,15 +21,22 @@ import { ReferenceDetails } from "./steps/ReferenceDetails";
 import { DocumentsUpload } from "./steps/DocumentsUpload";
 import { ReviewSubmit } from "./steps/ReviewSubmit";
 
-export function GoldLoanForm() {
+export function GoldLoanForm({ mode = "create", loanId = null, initialValues = null }) {
+    const router = useRouter();
     const createLoanMutation = useCreateGoldLoan();
+    const updateLoanMutation = useUpdateGoldLoan();
+    const isEditMode = mode === "edit" && Boolean(loanId);
 
-    const [loanHistory, setLoanHistory] = useState([{
+    const defaultLoanHistory = [{
         loan_provider_bank: "",
         total_loan_amount: "",
         current_emi: "",
         remaining_amount: "",
-    }]);
+    }];
+    const initialLoanHistory = useMemo(() => (
+        initialValues?.loanHistory?.length ? initialValues.loanHistory : defaultLoanHistory
+    ), [initialValues]);
+    const [loanHistory, setLoanHistory] = useState(initialLoanHistory);
 
     const formSteps = [
         { id: "instructions", title: "Instruction" },
@@ -41,7 +49,7 @@ export function GoldLoanForm() {
         { id: "review_submit", title: "Review & Submit" },
     ];
 
-    const initialData = {
+    const baseInitialData = {
         folderName: "", loan_amount: "", id_of_connector: "", name_of_connector: "", applicant_name: "", fathers_name: "", mothers_name: "",
         phone_no: "", alt_phone_no: "", pan: "", dob: "", present_building_name: "", present_street_name: "", present_landmark: "",
         present_city: "", present_district: "", present_state: "", present_pincode: "", permanent_building_name: "",
@@ -52,22 +60,35 @@ export function GoldLoanForm() {
             { name: "", relation: "", phone: "", village: "", street: "", district: "", pincode: "", profession: "" },
         ],
     };
+    const mergedInitialData = useMemo(() => ({ ...baseInitialData, ...(initialValues || {}) }), [initialValues]);
+    const activeMutation = isEditMode
+        ? {
+            ...updateLoanMutation,
+            mutate: (data, options) => updateLoanMutation.mutate({ id: loanId, data }, options),
+        }
+        : createLoanMutation;
 
     const {
         step, setStep, formData, setFormData, errors, setErrors, isSubmitting, openSuccess, setOpenSuccess,
         isUploading, isRemoving, handleRemoveDocsFromCloudaniry, handleNext, handlePrevious, handleFinalSubmit,
         handleFileChange,
     } = useLoanForm({
-        initialData,
+        initialData: mergedInitialData,
         validateFields,
         validateAllFields,
         stepFields,
-        mutation: createLoanMutation,
+        mutation: activeMutation,
         persistenceKey: "goldLoanForm",
         folderPrefix: "goldloan",
         fileFields: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity"],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },
+        persistenceEnabled: !isEditMode,
+        onSuccess: () => {
+            if (isEditMode) {
+                router.push(`/dashboard/loans/${loanId}`);
+            }
+        },
     });
 
     const handleFieldChange = (fieldName, value) => {
@@ -114,8 +135,8 @@ export function GoldLoanForm() {
         if (typeof window !== "undefined") {
             window.localStorage.removeItem("goldLoanForm");
         }
-        setFormData(initialData);
-        setLoanHistory([{ loan_provider_bank: "", total_loan_amount: "", current_emi: "", remaining_amount: "" }]);
+        setFormData(mergedInitialData);
+        setLoanHistory(initialLoanHistory);
         setErrors({});
         setStep(0);
     };
@@ -159,10 +180,10 @@ export function GoldLoanForm() {
             onSubmit={handleGoldSubmit}
             isLastStep={step === formSteps.length - 1}
             nextDisabled={!isCurrentStepValid}
-            submitDisabled={isSubmitting || createLoanMutation.isPending}
-            navDisabled={isSubmitting || createLoanMutation.isPending}
-            submitLabel={createLoanMutation.isPending ? "Submitting..." : "Submit Application"}
-            loadingOpen={isSubmitting || createLoanMutation.isPending}
+            submitDisabled={isSubmitting || activeMutation.isPending}
+            navDisabled={isSubmitting || activeMutation.isPending}
+            submitLabel={activeMutation.isPending ? (isEditMode ? "Updating..." : "Submitting...") : (isEditMode ? "Update Loan" : "Submit Application")}
+            loadingOpen={isSubmitting || activeMutation.isPending}
             successOpen={openSuccess}
             onSuccessOpenChange={setOpenSuccess}
         >

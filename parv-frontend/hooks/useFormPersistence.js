@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { get, set } from "idb-keyval";
 
-export default function useFormPersistence(key, data) {
+export default function useFormPersistence(key, data, enabled = true) {
   const [isRestored, setIsRestored] = useState(false);
 
   // Load saved data from IndexedDB
   useEffect(() => {
+    if (!enabled) {
+      setIsRestored(true);
+      return;
+    }
     (async () => {
       try {
         const savedData = await get(key);
@@ -25,6 +29,7 @@ export default function useFormPersistence(key, data) {
 
   // Save data after restoration completes
   useEffect(() => {
+    if (!enabled) return;
     if (!isRestored) return;
     const payload = {
       formData: data.formData,
@@ -33,7 +38,7 @@ export default function useFormPersistence(key, data) {
     };
     console.log("Saving data to IndexedDB:", payload);
     set(key, payload);
-  }, [isRestored, data.formData, data.loanHistory, data.step]);
+  }, [enabled, isRestored, data.formData, data.loanHistory, data.step]);
 
   return { isRestored };
 }

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { del } from "idb-keyval";
-import { useCreateVehicleLoan } from "@/hooks/loans/useVehicleLoan";
+import { useRouter } from "next/navigation";
+import { useCreateVehicleLoan, useUpdateVehicleLoan } from "@/hooks/loans/useVehicleLoan";
 import FormInstructions from "@/components/common/FormInstructions";
 import { LoanWizardFrame } from "@/components/forms/loans/LoanWizardFrame";
 import { Briefcase, Building2, CheckCircle2, Car, FileText, Home, Upload, UserRound, Users as UsersIcon } from "lucide-react";
@@ -20,15 +21,22 @@ import { ReferenceDetails } from "./steps/ReferenceDetails";
 import { DocumentsUpload } from "./steps/DocumentsUpload";
 import { ReviewSubmit } from "./steps/ReviewSubmit";
 
-export function VehicleLoanForm() {
+export function VehicleLoanForm({ mode = "create", loanId = null, initialValues = null }) {
+    const router = useRouter();
     const createLoanMutation = useCreateVehicleLoan();
+    const updateLoanMutation = useUpdateVehicleLoan();
+    const isEditMode = mode === "edit" && Boolean(loanId);
 
-    const [loanHistory, setLoanHistory] = useState([{
+    const defaultLoanHistory = [{
         loan_provider_bank: "",
         total_loan_amount: "",
         current_emi: "",
         remaining_amount: "",
-    }]);
+    }];
+    const initialLoanHistory = useMemo(() => (
+        initialValues?.loanHistory?.length ? initialValues.loanHistory : defaultLoanHistory
+    ), [initialValues]);
+    const [loanHistory, setLoanHistory] = useState(initialLoanHistory);
 
     const formSteps = [
         { id: "instructions", title: "Instruction" },
@@ -41,7 +49,7 @@ export function VehicleLoanForm() {
         { id: "review_submit", title: "Review & Submit" },
     ];
 
-    const initialData = {
+    const baseInitialData = {
         folderName: "",
         which_vehicle: "",
         when_purchase: "",
@@ -147,17 +155,24 @@ export function VehicleLoanForm() {
             },
         ],
     };
+    const mergedInitialData = useMemo(() => ({ ...baseInitialData, ...(initialValues || {}) }), [initialValues]);
+    const activeMutation = isEditMode
+        ? {
+            ...updateLoanMutation,
+            mutate: (data, options) => updateLoanMutation.mutate({ id: loanId, data }, options),
+        }
+        : createLoanMutation;
 
     const {
         step, setStep, formData, setFormData, errors, setErrors, isSubmitting, openSuccess, setOpenSuccess,
         isUploading, isRemoving, handleRemoveDocsFromCloudaniry, handleNext, handlePrevious, handleFinalSubmit,
         handleFileChange,
     } = useLoanForm({
-        initialData,
+        initialData: mergedInitialData,
         validateFields,
         validateAllFields,
         stepFields,
-        mutation: createLoanMutation,
+        mutation: activeMutation,
         persistenceKey: "vehicleLoanForm",
         folderPrefix: "vehicleloan",
         fileFields: [
@@ -172,6 +187,12 @@ export function VehicleLoanForm() {
         ],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },
+        persistenceEnabled: !isEditMode,
+        onSuccess: () => {
+            if (isEditMode) {
+                router.push(`/dashboard/loans/${loanId}`);
+            }
+        },
     });
 
     const handleFieldChange = (fieldName, value) => {
@@ -236,8 +257,8 @@ export function VehicleLoanForm() {
         if (typeof window !== "undefined") {
             window.localStorage.removeItem("vehicleLoanForm");
         }
-        setFormData(initialData);
-        setLoanHistory([{ loan_provider_bank: "", total_loan_amount: "", current_emi: "", remaining_amount: "" }]);
+        setFormData(mergedInitialData);
+        setLoanHistory(initialLoanHistory);
         setErrors({});
         setStep(0);
     };
@@ -291,10 +312,10 @@ export function VehicleLoanForm() {
             onSubmit={handleVehicleSubmit}
             isLastStep={step === formSteps.length - 1}
             nextDisabled={!isCurrentStepValid}
-            submitDisabled={isSubmitting || createLoanMutation.isPending}
-            navDisabled={isSubmitting || createLoanMutation.isPending}
-            submitLabel={createLoanMutation.isPending ? "Submitting..." : "Submit Application"}
-            loadingOpen={isSubmitting || createLoanMutation.isPending}
+            submitDisabled={isSubmitting || activeMutation.isPending}
+            navDisabled={isSubmitting || activeMutation.isPending}
+            submitLabel={activeMutation.isPending ? (isEditMode ? "Updating..." : "Submitting...") : (isEditMode ? "Update Loan" : "Submit Application")}
+            loadingOpen={isSubmitting || activeMutation.isPending}
             successOpen={openSuccess}
             onSuccessOpenChange={setOpenSuccess}
         >

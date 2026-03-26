@@ -21,6 +21,8 @@ import { checkAuthentication } from "../middleware/auth.js";
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/refresh", refreshToken);
+// Backward-compatible alias for frontend token refresh
+router.get("/refresh-token", refreshToken);
 
 // -------------------------
 // Forgot Password / OTP Routes

@@ -16,8 +16,11 @@ export const LOAN_TYPE_OPTIONS = [
 
 export const STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
-  { value: "Pending", label: "Pending" },
-  { value: "Approved", label: "Approved" },
+  { value: "Application Received", label: "Application Received" },
+  { value: "In Progress at PARV", label: "In Progress at PARV" },
+  { value: "Applied to Bank", label: "Applied to Bank" },
+  { value: "Pendency", label: "Pendency" },
+  { value: "Sanctioned", label: "Sanctioned" },
   { value: "Disbursed", label: "Disbursed" },
   { value: "Rejected", label: "Rejected" },
 ];

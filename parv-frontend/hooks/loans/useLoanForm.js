@@ -16,6 +16,9 @@ export const useLoanForm = ({
     formSteps,
     fileFields = [],
     extraPersistenceData = {},
+    persistenceEnabled = true,
+    onSuccess,
+    onError,
 }) => {
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState(initialData);
@@ -59,7 +62,7 @@ export const useLoanForm = ({
         step,
         setStep,
         ...extraPersistenceData
-    });
+    }, persistenceEnabled);
 
     const handleUpload = async (id, fileOverride) => {
         const file = fileOverride || formData[id];
@@ -235,12 +238,22 @@ export const useLoanForm = ({
         try {
             mutation.mutate(sanitizedData, {
                 onSuccess: async () => {
-                    setOpenSuccess(true);
-                    await del(persistenceKey);
+                    if (persistenceEnabled) {
+                        await del(persistenceKey);
+                    }
+                    if (typeof onSuccess === "function") {
+                        onSuccess(sanitizedData);
+                    } else {
+                        setOpenSuccess(true);
+                    }
                 },
                 onError: (error) => {
                     console.error("Submission failed:", error);
-                    toast.error(error.message || "Failed to submit loan application. Please try again.");
+                    if (typeof onError === "function") {
+                        onError(error);
+                    } else {
+                        toast.error(error.message || "Failed to submit loan application. Please try again.");
+                    }
                 },
                 onSettled: () => setIsSubmitting(false),
             });

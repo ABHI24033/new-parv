@@ -4,8 +4,10 @@ import {
     getAllLoans,
     getLoanById,
     updateLoan,
+    updateLoanStatus,
     deleteLoan,
-    getLoansByType
+    getLoansByType,
+    getDashboardStats
 } from "../controllers/loanController.js";
 import { checkAuthentication } from "../middleware/auth.js";
 
@@ -15,9 +17,11 @@ router.use(checkAuthentication);
 
 router.post("/", createLoan);
 router.get("/", getAllLoans);
+router.get("/dashboard/stats", getDashboardStats); // must be before /:id
+router.get("/type/:loanType", getLoansByType);
 router.get("/:id", getLoanById);
+router.put("/:id/status", updateLoanStatus);
 router.put("/:id", updateLoan);
 router.delete("/:id", deleteLoan);
-router.get("/type/:loanType", getLoansByType);
 
 export default router;

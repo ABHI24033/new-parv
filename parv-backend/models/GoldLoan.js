@@ -67,8 +67,19 @@ const goldLoanSchema = new mongoose.Schema(
         loanType: { type: String, default: "Gold" },
         status: {
             type: String,
-            enum: ["Pending", "Approved", "Disbursed", "Rejected"],
-            default: "Pending"
+            enum: [
+                "Application Received",
+                "In Progress at PARV",
+                "Applied to Bank",
+                "Pendency",
+                "Sanctioned",
+                "Disbursed",
+                "Rejected",
+                // Backward-compatible legacy statuses
+                "Pending",
+                "Approved"
+            ],
+            default: "Application Received"
         },
         isDeleted: { type: Boolean, default: false }
     },

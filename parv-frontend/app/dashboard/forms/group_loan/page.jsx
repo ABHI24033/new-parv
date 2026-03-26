@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { del } from "idb-keyval";
+import { useRouter } from "next/navigation";
 import { Building2, CheckCircle2, FileText, History, Home, MinusIcon, PlusIcon, Upload, Users as UsersIcon, UserRound } from "lucide-react";
 
 import { FormFileUploadForMembers } from "@/components/common/FormFile";
@@ -13,11 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCreateGroupLoan } from "@/hooks/loans/useGroupLoan";
+import { useCreateGroupLoan, useUpdateGroupLoan } from "@/hooks/loans/useGroupLoan";
 import { useLoanForm } from "@/hooks/loans/useLoanForm";
 import { upload_single_file, getPublicIdFromUrl, remove_docs } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { validateAllFields, validateFields } from "./formValidation";
+import { LoanFormPageClient } from "@/components/loans/LoanFormPageClient";
 
 const stepFields = {
   0: [],
@@ -51,8 +53,11 @@ const stepFields = {
   7: [],
 };
 
-const GroupLoan = () => {
+const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => {
+  const router = useRouter();
   const createLoanMutation = useCreateGroupLoan();
+  const updateLoanMutation = useUpdateGroupLoan();
+  const isEditMode = mode === "edit" && Boolean(loanId);
 
   const formSteps = [
     { id: "instructions", title: "Instruction" },
@@ -65,7 +70,7 @@ const GroupLoan = () => {
     { id: "review_submit", title: "Review & Submit" },
   ];
 
-  const initialData = {
+  const baseInitialData = {
     folderName: undefined,
     loan_amount: "",
     id_of_connector: "",
@@ -117,6 +122,14 @@ const GroupLoan = () => {
     ],
   };
 
+  const mergedInitialData = useMemo(() => ({ ...baseInitialData, ...(initialValues || {}) }), [initialValues]);
+  const activeMutation = isEditMode
+    ? {
+      ...updateLoanMutation,
+      mutate: (data, options) => updateLoanMutation.mutate({ id: loanId, data }, options),
+    }
+    : createLoanMutation;
+
   const {
     step,
     setStep,
@@ -131,14 +144,20 @@ const GroupLoan = () => {
     handlePrevious,
     handleFinalSubmit,
   } = useLoanForm({
-    initialData,
+    initialData: mergedInitialData,
     validateFields,
     validateAllFields,
     stepFields,
-    mutation: createLoanMutation,
+    mutation: activeMutation,
     persistenceKey: "groupLoanForm",
     folderPrefix: "grouploan",
     formSteps,
+    persistenceEnabled: !isEditMode,
+    onSuccess: () => {
+      if (isEditMode) {
+        router.push(`/dashboard/loans/${loanId}`);
+      }
+    },
   });
 
   const addReference = () => {
@@ -382,7 +401,7 @@ const GroupLoan = () => {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("groupLoanForm");
     }
-    setFormData(initialData);
+    setFormData(mergedInitialData);
     setErrors({});
     setStep(0);
   };
@@ -830,12 +849,12 @@ const GroupLoan = () => {
       onSubmit={handleGroupSubmit}
       isLastStep={step === formSteps.length - 1}
       nextDisabled={!isCurrentStepValid}
-      submitDisabled={isSubmitting || createLoanMutation.isPending}
-      navDisabled={isSubmitting || createLoanMutation.isPending}
+      submitDisabled={isSubmitting || activeMutation.isPending}
+      navDisabled={isSubmitting || activeMutation.isPending}
       submitLabel={
-        createLoanMutation.isPending ? "Submitting..." : "Submit Application"
+        activeMutation.isPending ? (isEditMode ? "Updating..." : "Submitting...") : (isEditMode ? "Update Loan" : "Submit Application")
       }
-      loadingOpen={isSubmitting || createLoanMutation.isPending}
+      loadingOpen={isSubmitting || activeMutation.isPending}
       successOpen={openSuccess}
       onSuccessOpenChange={setOpenSuccess}
     >
@@ -844,4 +863,6 @@ const GroupLoan = () => {
   );
 };
 
-export default GroupLoan;
+export default function GroupLoanPage() {
+  return <LoanFormPageClient expectedLoanKey="group" FormComponent={GroupLoan} />;
+}

@@ -23,7 +23,7 @@ export const useLoans = (loanType) => {
                 ...(status !== "all" && { status })
             });
 
-            const response = await api.get(`/loans/${loanType}?${params.toString()}`);
+            const response = await api.get(`/loans/type/${loanType}?${params.toString()}`);
             if (response.data.success) {
                 setData(response.data.data);
                 setTotalCount(response.data.totalCount || response.data.total);

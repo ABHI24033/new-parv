@@ -5,6 +5,8 @@ import GroupLoan from "../models/GroupLoan.js";
 import HomeLoan from "../models/HomeLoan.js";
 import PersonalLoan from "../models/PersonalLoan.js";
 import VehicleLoan from "../models/VehicleLoan.js";
+import Lead from "../models/Lead.js";
+import User from "../models/User.js";
 import { generateLoanId } from "../utils/generateLoanId.js";
 
 const LOAN_MODELS = [
@@ -16,6 +18,34 @@ const LOAN_MODELS = [
     { key: "group", label: "Group", Model: GroupLoan },
 ];
 
+// Normalized workflow statuses used by the UI.
+// We keep legacy values (Pending/Approved) for backward compatibility.
+const STATUS_MAP = {
+    // UI workflow
+    "application received": "Application Received",
+    "in progress at parv": "In Progress at PARV",
+    "applied to bank": "Applied to Bank",
+    "pendency": "Pendency",
+    "sanctioned": "Sanctioned",
+    "disbursed": "Disbursed",
+    "rejected": "Rejected",
+
+    // Legacy values
+    "pending": "Application Received",
+    "approved": "Sanctioned",
+};
+
+const normalizeStatus = (status) => {
+    if (!status) return "Application Received";
+    const key = String(status).trim().toLowerCase();
+    return STATUS_MAP[key] || null;
+};
+
+const isAllowedStatus = (status) => {
+    const normalized = normalizeStatus(status);
+    return Boolean(normalized);
+};
+
 const getModelInfo = (loanType) => {
     if (!loanType) return null;
     const normalized = String(loanType).trim().toLowerCase();
@@ -23,10 +53,87 @@ const getModelInfo = (loanType) => {
     return found || null;
 };
 
+const canManageLoan = (role) => {
+    const normalized = String(role || "").trim().toLowerCase();
+    return normalized === "admin" || normalized === "rm";
+};
+
+const MONEY_KEYWORDS = ["amount", "emi", "cost", "turnover", "income", "need", "loan"];
+
+const sanitizeLoanPayload = (value, key = "") => {
+    if (Array.isArray(value)) {
+        return value.map((item) => sanitizeLoanPayload(item, key));
+    }
+
+    if (value && typeof value === "object" && !(value instanceof Date)) {
+        return Object.entries(value).reduce((acc, [childKey, childValue]) => {
+            const sanitized = sanitizeLoanPayload(childValue, childKey);
+            if (sanitized !== undefined) acc[childKey] = sanitized;
+            return acc;
+        }, {});
+    }
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        const lowerKey = String(key || "").toLowerCase();
+        const looksLikeMoney = MONEY_KEYWORDS.some((token) => lowerKey.includes(token));
+        if (looksLikeMoney) {
+            return trimmed.replace(/[₹,\s]/g, "");
+        }
+        return trimmed;
+    }
+
+    return value;
+};
+
+const normalizeLoanPayload = (payload, existingDoc = null) => {
+    const normalized = sanitizeLoanPayload(payload || {});
+
+    // Keep model identity stable on updates.
+    delete normalized._id;
+    delete normalized.id;
+    delete normalized.createdAt;
+    delete normalized.updatedAt;
+    delete normalized.isDeleted;
+    delete normalized.__v;
+
+    if (existingDoc?.loanId) normalized.loanId = existingDoc.loanId;
+    if (existingDoc?.loanType) normalized.loanType = existingDoc.loanType;
+    if (existingDoc?.status && !Object.prototype.hasOwnProperty.call(normalized, "status")) {
+        normalized.status = existingDoc.status;
+    }
+
+    if (!normalized.applicantName && normalized.applicant_name) normalized.applicantName = normalized.applicant_name;
+    if (!normalized.applicantName && normalized.group_name) normalized.applicantName = normalized.group_name;
+    if (!normalized.applicantName && normalized.members?.length) normalized.applicantName = normalized.members[0]?.name;
+
+    if (!normalized.phone && normalized.phone_no) normalized.phone = normalized.phone_no;
+    if (!normalized.phone && normalized.members?.length) normalized.phone = normalized.members[0]?.phone;
+
+    if (!normalized.amount && normalized.loan_amount) normalized.amount = normalized.loan_amount;
+
+    return normalized;
+};
+
 const buildModelFilter = ({ status, search, startDate, endDate }, modelKey) => {
     const filter = { isDeleted: false };
 
-    if (status && status !== "all") filter.status = status;
+    if (status && status !== "all") {
+        const normalizedStatus = normalizeStatus(status);
+        // If it is a legacy status we map it to the normalized workflow.
+        if (normalizedStatus) {
+            // Include legacy values so older records still match the new UI filter.
+            const legacyStatuses = [];
+            if (normalizedStatus === "Application Received") legacyStatuses.push("Pending");
+            if (normalizedStatus === "Sanctioned") legacyStatuses.push("Approved");
+
+            filter.status = legacyStatuses.length
+                ? { $in: [normalizedStatus, ...legacyStatuses] }
+                : normalizedStatus;
+        } else {
+            filter.status = status;
+        }
+    }
 
     if (search) {
         filter.$or = [
@@ -74,14 +181,15 @@ const toUnifiedListItem = (doc, modelKey) => {
         phone,
         loanAmount: doc.amount || doc.loan_amount || "",
         connectorName: doc.name_of_connector || "",
-        status: doc.status || "Pending",
+        status: normalizeStatus(doc.status) || doc.status || "Application Received",
         createdAt: doc.createdAt,
     };
 };
 
 export const createLoan = async (req, res) => {
     try {
-        const { loanType } = req.body;
+        const sanitizedBody = normalizeLoanPayload(req.body);
+        const { loanType } = sanitizedBody;
 
         const modelInfo = getModelInfo(loanType);
         if (!modelInfo) {
@@ -95,10 +203,17 @@ export const createLoan = async (req, res) => {
 
         // Construct standard fields from fallbacks if needed
         const loanData = {
-            ...req.body,
+            ...sanitizedBody,
             loanId,
             loanType: modelInfo.label
         };
+
+        // Default status for new loans (required by UI).
+        const normalized = normalizeStatus(loanData.status);
+        if (!normalized) {
+            return res.status(400).json({ success: false, message: "Invalid loan status" });
+        }
+        loanData.status = normalized;
 
         // Handle legacy fallbacks automatically for smooth transition
         // Frontend might still be sending applicant_name instead of applicantName
@@ -204,11 +319,14 @@ export const getLoanById = async (req, res) => {
         const found = lookups.find(Boolean);
         if (!found) return res.status(404).json({ success: false, message: "Loan not found" });
 
+        const normalizedData = { ...(found.loan || {}) };
+        normalizedData.status = normalizeStatus(normalizedData.status) || normalizedData.status;
+
         res.json({
             success: true,
             loanType: found.loan.loanType || found.label,
             loanKey: found.key,
-            data: found.loan,
+            data: normalizedData,
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -218,6 +336,9 @@ export const getLoanById = async (req, res) => {
 export const updateLoan = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!canManageLoan(req.userRole)) {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: "Invalid loan id" });
         }
@@ -232,9 +353,69 @@ export const updateLoan = async (req, res) => {
         const found = lookups.find(Boolean);
         if (!found) return res.status(404).json({ success: false, message: "Loan not found" });
 
+        if (!req.body || !Object.keys(req.body).length) {
+            return res.status(400).json({ success: false, message: "No update payload provided" });
+        }
+
+        const payload = normalizeLoanPayload(req.body, found.doc);
+
+        if (payload && Object.prototype.hasOwnProperty.call(payload, "status")) {
+            const normalizedStatus = normalizeStatus(payload.status);
+            if (!normalizedStatus) {
+                return res.status(400).json({ success: false, message: "Invalid loan status" });
+            }
+
+            payload.status = normalizedStatus;
+        }
+
         const updated = await found.Model.findByIdAndUpdate(
             id,
-            req.body,
+            payload,
+            { new: true, runValidators: true }
+        );
+
+        res.json({ success: true, data: updated });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+// Dedicated endpoint for UI status workflow updates (Admin/RM only).
+export const updateLoanStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body || {};
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "Invalid loan id" });
+        }
+        if (!status) {
+            return res.status(400).json({ success: false, message: "Status is required" });
+        }
+
+        const role = String(req.userRole || "").toLowerCase();
+        if (role !== "admin" && role !== "rm") {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
+
+        const normalizedStatus = normalizeStatus(status);
+        if (!normalizedStatus) {
+            return res.status(400).json({ success: false, message: "Invalid loan status" });
+        }
+
+        const lookups = await Promise.all(
+            LOAN_MODELS.map(async ({ Model }) => {
+                const loan = await Model.findOne({ _id: id, isDeleted: false });
+                return loan ? { Model, doc: loan } : null;
+            })
+        );
+
+        const found = lookups.find(Boolean);
+        if (!found) return res.status(404).json({ success: false, message: "Loan not found" });
+
+        const updated = await found.Model.findByIdAndUpdate(
+            id,
+            { status: normalizedStatus },
             { new: true, runValidators: true }
         );
 
@@ -247,6 +428,9 @@ export const updateLoan = async (req, res) => {
 export const deleteLoan = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!canManageLoan(req.userRole)) {
+            return res.status(403).json({ success: false, message: "Access denied" });
+        }
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: "Invalid loan id" });
         }
@@ -264,6 +448,126 @@ export const deleteLoan = async (req, res) => {
         await found.Model.findByIdAndUpdate(id, { isDeleted: true });
         res.json({ success: true, message: "Loan deleted successfully" });
     } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getDashboardStats = async (req, res) => {
+    try {
+        // --- Per-type stats ---
+        const typeStats = await Promise.all(
+            LOAN_MODELS.map(async ({ key, label, Model }) => {
+                const filter = { isDeleted: false };
+                const [count, amountAgg] = await Promise.all([
+                    Model.countDocuments(filter),
+                    Model.aggregate([
+                        { $match: filter },
+                        { $project: { amt: { $toDouble: { $ifNull: ["$amount", "$loan_amount", 0] } } } },
+                        { $group: { _id: null, total: { $sum: "$amt" } } }
+                    ])
+                ]);
+                return {
+                    label,
+                    count,
+                    amount: amountAgg[0]?.total || 0
+                };
+            })
+        );
+
+        const totalApplications = typeStats.reduce((s, t) => s + t.count, 0);
+        const totalAmount = typeStats.reduce((s, t) => s + t.amount, 0);
+
+        const typeWise = {};
+        typeStats.forEach(({ label, count, amount }) => {
+            typeWise[label] = { count, amount };
+        });
+
+        // --- 12-month trend ---
+        const now = new Date();
+        const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+        const monthlyTrend = await Promise.all(
+            LOAN_MODELS.map(async ({ Model }) => {
+                return Model.aggregate([
+                    { $match: { isDeleted: false, createdAt: { $gte: twelveMonthsAgo } } },
+                    {
+                        $group: {
+                            _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                            count: { $sum: 1 },
+                            amount: { $sum: { $toDouble: { $ifNull: ["$amount", "$loan_amount", 0] } } }
+                        }
+                    }
+                ]);
+            })
+        );
+
+        // Merge all model monthly data
+        const monthMap = {};
+        monthlyTrend.flat().forEach(({ _id, count, amount }) => {
+            const key = `${_id.year}-${String(_id.month).padStart(2, "0")}`;
+            if (!monthMap[key]) monthMap[key] = { count: 0, amount: 0, year: _id.year, month: _id.month };
+            monthMap[key].count += count;
+            monthMap[key].amount += amount;
+        });
+
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const monthly = [];
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            monthly.push({
+                month: monthNames[d.getMonth()],
+                year: d.getFullYear(),
+                applications: monthMap[key]?.count || 0,
+                amount: monthMap[key]?.amount || 0
+            });
+        }
+
+        // --- Recent 5 applications (across all models) ---
+        const recentDocs = await Promise.all(
+            LOAN_MODELS.map(async ({ key, Model }) => {
+                const docs = await Model.find({ isDeleted: false })
+                    .sort({ createdAt: -1 })
+                    .limit(5)
+                    .lean();
+                return docs.map(d => toUnifiedListItem(d, key));
+            })
+        );
+        const recentApplications = recentDocs
+            .flat()
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5);
+
+        // --- Lead stats ---
+        const [totalLeads, leadsBySource] = await Promise.all([
+            Lead.countDocuments(),
+            Lead.aggregate([{ $group: { _id: "$leadSource", count: { $sum: 1 } } }])
+        ]);
+        const leadSource = {};
+        leadsBySource.forEach(({ _id, count }) => { leadSource[_id || "Unknown"] = count; });
+
+        // --- User stats ---
+        const usersByRole = await User.aggregate([
+            { $group: { _id: "$role", count: { $sum: 1 } } }
+        ]);
+        const userRoles = {};
+        usersByRole.forEach(({ _id, count }) => { userRoles[_id || "Unknown"] = count; });
+        const totalUsers = usersByRole.reduce((s, r) => s + r.count, 0);
+
+        res.json({
+            success: true,
+            data: {
+                totalApplications,
+                totalAmount,
+                typeWise,
+                monthly,
+                recentApplications,
+                leads: { total: totalLeads, bySource: leadSource },
+                users: { total: totalUsers, byRole: userRoles }
+            }
+        });
+    } catch (error) {
+        console.error("Dashboard stats error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { del } from "idb-keyval";
-import { useCreatePersonalLoan } from "@/hooks/loans/usePersonalLoan";
+import { useRouter } from "next/navigation";
+import { useCreatePersonalLoan, useUpdatePersonalLoan } from "@/hooks/loans/usePersonalLoan";
 import FormInstructions from "@/components/common/FormInstructions";
 import { LoanWizardFrame } from "@/components/forms/loans/LoanWizardFrame";
 import { Briefcase, Building2, CheckCircle2, FileText, Home, Upload, UserRound, Users as UsersIcon } from "lucide-react";
@@ -20,15 +21,22 @@ import { ReferenceDetails } from "./steps/ReferenceDetails";
 import { DocumentsUpload } from "./steps/DocumentsUpload";
 import { ReviewSubmit } from "./steps/ReviewSubmit";
 
-export function PersonalLoanForm() {
+export function PersonalLoanForm({ mode = "create", loanId = null, initialValues = null }) {
+    const router = useRouter();
     const createLoanMutation = useCreatePersonalLoan();
+    const updateLoanMutation = useUpdatePersonalLoan();
+    const isEditMode = mode === "edit" && Boolean(loanId);
 
-    const [loanHistory, setLoanHistory] = useState([{
+    const defaultLoanHistory = [{
         loan_provider_bank: "",
         total_loan_amount: "",
         current_emi: "",
         remaining_amount: "",
-    }]);
+    }];
+    const initialLoanHistory = useMemo(() => (
+        initialValues?.loanHistory?.length ? initialValues.loanHistory : defaultLoanHistory
+    ), [initialValues]);
+    const [loanHistory, setLoanHistory] = useState(initialLoanHistory);
 
     const formSteps = [
         { id: "instructions", title: "Instruction" },
@@ -41,7 +49,7 @@ export function PersonalLoanForm() {
         { id: "review_submit", title: "Review & Submit" },
     ];
 
-    const initialData = {
+    const baseInitialData = {
         folderName: "", loan_amount: "", id_of_connector: "", name_of_connector: "", purpose_of_loan: "",
         applicant_name: "", fathers_name: "", mothers_name: "", phone_no: "", alt_phone_no: "", email: "",
         pan: "", aadhar: "", dob: "", marital_status: "Unmarried", spouse_name: "",
@@ -61,6 +69,13 @@ export function PersonalLoanForm() {
             { name: "", relation: "", phone: "", village: "", street: "", district: "", pincode: "", profession: "" },
         ],
     };
+    const mergedInitialData = useMemo(() => ({ ...baseInitialData, ...(initialValues || {}) }), [initialValues]);
+    const activeMutation = isEditMode
+        ? {
+            ...updateLoanMutation,
+            mutate: (data, options) => updateLoanMutation.mutate({ id: loanId, data }, options),
+        }
+        : createLoanMutation;
 
     const stepFields = {
         0: [],
@@ -91,11 +106,11 @@ export function PersonalLoanForm() {
         handleFinalSubmit,
         handleFileChange,
     } = useLoanForm({
-        initialData,
+        initialData: mergedInitialData,
         validateFields,
         validateAllFields,
         stepFields,
-        mutation: createLoanMutation,
+        mutation: activeMutation,
         persistenceKey: "personalLoanForm",
         folderPrefix: "personalloan",
         fileFields: [
@@ -105,6 +120,12 @@ export function PersonalLoanForm() {
         ],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },
+        persistenceEnabled: !isEditMode,
+        onSuccess: () => {
+            if (isEditMode) {
+                router.push(`/dashboard/loans/${loanId}`);
+            }
+        },
     });
 
     const handleFieldChange = (fieldName, value) => {
@@ -151,8 +172,8 @@ export function PersonalLoanForm() {
         if (typeof window !== "undefined") {
             window.localStorage.removeItem("personalLoanForm");
         }
-        setFormData(initialData);
-        setLoanHistory([{ loan_provider_bank: "", total_loan_amount: "", current_emi: "", remaining_amount: "" }]);
+        setFormData(mergedInitialData);
+        setLoanHistory(initialLoanHistory);
         setErrors({});
         setStep(0);
     };
@@ -196,10 +217,10 @@ export function PersonalLoanForm() {
             onSubmit={handlePersonalSubmit}
             isLastStep={step === formSteps.length - 1}
             nextDisabled={!isCurrentStepValid}
-            submitDisabled={isSubmitting || createLoanMutation.isPending}
-            navDisabled={isSubmitting || createLoanMutation.isPending}
-            submitLabel={createLoanMutation.isPending ? "Submitting..." : "Submit Application"}
-            loadingOpen={isSubmitting || createLoanMutation.isPending}
+            submitDisabled={isSubmitting || activeMutation.isPending}
+            navDisabled={isSubmitting || activeMutation.isPending}
+            submitLabel={activeMutation.isPending ? (isEditMode ? "Updating..." : "Submitting...") : (isEditMode ? "Update Loan" : "Submit Application")}
+            loadingOpen={isSubmitting || activeMutation.isPending}
             successOpen={openSuccess}
             onSuccessOpenChange={setOpenSuccess}
         >

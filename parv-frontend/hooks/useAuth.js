@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useUserState } from "@/app/dashboard/store";
+import { useAuth as useAuthContext } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import api from "@/api/api";
 
@@ -11,35 +12,27 @@ export function useLogin() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const userState = useUserState();
+  const auth = useAuthContext();
 
   return useMutation({
     mutationFn: async ({ username, password }) => {
-      const response = await api.post("/auth/login", { username, password });
-      if (response.error) {
-        throw new Error(response.error);
+      const result = await auth.login(username, password);
+      if (!result?.success) {
+        throw new Error(result?.message || "Login failed");
       }
-
-      return response;
+      return result;
     },
-    onSuccess: (data) => {
-      // Store token
-      if (typeof window !== "undefined" && data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
+    onSuccess: ({ user }) => {
       // Update user state
-      userState.setUser({ role: data.role, username: data.username });
+      userState.setUser({ role: user?.role, username: user?.username });
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ["user"] });
 
       toast.success("Login successful!");
 
-      console.log("Date", data?.data?.data?.user);
-
-
       // Redirect based on role
-      switch (data?.data?.data?.user?.role) {
+      switch (user?.role) {
         case "Admin":
           router.push("/dashboard/");
           break;

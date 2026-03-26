@@ -46,7 +46,7 @@ export const useUpdateGoldLoan = () => {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.detail(variables.id) });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
-            toast.success("Gold loan updated successfully!");
+            toast.success("Loan updated successfully");
         },
         onError: (error) => {
             toast.error(error.response?.data?.message || "Failed to update gold loan");

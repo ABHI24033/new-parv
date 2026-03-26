@@ -1,23 +1,27 @@
 "use client";
 
 import api from "@/api/api";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Prevent stale /auth/me results from overwriting a successful login.
+  const authRequestId = useRef(0);
 
   // Load current user on page reload
   const loadUser = async () => {
+    const requestId = ++authRequestId.current;
     try {
       const res = await api.get("/auth/me");
       setUser(res.data.data);
     } catch {
       setUser(null);
+    } finally {
+      if (requestId === authRequestId.current) setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -26,23 +30,36 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (username, password) => {
+    const requestId = ++authRequestId.current;
+    setLoading(true);
     try {
       const res = await api.post("/auth/login", { username, password });
 
+      if (typeof window !== "undefined" && res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
       setUser(res.data.data.user);
-      return { success: true };
+      return { success: true, user: res.data.data.user };
     } catch (err) {
+      setUser(null);
       return {
         success: false,
         message: err.response?.data?.message || "Login failed"
       };
+    } finally {
+      if (requestId === authRequestId.current) setLoading(false);
     }
   };
 
   // Logout function
   const logout = async () => {
+    const requestId = ++authRequestId.current;
+    setLoading(true);
     await api.post("/auth/logout");
     setUser(null);
+    if (typeof window !== "undefined") localStorage.removeItem("token");
+    if (requestId === authRequestId.current) setLoading(false);
   };
 
   return (
