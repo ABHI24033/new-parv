@@ -141,30 +141,30 @@ export default function DSATable({
 
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>
-                                                    <Link href={`/dashboard/dsa/profile?userId=${user._id}`} className="flex items-center gap-2">
+                                                    <Link href={`/dashboard/dsa/profile?username=${user.username}`} className="flex items-center gap-2">
                                                         <User />
                                                         View
                                                     </Link>
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem>
-                                                    <Link href={`/dashboard/admin/edit/profile/${user._id}`} className="flex items-center gap-2">
+                                                    <Link href={`/dashboard/dsa/edit/profile/${user._id}`} className="flex items-center gap-2">
                                                         <Edit2 />
                                                         Edit
                                                     </Link>
                                                 </DropdownMenuItem>
 
-                                                <DropdownMenuItem 
-                                                onClick={()=>onSoftDelete(user?._id)}
-                                                className="text-red-500 hover:bg-red-100 flex items-center gap-2 hover:text-gray-800 cursor-pointer">
-                                                    <Trash className="text-red-500 hover:bg-red-100 hover:text-gray-800"/>
+                                                <DropdownMenuItem
+                                                    onClick={() => onSoftDelete(user?._id)}
+                                                    className="text-red-500 hover:bg-red-100 flex items-center gap-2 hover:text-gray-800 cursor-pointer">
+                                                    <Trash className="text-red-500 hover:bg-red-100 hover:text-gray-800" />
                                                     Remove
                                                 </DropdownMenuItem>
 
-                                                <DropdownMenuItem 
-                                                onClick={()=>onHardDelete(user?._id)}
-                                                className="text-red-600 hover:bg-red-100 flex items-center gap-2 hover:text-gray-800 cursor-pointer">
-                                                    <Trash2  className="text-red-600 hover:bg-red-100 hover:text-gray-800"/>
+                                                <DropdownMenuItem
+                                                    onClick={() => onHardDelete(user?._id)}
+                                                    className="text-red-600 hover:bg-red-100 flex items-center gap-2 hover:text-gray-800 cursor-pointer">
+                                                    <Trash2 className="text-red-600 hover:bg-red-100 hover:text-gray-800" />
                                                     Permanently Delete
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>

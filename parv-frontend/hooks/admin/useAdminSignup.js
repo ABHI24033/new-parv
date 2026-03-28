@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { validateAllFields } from "@/app/dsa/apply/formValidation";
+import { validateAllFields } from "@/app/dashboard/admin/signup/formValidation";
 import useImageUpload, { useImageRemove } from "@/api/imageUpload";
 import { createDSAAccountAPI } from "@/api/dsa";
 
@@ -55,7 +55,7 @@ export default function useAdminSignup() {
         const savedForm = localStorage.getItem("admin_form_data");
         if (savedForm) {
             try {
-                setForm(JSON.parse(savedForm));
+                setForm((prev) => ({ ...prev, ...JSON.parse(savedForm) }));
             } catch (e) {
                 console.error("Failed to parse saved form data", e);
             }
@@ -199,10 +199,15 @@ export default function useAdminSignup() {
             setErrors(validation);
             const first = Object.keys(validation)[0];
             document.getElementById(first)?.focus();
-            return;
+            return {
+                ok: false,
+                firstErrorField: first,
+                errors: validation,
+            };
         }
 
         mutation.mutate(form);
+        return { ok: true };
     };
 
     const handleReset = async () => {

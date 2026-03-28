@@ -10,6 +10,7 @@ import {
   getFieldStaffData,
   getDSADashboardData,
   createEmployee,
+  updateUserApprovalStatus,
   updateEmployee,
   deleteEmployee,
   hardDeleteEmployee
@@ -33,6 +34,7 @@ router.get('/loans', checkAuthentication, getLoanDataByType);
 router.get('/dashboard/:connectorId', checkAuthentication, getDSADashboardData);
 
 router.put("/:id", updateEmployee);
+router.patch("/:id/status", updateUserApprovalStatus);
 
 // Optional
 router.patch("/soft-delete/:id", deleteEmployee);

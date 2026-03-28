@@ -141,7 +141,7 @@ export default function FieldStaffTable({
 
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>
-                                                    <Link href={`/dashboard/dsa/profile?userId=${user._id}`} className="flex items-center gap-2">
+                                                    <Link href={`/dashboard/field-staff/profile?userId=${user.username}`} className="flex items-center gap-2">
                                                         <User />
                                                         View
                                                     </Link>

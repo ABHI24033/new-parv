@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import LeadForm from "@/components/Lead/LeadForm";
-import LeadsTable from "@/components/Lead/LeadTable";
+import LeadsTable from "@/components/Lead/LeadTableNew";
 import {
     Dialog,
     DialogContent,

@@ -1,6 +1,7 @@
 "use client";
 
 import api from "@/api/api";
+import { useUserState } from "@/app/dashboard/store";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const AuthContext = createContext();
@@ -8,6 +9,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const dashboardStore = useUserState();
   // Prevent stale /auth/me results from overwriting a successful login.
   const authRequestId = useRef(0);
 
@@ -16,9 +18,16 @@ export const AuthProvider = ({ children }) => {
     const requestId = ++authRequestId.current;
     try {
       const res = await api.get("/auth/me");
-      setUser(res.data.data);
+      const currentUser = res.data.data;
+      setUser(currentUser);
+      dashboardStore.setProfile(currentUser || {});
+      dashboardStore.setUser(
+        currentUser ? { role: currentUser.role, username: currentUser.username } : {}
+      );
     } catch {
       setUser(null);
+      dashboardStore.setProfile({});
+      dashboardStore.setUser({});
     } finally {
       if (requestId === authRequestId.current) setLoading(false);
     }
@@ -40,9 +49,16 @@ export const AuthProvider = ({ children }) => {
       }
 
       setUser(res.data.data.user);
+      dashboardStore.setProfile(res.data.data.user || {});
+      dashboardStore.setUser({
+        role: res.data.data.user?.role,
+        username: res.data.data.user?.username,
+      });
       return { success: true, user: res.data.data.user };
     } catch (err) {
       setUser(null);
+      dashboardStore.setProfile({});
+      dashboardStore.setUser({});
       return {
         success: false,
         message: err.response?.data?.message || "Login failed"
@@ -58,6 +74,8 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     await api.post("/auth/logout");
     setUser(null);
+    dashboardStore.setProfile({});
+    dashboardStore.setUser({});
     if (typeof window !== "undefined") localStorage.removeItem("token");
     if (requestId === authRequestId.current) setLoading(false);
   };

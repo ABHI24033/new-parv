@@ -21,14 +21,40 @@ export const createLead = async (req, res) => {
   }
 };
 
-// Get leads with pagination
+// Get leads with pagination, search, and filters
 export const getLeads = async (req, res) => {
   try {
-    const { pageSize = 10, currentPage = 1, month, year } = req.query;
+    const { 
+      pageSize = 10, 
+      currentPage = 1, 
+      month, 
+      year, 
+      search, 
+      loanProduct, 
+      leadStatus 
+    } = req.query;
+    
     const skip = (parseInt(currentPage) - 1) * parseInt(pageSize);
     
     // Build query
     const query = {};
+    
+    if (search) {
+      query.$or = [
+        { leadName: { $regex: search, $options: "i" } },
+        { contactNo: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (loanProduct && loanProduct !== "all") {
+      query.loanProduct = loanProduct;
+    }
+
+    if (leadStatus && leadStatus !== "all") {
+      query.leadStatus = leadStatus;
+    }
+
     if (month && year) {
       query.monthYear = `${year}-${month.padStart(2, '0')}`;
     } else if (month) {
@@ -37,19 +63,21 @@ export const getLeads = async (req, res) => {
       query.monthYear = new RegExp(`^${year}-`);
     }
 
+    const total = await Lead.countDocuments(query);
     const leads = await Lead.find(query)
       .sort({ createdAt: -1 }) // Newest first
       .skip(skip)
       .limit(parseInt(pageSize));
 
-    const total = await Lead.countDocuments(query);
-
     res.status(200).json({
       success: true,
       data: leads,
-      total,
-      currentPage: parseInt(currentPage),
-      totalPages: Math.ceil(total / parseInt(pageSize)),
+      pagination: {
+        totalCount: total,
+        currentPage: parseInt(currentPage),
+        totalPages: Math.ceil(total / parseInt(pageSize)),
+        limit: parseInt(pageSize),
+      },
     });
   } catch (error) {
     console.error("Error fetching leads:", error);

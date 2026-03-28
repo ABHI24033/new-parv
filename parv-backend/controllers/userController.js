@@ -119,20 +119,55 @@ export const createEmployee = async (req, res) => {
   }
 };
 
+const ALLOWED_USER_STATUSES = new Set(["pending", "approved", "rejected"]);
+
+const updateUserStatusRecord = async ({ userId, status, remarks }) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return { notFound: true };
+  }
+
+  if (!ALLOWED_USER_STATUSES.has(status)) {
+    return { invalidStatus: true };
+  }
+
+  user.status = status;
+  user.approvedAt = status === "approved" ? new Date() : null;
+  if (typeof remarks === "string") {
+    user.reviewRemarks = remarks.trim();
+  }
+  await user.save();
+
+  return { user };
+};
+
 // Approve DSA Form 
 export const approveDSAForm = async (req, res) => {
   try {
     const { formId } = req.params;
-    const { status } = req.body;
+    const nextStatus = req.body?.status || "approved";
+    const result = await updateUserStatusRecord({
+      userId: formId,
+      status: nextStatus,
+      remarks: req.body?.remarks,
+    });
 
-    const user = await User.findById(formId);
-
-    if (!user) {
+    if (result?.notFound) {
       return res.status(404).json({
         success: false,
         message: 'DSA not found'
       });
     }
+
+    if (result?.invalidStatus) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid DSA status'
+      });
+    }
+
+    const { user } = result;
 
     if (!user.email || !user.password || !user.username) {
       return res.status(400).json({
@@ -141,10 +176,13 @@ export const approveDSAForm = async (req, res) => {
       });
     }
 
-    // Update status
-    user.status = status || 'approved';
-    user.approvedAt = new Date();
-    await user.save();
+    if (user.status !== "approved") {
+      return res.status(200).json({
+        success: true,
+        message: `DSA ${formId} marked as ${user.status}`,
+        data: user
+      });
+    }
 
     // Send approval email
     const mailRes = await sendMail('dsa_approved', {
@@ -157,13 +195,15 @@ export const approveDSAForm = async (req, res) => {
     if (mailRes?.err) {
       return res.status(200).json({
         success: true,
-        message: `DSA ${formId} approved but email failed`
+        message: `DSA ${formId} approved but email failed`,
+        data: user
       });
     }
 
     res.status(200).json({
       success: true,
-      message: `DSA ${formId} approved successfully`
+      message: `DSA ${formId} approved successfully`,
+      data: user
     });
 
   } catch (error) {
@@ -171,6 +211,64 @@ export const approveDSAForm = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to approve DSA',
+      error: error.message
+    });
+  }
+};
+
+export const updateUserApprovalStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, remarks } = req.body || {};
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required"
+      });
+    }
+
+    const result = await updateUserStatusRecord({
+      userId: id,
+      status,
+      remarks,
+    });
+
+    if (result?.notFound) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    if (result?.invalidStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user status"
+      });
+    }
+
+    const { user } = result;
+
+    if (user.status === "approved" && user.email && user.username && user.password) {
+      await sendMail('dsa_approved', {
+        email: user.email,
+        fullName: user.full_name || "User",
+        username: user.username,
+        password: user.password
+      }, "DSA Approval Successful");
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `User status updated to ${user.status}`,
+      data: user
+    });
+  } catch (error) {
+    console.error("Update user status error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update user status",
       error: error.message
     });
   }

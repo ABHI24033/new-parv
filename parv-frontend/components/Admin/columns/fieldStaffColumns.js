@@ -54,7 +54,7 @@ export const fieldStaffColumns = [
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/field-staff/profile?username=${row.original.username}&role=FieldStaff`} className="flex items-center gap-2"><Eye className="h-4 w-4" /> View</Link>
+                        <Link href={`/dashboard/field-staff/profile?userId=${row.original._id}`} className="flex items-center gap-2"><Eye className="h-4 w-4" /> View</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href={`/dashboard/admin/profile/edit?username=${row.original.username}&role=FieldStaff`} className="flex items-center gap-2"><Pencil className="h-4 w-4" /> Edit</Link>

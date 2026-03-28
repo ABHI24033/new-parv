@@ -114,6 +114,11 @@ const userSchema = new mongoose.Schema({
   },
   approvedAt: {
     type: Date
+  },
+  reviewRemarks: {
+    type: String,
+    trim: true,
+    default: ""
   }
 }, {
   timestamps: true

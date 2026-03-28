@@ -26,16 +26,27 @@ export function useAddLead() {
 }
 
 /**
- * Hook to get leads with pagination
+ * Hook to get leads with pagination and filters
  */
-export function useGetLeads(pageSize = 10, startAfterDocId = null, currentPage = 1, month = null, year = null) {
+export function useGetLeads({ 
+  pageSize = 10, 
+  currentPage = 1, 
+  month = null, 
+  year = null,
+  search = "",
+  loanProduct = "all",
+  leadStatus = "all"
+}) {
   return useQuery({
-    queryKey: ["leads", "list", pageSize, startAfterDocId, currentPage, month, year],
+    queryKey: ["leads", "list", pageSize, currentPage, month, year, search, loanProduct, leadStatus],
     queryFn: async () => {
       const params = { pageSize, currentPage };
-      if (startAfterDocId) params.startAfterDocId = startAfterDocId;
       if (month) params.month = month;
       if (year) params.year = year;
+      if (search) params.search = search;
+      if (loanProduct && loanProduct !== "all") params.loanProduct = loanProduct;
+      if (leadStatus && leadStatus !== "all") params.leadStatus = leadStatus;
+      
       const res = await api.get("/leads", { params });
       return res.data;
     },

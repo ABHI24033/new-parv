@@ -188,23 +188,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { AppSidebar } from "@/components/common/app-sidebar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/common/Header";
 import Spinner from "@/components/common/Spinners";
 
-import { Bell, LogOut, HomeIcon, User2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Layout = ({ children }) => {
-  const { user, logout, loading } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const [segments, setSegments] = useState([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -212,103 +203,22 @@ const Layout = ({ children }) => {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    const parts = window.location.pathname.split("/").filter(Boolean);
-    setSegments(parts);
-  }, []);
-
   if (loading || !user) return <Spinner />;
 
-  const initials =
-    user?.full_name
-      ?.split(" ")
-      .slice(0, 2)
-      .map((w) => w[0])
-      .join("") || "U";
-
   return (
-    <div className="flex">
+    <div className="flex bg-slate-50 min-h-screen">
       <SidebarProvider>
         <AppSidebar />
 
-        <SidebarInset>
-          {/* Header */}
-          <header className="flex h-16 border-b items-center justify-between px-4">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="h-4" />
-
-              <Breadcrumb className="hidden md:flex">
-                <BreadcrumbList>
-                  {segments.map((segment, idx) => (
-                    <div key={idx} className="flex items-center">
-                      {idx > 0 && <BreadcrumbSeparator />}
-                      <BreadcrumbPage className="capitalize">
-                        {segment}
-                      </BreadcrumbPage>
-                    </div>
-                  ))}
-                </BreadcrumbList>
-              </Breadcrumb>
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-4">
-              <NotificationBell />
-
-              <Popover>
-                <PopoverTrigger>
-                  <Avatar className="w-10 h-10 bg-gray-800 cursor-pointer">
-                    {
-                      user?.photo ?
-                        <>
-                          <AvatarImage src={user?.photo} alt="user profile picture" />
-                        </>
-                        :
-                        <AvatarFallback className="bg-gray-700 text-white">
-                          {initials}
-                        </AvatarFallback>
-                    }
-                  </Avatar>
-                </PopoverTrigger>
-
-                <PopoverContent className="w-52 space-y-2">
-                  <div className="border-b pb-2">
-                    <p className="text-sm font-medium">{user?.full_name}</p>
-                    <p className="text-xs text-gray-500">
-                      {user?.username}
-                    </p>
-                  </div>
-
-                  <Link
-                    href="/"
-                    className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    <HomeIcon size={16} /> Home
-                  </Link>
-
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100"
-                  >
-                    <User2 size={16} /> Profile
-                  </Link>
-
-                  <Button
-                    onClick={logout}
-                    className="w-full flex items-center gap-2"
-                  >
-                    <LogOut size={16} /> Logout
-                  </Button>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </header>
+        <SidebarInset className="bg-slate-50 flex flex-col">
+          <Header />
 
           {/* Page Content */}
-          <Suspense fallback={<Spinner />}>
-            {children}
-          </Suspense>
+          <main className="flex-1 p-4 md:p-6">
+            <Suspense fallback={<Spinner />}>
+              {children}
+            </Suspense>
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </div>

@@ -39,8 +39,9 @@ export const userCreationSchema = z.object({
         .refine(isValidPhone, "Invalid Phone Number (10 digits required)."),
     alt_phone_no: z
         .string()
-        .min(1, "Alternate Phone Number is required.") // Marked as required in config
-        .refine(isValidPhone, "Invalid Alternate Phone Number (10 digits required)."),
+        .optional()
+        .or(z.literal(""))
+        .refine((val) => !val || isValidPhone(val), "Invalid Alternate Phone Number (10 digits required)."),
     email: z
         .string()
         .min(1, "Email is required.")
@@ -58,17 +59,16 @@ export const userCreationSchema = z.object({
 
     // Job Specific
     designation: z.string().min(1, "Designation is required."),
-    date_of_joining: z.string().min(1, "Date of Joining is required."), // Even if disabled, still required for submission
     work_location: z.string().min(1, "Work Location is required."),
     bank_account_no: z.string().min(1, "Bank Account Number is required."),
     bank_branch: z.string().min(1, "Bank Branch Name is required."),
 
-    // Documents (File objects)
-    aadhar: z.any().refine(val => val instanceof File, "Aadhar document is required."),
-    pan: z.any().refine(val => val instanceof File, "PAN document is required."),
-    photo: z.any().refine(val => val instanceof File, "Photo is required."),
-    bank_doc: z.any().refine(val => val instanceof File, "Passbook photo/Cancelled Cheque is required."),
-    education_certificate: z.any().refine(val => val instanceof File, "Education Certificate is required."),
+    // Uploaded document URLs
+    aadhar: z.string().min(1, "Aadhar document is required."),
+    pan: z.string().min(1, "PAN document is required."),
+    photo: z.string().min(1, "Photo is required."),
+    bank_doc: z.string().optional().or(z.literal("")),
+    education_certificate: z.string().optional().or(z.literal("")),
 });
 
 /**

@@ -18,41 +18,28 @@ import Link from "next/link";
 export function AppSidebar({ ...props }) {
   const userState = useUserState();
   const pathname = usePathname();
-  let roleData = {};
-
-  // switch (userState.profile?.role) {
-  //   case "Admin":
-  roleData = AdminSidebar;
-  //     break;
-  //   case "RM":
-  //     roleData = RMSidebar;
-  //     break;
-  //   case "DSA":
-  //     roleData = DSASidebar;
-  //     break;
-  //   case "Telecaller":
-  //     roleData = TelecallerSidebar;
-  //     break;
-  //   case "Field Staff":
-  //     roleData = FieldStaffSidebar;
-  //     break;
-  // }
+  let roleData = AdminSidebar; // Default to Admin for now or use switch logic if roles are ready
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <div className="w-full flex flex-row items-center justify-start p-2">
-        <Link href={'/'}>
-          <div className="gap-2 flex flex-row justify-start items-center overflow-hidden w-fit">
-            <img src="/logo/PAR2.png" alt="Logo" className="w-10 aspect-square" />
-            <h2 className="min-w-max">Parv Financial Service</h2>
+    <Sidebar collapsible="icon" className="border-r border-slate-100 shadow-sm" {...props}>
+      <div className="flex h-16 items-center px-4 mb-2">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform duration-300">
+            <img src="/logo/PAR2.png" alt="Parv" className="w-7 h-7 object-contain brightness-0 invert" />
+          </div>
+          <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
+            <span className="text-base font-bold text-slate-900 leading-tight">Parv Financial</span>
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Services Pvt Ltd</span>
           </div>
         </Link>
       </div>
-      <SidebarContent>
-        <NavProjects projects={roleData?.projects} pathname={pathname} />
+
+      <SidebarContent className="px-2 pb-4 pt-2">
         <NavMain items={roleData?.navMain} pathname={pathname} />
+        <NavProjects projects={roleData?.projects} pathname={pathname} />
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="p-2 border-t border-slate-50">
         <NavUser user={userState?.profile} />
       </SidebarFooter>
       <SidebarRail />

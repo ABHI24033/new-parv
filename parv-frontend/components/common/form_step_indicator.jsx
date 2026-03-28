@@ -23,7 +23,7 @@ const Icons = ({ active, completed }) => {
 
 const FormStepIndicator = ({ keys, step }) => {
   return (
-    <div className="w-full max-w-4xl mx-auto mb-12">
+    <div className="mb-12 w-full">
       <div className="flex items-center justify-between relative">
         {/* Background Line */}
         <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-100 -z-10" />
@@ -43,7 +43,7 @@ const FormStepIndicator = ({ keys, step }) => {
               <Icons active={isActive} completed={isCompleted} />
               <div className="flex flex-col items-center">
                 <span className={`
-                  text-xs md:text-sm font-bold transition-all duration-300 tracking-tight
+                  text-sm md:text-base font-bold transition-all duration-300 tracking-tight
                   ${isActive ? 'text-blue-700 scale-110' : isCompleted ? 'text-gray-900' : 'text-gray-400'}
                 `}>
                   {key}

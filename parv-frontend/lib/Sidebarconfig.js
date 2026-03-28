@@ -1,7 +1,7 @@
 // lib/sidebar-configs.js
 "use client"; // This file can be used on the client side for imports
 
-import { ClipboardList } from "lucide-react";
+import { Bell, ClipboardList } from "lucide-react";
 import { ClipboardListIcon } from "lucide-react";
 import { Users2 } from "lucide-react";
 import { Users } from "lucide-react";
@@ -191,11 +191,11 @@ export const AdminSidebar = {
       url: "/dashboard/admin/signup",
       icon: UserPlus2Icon,
     },
-    // {
-    //   title: "Blogs",
-    //   url: "/dashboard/admin/blogs",
-    //   icon: LucideNotebookPen,
-    // },
+    {
+      title: "Notifications",
+      url: "/dashboard/admin/notifications",
+      icon: Bell,
+    },
     // {
     //   title: "Testimonials",
     //   url: "/dashboard/admin/testimonials",

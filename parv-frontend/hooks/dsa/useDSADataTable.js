@@ -28,6 +28,8 @@ async function fetchDSAList({ pageParam = null, queryKey }) {
    FETCH SINGLE DSA
 ───────────────────────────── */
 async function fetchDSADetails(id) {
+  console.log("hello testing");
+
   const res = await api.get(`users/${id}`);
   return res.data;
 }
