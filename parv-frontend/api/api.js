@@ -44,7 +44,6 @@ api.interceptors.response.use(
         console.log("Refresh token failed, logging out...");
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
-          window.location.href = "/login";
         }
       }
     }

@@ -199,6 +199,7 @@ import Spinner from "@/components/common/Spinners";
 
 import { Bell, LogOut, HomeIcon, User2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Layout = ({ children }) => {
   const { user, logout, loading } = useAuth();
@@ -253,7 +254,7 @@ const Layout = ({ children }) => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-4">
-              <Bell className="cursor-pointer" />
+              <NotificationBell />
 
               <Popover>
                 <PopoverTrigger>

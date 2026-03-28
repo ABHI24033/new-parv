@@ -10,9 +10,15 @@ const LoanEnquirySchema = new mongoose.Schema({
   phone: { type: String, default: "" },
   whatsappNo: { type: String, default: "" },
   email: { type: String, default: "" },
+  address: { type: String, default: "" },
   city: { type: String, default: "" },
   pincode: { type: String, default: "" },
   source: { type: String, default: "" },
+  documents: [{
+    name: String,
+    url: String,
+    type: String
+  }],
 
   createdAt: { type: Date, default: Date.now },
   status: {
