@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import api from "@/api/api";
 import { useUserState } from "@/app/dashboard/store";
+import { useAuth } from "@/context/AuthContext";
 import ModernProfile from "@/components/profile/ModernProfile";
 import Spinner from "@/components/common/Spinners";
 import { useDSADetails } from "@/hooks/dsa/useDSADataTable";
@@ -27,14 +28,14 @@ const STATUS_OPTIONS = [
 export default function Profile() {
   const searchParam = useSearchParams();
   const { profile } = useUserState();
-  console.log("profile", profile);
-  const queryUserId = searchParam.get("username");
-  const id = queryUserId || profile?._id;
-  const isAdminViewer = profile?.role === "Admin" && !!queryUserId;
+  const { user: authUser } = useAuth();
+  const queryUsername = searchParam.get("username") || searchParam.get("userId");
+  const username = queryUsername || profile?.username || authUser?.username;
+  const isAdminViewer = (profile?.role || authUser?.role) === "Admin" && !!queryUsername;
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const { data, isLoading, isError } = useDSADetails(id);
+  const { data, isLoading, isError } = useDSADetails(username);
   const user = data?.data;
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function Profile() {
     }
   };
 
-  if (!id) return <div className="flex h-96 items-center justify-center"><Spinner /></div>;
+  if (!username) return <div className="flex h-96 items-center justify-center"><Spinner /></div>;
 
   if (isLoading) return <div className="flex h-96 items-center justify-center"><Spinner /></div>;
   if (isError || !user) return <div className="p-10 text-center text-red-500 font-bold">Failed to load profile.</div>;
@@ -98,7 +99,7 @@ export default function Profile() {
 
   return (
     <div className="bg-slate-50 min-h-screen pt-4">
-      <ModernProfile data={user} isOwnProfile={false} headerActions={approvalActions} />
+      <ModernProfile data={user} isOwnProfile={!isAdminViewer} headerActions={approvalActions} />
       <Toaster position="top-right" />
     </div>
   );

@@ -11,14 +11,29 @@ import { usePathname } from "next/navigation";
 import { NavMain } from "./nav_main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
-import { AdminSidebar } from "@/lib/Sidebarconfig";
-// import { AdminSidebar, DSASidebar, FieldStaffSidebar, RMSidebar, TelecallerSidebar } from "@/lib/Sidebarconfig";
+import { 
+  AdminSidebar, 
+  DSASidebar, 
+  FieldStaffSidebar, 
+  RMSidebar, 
+  TelecallerSidebar 
+} from "@/lib/Sidebarconfig";
 import Link from "next/link";
 
 export function AppSidebar({ ...props }) {
   const userState = useUserState();
   const pathname = usePathname();
-  let roleData = AdminSidebar; // Default to Admin for now or use switch logic if roles are ready
+  
+  const sidebarConfigs = {
+    Admin: AdminSidebar,
+    DSA: DSASidebar,
+    RM: RMSidebar,
+    Telecaller: TelecallerSidebar,
+    "Field Staff": FieldStaffSidebar,
+  };
+  
+  const role = userState?.user?.role;
+  const roleData = sidebarConfigs[role] || AdminSidebar;
 
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-100 shadow-sm" {...props}>

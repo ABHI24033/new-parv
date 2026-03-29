@@ -27,10 +27,8 @@ async function fetchDSAList({ pageParam = null, queryKey }) {
 /* ─────────────────────────────
    FETCH SINGLE DSA
 ───────────────────────────── */
-async function fetchDSADetails(id) {
-  console.log("hello testing");
-
-  const res = await api.get(`users/${id}`);
+async function fetchDSADetails(username) {
+  const res = await api.get(`users/${username}`);
   return res.data;
 }
 
@@ -89,11 +87,11 @@ export function useDSAList(search = "") {
 /* ─────────────────────────────
    HOOK: SINGLE DSA DETAILS
 ───────────────────────────── */
-export function useDSADetails(id) {
+export function useDSADetails(username) {
   return useQuery({
-    queryKey: ["dsa-details", id],
-    queryFn: () => fetchDSADetails(id),
-    enabled: !!id,
+    queryKey: ["dsa-details", username],
+    queryFn: () => fetchDSADetails(username),
+    enabled: !!username,
     staleTime: 1000 * 60 * 10,
   });
 }

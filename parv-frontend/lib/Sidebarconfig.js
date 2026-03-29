@@ -177,6 +177,11 @@ export const AdminSidebar = {
       icon: HandCoinsIcon,
     },
     {
+      title: "Commissions",
+      url: "/dashboard/commissions",
+      icon: HandCoinsIcon,
+    },
+    {
       title: "Loan Enquiry Data",
       url: "/dashboard/loan-enquiry",
       icon: ClipboardListIcon,
@@ -476,7 +481,7 @@ export const DSASidebar = {
     },
     {
       title: "My Income",
-      url: "/dashboard/dsa/income",
+      url: "/dashboard/commissions",
       icon: HandCoinsIcon,
     },
     {

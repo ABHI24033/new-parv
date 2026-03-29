@@ -1,5 +1,6 @@
 import { FormSectionCard } from "@/components/forms/reusable/FormSectionCard";
 import { FormInput } from "@/components/forms/reusable/FormInput";
+import { ConnectorSelector } from "@/components/forms/reusable/ConnectorSelector";
 
 export function PersonalDetails({ formData, handleFieldChange, errors }) {
     return (
@@ -17,21 +18,10 @@ export function PersonalDetails({ formData, handleFieldChange, errors }) {
                     onChange={(e) => handleFieldChange("loan_amount", e.target.value)}
                     error={errors?.loan_amount}
                 />
-                <FormInput
-                    required
-                    label="Connector ID"
-                    id="id_of_connector"
-                    value={formData.id_of_connector || ""}
-                    onChange={(e) => handleFieldChange("id_of_connector", e.target.value)}
-                    error={errors?.id_of_connector}
-                />
-                <FormInput
-                    required
-                    label="DSA Name"
-                    id="name_of_connector"
-                    value={formData.name_of_connector || ""}
-                    onChange={(e) => handleFieldChange("name_of_connector", e.target.value)}
-                    error={errors?.name_of_connector}
+                <ConnectorSelector 
+                    formData={formData} 
+                    handleFieldChange={handleFieldChange} 
+                    errors={errors} 
                 />
                 <FormInput
                     required

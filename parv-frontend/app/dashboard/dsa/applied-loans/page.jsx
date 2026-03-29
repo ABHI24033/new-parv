@@ -1,191 +1,149 @@
-// // components/LoanTable.tsx
-
-// import React from "react";
-
-// const loanData = [
-//   {
-//     date: "2025-07-13",
-//     name: "John Doe",
-//     phone: "+91-9876543210",
-//     loanId: "LN001",
-//     loanAmount: 100000,
-//     incomeFromLoan: 5000,
-//     loanType: "Business Loan",
-//     status: "Approved",
-//   },
-//   {
-//     date: "2025-07-10",
-//     name: "Priya Sharma",
-//     phone: "+91-9123456789",
-//     loanId: "LN002",
-//     loanAmount: 50000,
-//     incomeFromLoan: 2000,
-//     loanType: "Personal Loan",
-//     status: "Pending",
-//   },
-//   // Add more entries as needed
-// ];
-
-// const LoanTable = () => {
-
-
-//   return (
-//     <div className="p-4 md:p-8">
-//       <h2 className="text-2xl font-bold mb-4 text-center">Loan Applications</h2>
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full border border-gray-300 bg-white shadow-md rounded-lg">
-//           <thead className="bg-gray-100">
-//             <tr>
-//               <th className="px-4 py-2 border">Date</th>
-//               <th className="px-4 py-2 border">Applicant's Name</th>
-//               <th className="px-4 py-2 border">Phone</th>
-//               <th className="px-4 py-2 border">Loan ID</th>
-//               <th className="px-4 py-2 border">Loan Amount</th>
-//               <th className="px-4 py-2 border">Income from Loan</th>
-//               <th className="px-4 py-2 border">Loan Type</th>
-//               <th className="px-4 py-2 border">Status</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {loanData.map((loan, index) => (
-//               <tr key={index} className="text-center hover:bg-gray-50">
-//                 <td className="px-4 py-2 border">{loan.date}</td>
-//                 <td className="px-4 py-2 border">{loan.name}</td>
-//                 <td className="px-4 py-2 border">{loan.phone}</td>
-//                 <td className="px-4 py-2 border">{loan.loanId}</td>
-//                 <td className="px-4 py-2 border">₹{loan.loanAmount.toLocaleString()}</td>
-//                 <td className="px-4 py-2 border">₹{loan.incomeFromLoan.toLocaleString()}</td>
-//                 <td className="px-4 py-2 border">{loan.loanType}</td>
-//                 <td className={`px-4 py-2 border font-medium ${
-//                   loan.status === "Approved" ? "text-green-600" :
-//                   loan.status === "Pending" ? "text-yellow-600" :
-//                   "text-red-600"
-//                 }`}>
-//                   {loan.status}
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default LoanTable;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
-import Pagination from "@/components/common/Pagination";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { getLoanDataByType } from "@/lib/actions/dsa";
-import React, { useEffect, useState } from "react";
-// import { getLoanDataByType } from "@/app/actions/loan"; // Adjust path if needed
+import React, { useEffect, useState, useCallback } from "react";
+import { useAuth } from "@/context/AuthContext";
+import Spinner from "@/components/common/Spinners";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
-const LoanTable = ({ token }) => {
+const LoanTable = () => {
+    const { user, loading } = useAuth();
     const [loans, setLoans] = useState([]);
     const [lastDocId, setLastDocId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(false);
-    const [type, setType] = useState(""); // Filter type if needed
+    const [isFetching, setIsFetching] = useState(false);
 
-    const username = 'PDSA1'
+    const fetchLoans = useCallback(async (page, docId) => {
+        if (!user?.username) return;
 
+        setIsFetching(true);
+        try {
+            const res = await getLoanDataByType(null, user.username, PAGE_SIZE, docId, page);
+
+            if (res.success) {
+                if (page === 1) {
+                    setLoans(res.data);
+                } else {
+                    setLoans((prev) => [...prev, ...res.data]);
+                }
+                setLastDocId(res.lastDocId);
+                setHasMore(res.hasMore);
+            }
+        } catch (error) {
+            console.error("Fetch loans error:", error);
+        } finally {
+            setIsFetching(false);
+        }
+    }, [user?.username]);
 
     useEffect(() => {
-        fetchLoans(currentPage);
-    }, [currentPage, type]);
-
-    const fetchLoans = async (page) => {
-        const res = await getLoanDataByType(token, username, PAGE_SIZE, lastDocId, page);
-        console.log("Fetched loans:", res);
-
-        if (page === 1) {
-            setLoans(res.data);
-        } else {
-            setLoans((prev) => [...prev, ...res.data]);
+        if (!loading && user) {
+            fetchLoans(1, null);
+            setCurrentPage(1);
         }
-        setLastDocId(res.lastDocId);
-        setHasMore(res.hasMore);
-    };
+    }, [user, loading, fetchLoans]);
 
     const handleLoadMore = () => {
-        setCurrentPage((prev) => prev + 1);
+        const nextPage = currentPage + 1;
+        setCurrentPage(nextPage);
+        fetchLoans(nextPage, lastDocId);
     };
+
+    if (loading) return <Spinner />;
+    if (!user) return <div className="p-8 text-center text-red-500">Please log in to view your applications.</div>;
 
     return (
         <div className="p-4 md:p-8">
-            <h2 className="text-2xl font-bold mb-4 text-start">Loan Applications</h2>
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-300 bg-white shadow-md rounded-lg">
-                    <thead className="bg-gray-100">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Applied Loans</h2>
+                <Badge variant="outline" className="px-3 py-1 bg-blue-50 text-blue-700 border-blue-100">
+                    DSA: {user.username}
+                </Badge>
+            </div>
+
+            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+                <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
                         <tr>
-                            <th className="px-2 py-2 border">Sr.no</th>
-                            <th className="px-4 py-2 border">Date</th>
-                            <th className="px-4 py-2 border">Applicant's Name</th>
-                            <th className="px-4 py-2 border">Phone</th>
-                            <th className="px-4 py-2 border">Loan ID</th>
-                            <th className="px-4 py-2 border">Loan Amount</th>
-                            {/* <th className="px-4 py-2 border">Income from Loan</th> */}
-                            <th className="px-4 py-2 border">Loan Type</th>
-                            <th className="px-4 py-2 border">Status</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Sr.no</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Date</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Applicant's Name</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Phone</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Loan ID</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Loan Amount</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Loan Type</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Status</th>
+                            <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {loans.map((loan, index) => (
-                            <tr key={loan.id ?? index} className="text-center hover:bg-gray-50">
-                                <td className="px-2 py-2 border">{index + 1}</td>
-                                <td className="px-4 py-2 border">{new Date(loan.date?.toDate?.() ?? loan.date).toLocaleDateString()}</td>
-                                <td className="px-4 py-2 border">{loan?.applicant_name}</td>
-                                <td className="px-4 py-2 border">{loan.phone_no}</td>
-                                <td className="px-4 py-2 border">{loan?.id}</td>
-                                <td className="px-4 py-2 border">₹{loan.loan_amount?.toLocaleString()}</td>
-                                {/* <td className="px-4 py-2 border">₹{loan.incomeFromLoan?.toLocaleString() ||0}</td> */}
-                                <td className="px-4 py-2 border">{loan.type}</td>
-                                <td className={`px-4 py-2 border font-medium `}>
-                                    <Badge>
-                                        {loan?.status}
-                                    </Badge>
+                    <tbody className="divide-y divide-slate-200 bg-white">
+                        {loans.length > 0 ? (
+                            loans.map((loan, index) => (
+                                <tr key={loan.id ?? index} className="hover:bg-slate-50/80 transition-colors">
+                                    <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">{index + 1}</td>
+                                    <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
+                                        {loan.createdAt ? new Date(loan.createdAt).toLocaleDateString() : "-"}
+                                    </td>
+                                    <td className="px-4 py-4 text-sm font-medium text-slate-900 whitespace-nowrap">{loan.applicantName || "-"}</td>
+                                    <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">{loan.phone || "-"}</td>
+                                    <td className="px-4 py-4 text-sm font-mono text-slate-500 whitespace-nowrap">{loan.loanId || "-"}</td>
+                                    <td className="px-4 py-4 text-sm font-semibold text-slate-900 whitespace-nowrap">
+                                        {loan.loanAmount ? `Rs. ${Number(loan.loanAmount).toLocaleString()}` : "-"}
+                                    </td>
+                                    <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
+                                        <Badge variant="secondary" className="font-normal">
+                                            {loan.loanType || "-"}
+                                        </Badge>
+                                    </td>
+                                    <td className="px-4 py-4 text-sm whitespace-nowrap">
+                                        <Badge
+                                            className={`font-semibold ${
+                                                loan?.status === "Disbursed" ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-200" :
+                                                loan?.status === "Rejected" ? "bg-red-100 text-red-700 hover:bg-red-200 border-red-200" :
+                                                "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-yellow-200"
+                                            }`}
+                                        >
+                                            {loan?.status}
+                                        </Badge>
+                                    </td>
+                                    <td className="px-4 py-4 text-sm whitespace-nowrap">
+                                        <Link
+                                            href={`/dashboard/loans/${loan.id}`}
+                                            className="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+                                        >
+                                            View Details
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="9" className="px-4 py-12 text-center text-slate-400 font-medium bg-slate-50/30">
+                                    {isFetching ? "Syncing data..." : "No loan applications found for your account."}
                                 </td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
                 {hasMore && (
-                    <div className="mt-4 text-center">
+                    <div className="py-6 flex justify-center bg-slate-50/50 border-t border-slate-100">
                         <button
                             onClick={handleLoadMore}
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                            disabled={isFetching}
+                            className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all duration-200 active:scale-95"
                         >
-                            Load More
+                            {isFetching ? "Loading..." : "Load More Applications"}
                         </button>
                     </div>
                 )}
             </div>
-            <Pagination/>
+            {/* Pagination component is optional here since we use Load More, but kept for UI consistency if needed */}
+            {/* <Pagination /> */}
         </div>
     );
 };

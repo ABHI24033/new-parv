@@ -20,6 +20,7 @@ import { upload_single_file, getPublicIdFromUrl, remove_docs } from "@/lib/utils
 import toast from "react-hot-toast";
 import { validateAllFields, validateFields } from "./formValidation";
 import { LoanFormPageClient } from "@/components/loans/LoanFormPageClient";
+import { ConnectorSelector } from "@/components/forms/reusable/ConnectorSelector";
 
 const stepFields = {
   0: [],
@@ -438,8 +439,11 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div><Label className="mb-2">Loan Amount <span className="text-red-500">*</span></Label><Input type="number" value={formData.loan_amount} onChange={(e) => handleFieldChange("loan_amount", e.target.value)} />{renderFieldError("loan_amount")}</div>
-                <div><Label className="mb-2">Connector ID <span className="text-red-500">*</span></Label><Input value={formData.id_of_connector} onChange={(e) => handleFieldChange("id_of_connector", e.target.value)} />{renderFieldError("id_of_connector")}</div>
-                <div><Label className="mb-2">DSA Name <span className="text-red-500">*</span></Label><Input value={formData.name_of_connector} onChange={(e) => handleFieldChange("name_of_connector", e.target.value)} />{renderFieldError("name_of_connector")}</div>
+                <ConnectorSelector 
+                  formData={formData} 
+                  handleFieldChange={handleFieldChange} 
+                  errors={errors} 
+                />
                 <div><Label className="mb-2">Group Name <span className="text-red-500">*</span></Label><Input value={formData.group_name} onChange={(e) => handleFieldChange("group_name", e.target.value)} />{renderFieldError("group_name")}</div>
                 <div><Label className="mb-2">Group Size <span className="text-red-500">*</span></Label><Select className="w-[100%]" value={formData.group_size} onValueChange={(v) => handleFieldChange("group_size", v)}><SelectTrigger className="w-full"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{Array.from({ length: 15 }, (_, i) => (i + 1).toString()).map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent></Select>{renderFieldError("group_size")}</div>
                 <div><Label className="mb-2">Nearest Branch <span className="text-red-500">*</span></Label><Select className="w-[100%]" value={formData.nearest_branch} onValueChange={(v) => handleFieldChange("nearest_branch", v)}><SelectTrigger className="w-full"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="Bikramganj">Bikramganj</SelectItem><SelectItem value="Sasaram">Sasaram</SelectItem><SelectItem value="Dehri">Dehri</SelectItem></SelectContent></Select>{renderFieldError("nearest_branch")}</div>

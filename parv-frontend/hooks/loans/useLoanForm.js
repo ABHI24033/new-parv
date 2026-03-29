@@ -30,7 +30,7 @@ export const useLoanForm = ({
     const [isRemoving, setIsRemoving] = useState({});
 
     const { data: userData } = useGetUserDataByToken();
-    const userProfile = userData?.data?.data?.user || {};
+    const userProfile = userData?.data?.data || {};
 
     // Folder Name Generation
     useEffect(() => {

@@ -6,19 +6,37 @@ const dsaIncomeSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  loanId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  applicantName: String,
+  loanType: String,
+  loanAmount: {
+    type: Number,
+    default: 0
+  },
   income: {
     type: Number,
     default: 0
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'Paid'],
+    default: 'Pending'
+  },
+  paymentDate: {
+    type: Date
+  },
+  paymentMode: {
+    type: String
   },
   paid: {
     type: Number,
     default: 0
   },
   unpaid: {
-    type: Number,
-    default: 0
-  },
-  loanAmount: {
     type: Number,
     default: 0
   },
@@ -29,6 +47,8 @@ const dsaIncomeSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+dsaIncomeSchema.index({ connectorId: 1, createdAt: -1 });
 
 const DSAIncome = mongoose.model('DSAIncome', dsaIncomeSchema);
 export default DSAIncome;

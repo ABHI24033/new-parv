@@ -30,7 +30,6 @@ export function useLogin() {
       queryClient.invalidateQueries({ queryKey: ["user"] });
 
       toast.success("Login successful!");
-
       // Redirect based on role
       switch (user?.role) {
         case "Admin":

@@ -1,9 +1,46 @@
 import User from '../models/User.js';
 import Loan from '../models/Loan.js';
+import PersonalLoan from '../models/PersonalLoan.js';
+import BusinessLoan from '../models/BusinessLoan.js';
+import HomeLoan from '../models/HomeLoan.js';
+import VehicleLoan from '../models/VehicleLoan.js';
+import GoldLoan from '../models/GoldLoan.js';
+import GroupLoan from '../models/GroupLoan.js';
 import DSAIncome from '../models/DSAIncome.js';
 import crypto from 'crypto';
 import sendMail from '../emails/mail.js';
 import mongoose from 'mongoose';
+
+const DSA_LOAN_MODELS = [
+  { loanType: 'Personal', Model: PersonalLoan },
+  { loanType: 'Business', Model: BusinessLoan },
+  { loanType: 'Home', Model: HomeLoan },
+  { loanType: 'Vehicle', Model: VehicleLoan },
+  { loanType: 'Gold', Model: GoldLoan },
+  { loanType: 'Group', Model: GroupLoan }
+];
+
+const normalizeDSALoan = (doc, loanTypeFallback = 'Unknown') => ({
+  id: doc._id.toString(),
+  loanId: doc.loanId || '',
+  connectorId: doc.id_of_connector || '',
+  connectorName: doc.name_of_connector || '',
+  applicantName:
+    doc.applicantName ||
+    doc.applicant_name ||
+    doc.group_name ||
+    doc.members?.[0]?.name ||
+    '',
+  phone:
+    doc.phone ||
+    doc.phone_no ||
+    doc.members?.[0]?.phone ||
+    '',
+  loanAmount: doc.amount || doc.loan_amount || 0,
+  loanType: doc.loanType || loanTypeFallback,
+  status: doc.status || 'Application Received',
+  createdAt: doc.createdAt || null
+});
 
 export const createEmployee = async (req, res) => {
   try {
@@ -274,6 +311,197 @@ export const updateUserApprovalStatus = async (req, res) => {
   }
 };
 
+/* ──────────────────────────────────────────────────────────────────────────
+   COMMISSION / INCOME MANAGEMENT
+   ────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Fetch all disbursed loans across all collections (Admin/DSA)
+ */
+export const getDisbursedLoans = async (req, res) => {
+  try {
+    const isAdmin = req.userRole === "Admin";
+    const connectorId = req.query.connectorId || "";
+
+    // If not admin, strictly filter by their own username
+    let filter = { status: "Disbursed", isDeleted: false };
+    if (!isAdmin) {
+      filter.id_of_connector = req.user.username;
+    } else if (connectorId) {
+      filter.id_of_connector = connectorId;
+    }
+
+    const loanResults = await Promise.all(
+      DSA_LOAN_MODELS.map(({ Model }) => Model.find(filter).lean())
+    );
+
+    const allDisbursed = loanResults
+      .flatMap((docs, index) =>
+        docs.map((doc) => normalizeDSALoan(doc, DSA_LOAN_MODELS[index].loanType))
+      )
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Fetch existing commissions to map them
+    const loanIds = allDisbursed.map(l => l.loanId);
+    const existingCommissions = await DSAIncome.find({ loanId: { $in: loanIds } });
+    const commissionMap = existingCommissions.reduce((acc, curr) => {
+      acc[curr.loanId] = curr;
+      return acc;
+    }, {});
+
+  const enrichedLoans = allDisbursed.map(loan => ({
+      ...loan,
+      commission: commissionMap[loan.loanId] || null
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: enrichedLoans
+    });
+  } catch (error) {
+    console.error("Get disbursed loans error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch disbursed loans",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Assign or update commission for a loan (Admin Only)
+ */
+export const assignCommission = async (req, res) => {
+  try {
+    const { loanId, connectorId, applicantName, loanType, loanAmount, income } = req.body;
+
+    if (!loanId) {
+      return res.status(400).json({ success: false, message: "Loan ID is required" });
+    }
+
+    if (!connectorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Commission can only be assigned to loans linked with a DSA/connector"
+      });
+    }
+
+    let record = await DSAIncome.findOne({ loanId });
+
+    if (record) {
+      record.income = income;
+      // If status is still pending, we update unpaid
+      if (record.status === 'Pending') {
+        record.unpaid = income;
+      }
+    } else {
+      record = new DSAIncome({
+        loanId,
+        connectorId,
+        applicantName,
+        loanType,
+        loanAmount,
+        income,
+        unpaid: income,
+        status: 'Pending'
+      });
+    }
+
+    await record.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Commission assigned successfully",
+      data: record
+    });
+  } catch (error) {
+    console.error("Assign commission error:", error);
+    res.status(500).json({ success: false, message: "Failed to assign commission" });
+  }
+};
+
+/**
+ * Update commission payment status (Admin Only)
+ */
+export const updateCommissionPaymentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, paymentDate, paymentMode } = req.body;
+
+    const record = await DSAIncome.findById(id);
+    if (!record) {
+      return res.status(404).json({ success: false, message: "Commission record not found" });
+    }
+
+    record.status = status;
+    if (status === 'Paid') {
+      record.paid = record.income;
+      record.unpaid = 0;
+      record.paymentDate = paymentDate || new Date();
+      record.paymentMode = paymentMode || 'UPI';
+    } else {
+      record.paid = 0;
+      record.unpaid = record.income;
+      record.paymentDate = null;
+    }
+
+    await record.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Commission marked as ${status}`,
+      data: record
+    });
+  } catch (error) {
+    console.error("Update commission status error:", error);
+    res.status(500).json({ success: false, message: "Failed to update status" });
+  }
+};
+
+/**
+ * Get Commission History / Income List (Admin/DSA)
+ */
+export const getCommissionHistory = async (req, res) => {
+  try {
+    const isAdmin = req.userRole === "Admin";
+    const { connectorId, status, startDate, endDate } = req.query;
+
+    let filter = {};
+    if (!isAdmin) {
+      filter.connectorId = req.user.username;
+    } else if (connectorId) {
+      filter.connectorId = connectorId;
+    }
+
+    if (status) filter.status = status;
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    const history = await DSAIncome.find(filter).sort({ createdAt: -1 });
+
+    // Aggregate stats
+    const stats = history.reduce((acc, curr) => {
+      acc.totalEarnings += (curr.income || 0);
+      acc.totalPaid += (curr.paid || 0);
+      acc.totalPending += (curr.unpaid || 0);
+      return acc;
+    }, { totalEarnings: 0, totalPaid: 0, totalPending: 0 });
+
+    res.status(200).json({
+      success: true,
+      data: history,
+      stats
+    });
+  } catch (error) {
+    console.error("Get commission history error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch history" });
+  }
+};
+
+
 export const getDSAData = async (req, res) => {
   try {
     const pageSize = parseInt(req.query.pageSize) || 15;
@@ -543,29 +771,45 @@ export const getUserDataById = async (req, res) => {
 export const getLoanDataByType = async (req, res) => {
   try {
     const username = req.query.username || '';
+    const isAdmin = req.userRole === 'Admin';
+    let filter = {};
+    if (username) filter.id_of_connector = username;
+    else if (!isAdmin) filter.id_of_connector = req.user.username;
     const pageSize = parseInt(req.query.pageSize) || 5;
     const currentPage = parseInt(req.query.currentPage) || 1;
     const startAfterDocId = req.query.startAfterDocId || null;
+    const [legacyLoans, ...typedLoanResults] = await Promise.all([
+      Loan.find(filter).lean(),
+      ...DSA_LOAN_MODELS.map(({ Model }) =>
+        Model.find({ ...filter, isDeleted: false }).lean()
+      )
+    ]);
 
-    let query = Loan.find({ id_of_connector: username });
+    const allLoans = [
+      ...legacyLoans.map((doc) => normalizeDSALoan(doc, doc.loanType || 'Loan')),
+      ...typedLoanResults.flatMap((docs, index) =>
+        docs.map((doc) => normalizeDSALoan(doc, DSA_LOAN_MODELS[index].loanType))
+      )
+    ].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
 
-    // Count total matching documents
-    const totalCount = await Loan.countDocuments({ id_of_connector: username });
+    const totalCount = allLoans.length;
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // Apply cursor-based pagination if startAfterDocId exists
+    let startIndex = 0;
     if (startAfterDocId) {
-      const startAfterDoc = await Loan.findById(startAfterDocId);
-      if (startAfterDoc) {
-        query = query.where('createdAt').lt(startAfterDoc.createdAt);
-      }
+      const cursorIndex = allLoans.findIndex((loan) => loan.id === startAfterDocId);
+      startIndex = cursorIndex >= 0 ? cursorIndex + 1 : 0;
+    } else if (currentPage > 1) {
+      startIndex = (currentPage - 1) * pageSize;
     }
 
-    query = query.limit(pageSize).sort({ createdAt: -1 });
-
-    const docs = await query;
-    const lastDocId = docs.length > 0 ? docs[docs.length - 1]._id.toString() : null;
-    const hasMore = docs.length === pageSize;
+    const docs = allLoans.slice(startIndex, startIndex + pageSize);
+    const lastDocId = docs.length > 0 ? docs[docs.length - 1].id : null;
+    const hasMore = startIndex + pageSize < totalCount;
 
     res.status(200).json({
       success: true,
@@ -617,14 +861,22 @@ export const getDSADashboardData = async (req, res) => {
       }
     });
 
-    // Count total loan applications for the connector
-    const totalApplications = await Loan.countDocuments({ id_of_connector: connectorId });
+    const [legacyTotalApplications, legacyApprovedApplications, ...typedCounts] = await Promise.all([
+      Loan.countDocuments({ id_of_connector: connectorId }),
+      Loan.countDocuments({ id_of_connector: connectorId, status: 'Disbursed' }),
+      ...DSA_LOAN_MODELS.flatMap(({ Model }) => ([
+        Model.countDocuments({ id_of_connector: connectorId, isDeleted: false }),
+        Model.countDocuments({ id_of_connector: connectorId, isDeleted: false, status: 'Disbursed' })
+      ]))
+    ]);
 
-    // Get approved (Disbursed) loan count
-    const approvedApplications = await Loan.countDocuments({
-      id_of_connector: connectorId,
-      status: 'Disbursed'
-    });
+    let totalApplications = legacyTotalApplications;
+    let approvedApplications = legacyApprovedApplications;
+
+    for (let i = 0; i < typedCounts.length; i += 2) {
+      totalApplications += typedCounts[i] || 0;
+      approvedApplications += typedCounts[i + 1] || 0;
+    }
 
     // Format monthly income chart data
     const chartData = Array.from(monthlyIncomeMap.entries()).map(([month, income]) => ({
