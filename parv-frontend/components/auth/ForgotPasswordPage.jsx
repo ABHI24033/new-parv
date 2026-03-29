@@ -1,615 +1,257 @@
-// "use client";
-
-// import { Button } from "@/components/ui/button";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { AlertCircle } from "lucide-react";
-// import { useEffect } from "react";
-// import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-// import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
-
- 
-//   const EmailInput = ({ username, setUsername, onNext }) => (
-//     <div className="min-h-screen flex items-center w-full justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
-//       <Card
-//         className="
-//           w-full 
-//           max-w-xl
-//           shadow-lg
-//           rounded-3xl 
-//           border border-gray-200 
-//           bg-white/95 
-//           backdrop-blur-sm
-//           px-4 sm:px-6 lg:px-10 /* responsive padding */
-//         "
-//       >
-//         <CardHeader className="text-center space-y-3 pb-4 pt-6">
-//           <CardTitle className="text-3xl font-bold text-gray-900">
-//             Reset Your Password
-//           </CardTitle>
-  
-//           <CardDescription className="text-lg text-gray-600 max-w-sm mx-auto">
-//             Enter your registered email address and we will send you an OTP to reset your password.
-//           </CardDescription>
-//         </CardHeader>
-  
-//         <CardContent className="space-y-5 py-2">
-//           <div className="flex flex-col space-y-2">
-//             <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-//               Email Address
-//             </Label>
-  
-//             <Input
-//               id="username"
-//               placeholder="yourname@example.com"
-//               className="
-//                 h-14 
-//                 text-lg 
-//                 rounded-2xl
-//                 border-gray-300 
-//                 focus:ring-2 
-//                 focus:ring-indigo-500 
-//                 focus:border-indigo-500
-//                 transition-all
-//               "
-//               value={username}
-//               onChange={(e) => setUsername(e.target.value)}
-//             />
-//           </div>
-//         </CardContent>
-  
-//         <CardFooter className="pb-6">
-//           <Button
-//             onClick={onNext}
-//             className="
-//               w-full 
-//               h-14 
-//               rounded-2xl 
-//               text-lg 
-//               font-semibold 
-//               bg-indigo-600 
-//               hover:bg-indigo-700 
-//               transition-all 
-//               shadow-lg 
-//               hover:shadow-xl
-//             "
-//           >
-//             Send OTP
-//           </Button>
-//         </CardFooter>
-//       </Card>
-//     </div>
-//   );
-
-  
-
-
-// // const OTPInput = ({ otp, setOTP, onVerify }) => (
-// //   <Card className="w-[350px]">
-// //     <CardHeader>
-// //       <CardTitle>Verify OTP</CardTitle>
-// //       <CardDescription>Enter the OTP sent to your email</CardDescription>
-// //     </CardHeader>
-
-// //     <CardContent>
-// //       <div className="flex flex-col space-y-1.5">
-// //         <Label htmlFor="otp">OTP</Label>
-// //         <Input
-// //           id="otp"
-// //           placeholder="Enter OTP"
-// //           value={otp}
-// //           onChange={(e) => setOTP(e.target.value)}
-// //         />
-// //       </div>
-// //     </CardContent>
-
-// //     <CardFooter>
-// //       <Button onClick={onVerify}>Verify</Button>
-// //     </CardFooter>
-// //   </Card>
-// // );
-
-
-// const OTPInput = ({ otp, setOTP, onVerify }) => (
-//   <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-//       <Card className="w-[380px] rounded-2xl shadow-lg border border-gray-200 bg-white">
-//         <CardHeader className="text-center space-y-2">
-//           <CardTitle className="text-2xl font-semibold">Verify OTP</CardTitle>
-//           <CardDescription className="text-gray-600">
-//             Enter the 6-digit OTP sent to your email
-//           </CardDescription>
-//         </CardHeader>
-
-//         <CardContent>
-//           <div className="flex flex-col space-y-2">
-//             <Label htmlFor="otp" className="text-sm font-medium">OTP</Label>
-//             <Input
-//               id="otp"
-//               placeholder="Enter OTP"
-//               value={otp}
-//               onChange={(e) => setOTP(e.target.value)}
-//               className="h-12 text-lg tracking-widest text-center rounded-xl"
-//             />
-//           </div>
-//         </CardContent>
-
-//         <CardFooter className="pt-2">
-//           <Button 
-//             className="w-full h-11 rounded-xl text-base font-medium" 
-//             onClick={onVerify}
-//           >
-//             Verify
-//           </Button>
-//         </CardFooter>
-//       </Card>
-//   </div>
-// );
-
-
-// const PasswordInput = ({ password, setPassword, onNext }) => (
-//   <Card className="w-[350px]">
-//     <CardHeader>
-//       <CardTitle>Reset Password</CardTitle>
-//       <CardDescription>Enter a new password</CardDescription>
-//     </CardHeader>
-
-//     <CardContent>
-//       <div className="flex flex-col space-y-1.5">
-//         <Label>Password</Label>
-//         <Input
-//           type="password"
-//           placeholder="New password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-//       </div>
-//     </CardContent>
-
-//     <CardFooter>
-//       <Button onClick={onNext}>Next</Button>
-//     </CardFooter>
-//   </Card>
-// );
-
-// const SuccessMessage = () => (
-//   <Card className="w-[350px]">
-//     <CardHeader>
-//       <CardTitle>Password Reset</CardTitle>
-//       <CardDescription>Password reset successful!</CardDescription>
-//     </CardHeader>
-//   </Card>
-// );
-
-// const ErrorMessage = () => <></>;
-
-// export default function ForgotPasswordPage() {
-//   const {
-//     step,
-//     setStep,
-//     username,
-//     setUsername,
-//     otp,
-//     setOTP,
-//     password,
-//     setPassword,
-//     error,
-//     setError,
-//     handleSendOTP,
-//     handleVerifyOTP,
-//     handleChangePassword,
-//   } = useForgotPassword();
-
-//   useEffect(() => {
-//     setError("");
-//   }, [step]);
-
-//   const steps = {
-//     1: (
-//       <EmailInput
-//         username={username}
-//         setUsername={setUsername}
-//         onNext={handleSendOTP}
-//       />
-//     ),
-//     2: (
-//       <OTPInput otp={otp} setOTP={setOTP} onVerify={handleVerifyOTP} />
-//     ),
-//     3: (
-//       <PasswordInput
-//         password={password}
-//         setPassword={setPassword}
-//         onNext={handleChangePassword}
-//       />
-//     ),
-//     4: <SuccessMessage />,
-//     5: <ErrorMessage />,
-//   };
-
-//   return (
-//     <div className=" flex items-center justify-center flex-col gap-4">
-//       {error && (
-//         <Alert variant="destructive" className="w-[350px] fixed top-10 left-1/2 -translate-x-1/2">
-//           <AlertCircle className="h-4 w-4" />
-//           <AlertTitle>Error</AlertTitle>
-//           <AlertDescription>{error}</AlertDescription>
-//         </Alert>
-//       )}
-
-//       {steps[step]}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
+import { useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { AlertCircle, ChevronLeft, Loader2Icon, KeyRound, Mail, ShieldCheck, UserCircle2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
-import { useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
-/* ------------------------- EMAIL INPUT CARD ------------------------- */
-// const EmailInput = ({ username, setUsername, onNext }) => (
-//   <div className="min-h-screen flex items-center justify-center w-full bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
-//     <Card
-//       className="
-//         w-full 
-//         max-w-xl
-//         shadow-lg
-//         rounded-3xl 
-//         border border-gray-200 
-//         bg-white/95 
-//         backdrop-blur-sm
-//         px-4 sm:px-6 lg:px-10
-//       "
-//     >
-//       <CardHeader className="text-center space-y-3 pb-4 pt-6">
-//         <CardTitle className="text-3xl font-bold text-gray-900">
-//           Reset Your Password
-//         </CardTitle>
-
-//         <CardDescription className="text-lg text-gray-600 max-w-sm mx-auto">
-//           Enter your registered email and we will send you an OTP.
-//         </CardDescription>
-//       </CardHeader>
-
-//       <CardContent className="space-y-5 py-2">
-//         <div className="flex flex-col space-y-2">
-//           <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-//             Email Address
-//           </Label>
-
-//           <Input
-//             id="username"
-//             placeholder="yourname@example.com"
-//             className="
-//               h-14 
-//               text-lg 
-//               rounded-2xl
-//               border-gray-300 
-//               focus:ring-2 
-//               focus:ring-indigo-500 
-//               focus:border-indigo-500
-//               transition-all
-//             "
-//             value={username}
-//             onChange={(e) => setUsername(e.target.value)}
-//           />
-//         </div>
-//       </CardContent>
-
-//       <CardFooter className="pb-6">
-//         <Button
-//           onClick={onNext}
-//           className="
-//             w-full 
-//             h-14 
-//             rounded-2xl 
-//             text-lg 
-//             font-semibold 
-//             bg-indigo-600 
-//             hover:bg-indigo-700 
-//             transition-all 
-//             shadow-lg 
-//             hover:shadow-xl
-//           "
-//         >
-//           Send OTP
-//         </Button>
-//       </CardFooter>
-//     </Card>
-//   </div>
-// );
-
-const EmailInput = ({ username, setUsername, email, setEmail, onNext }) => (
-    <div className="min-h-screen flex items-center justify-center w-full bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
-      <Card
-        className="
-          w-full 
-          max-w-xl
-          shadow-lg
-          rounded-3xl 
-          border border-gray-200 
-          bg-white/95 
-          backdrop-blur-sm
-          px-4 sm:px-6 lg:px-10
-        "
-      >
-        <CardHeader className="text-center space-y-3 pb-4 pt-6">
-          <CardTitle className="text-3xl font-bold text-gray-900">
-            Reset Your Password
-          </CardTitle>
-  
-          <CardDescription className="text-lg text-gray-600 max-w-sm mx-auto">
-            Enter your username and registered email to receive an OTP.
-          </CardDescription>
-        </CardHeader>
-  
-        <CardContent className="space-y-5 py-2">
-  
-          {/* Username Input */}
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-              Username
-            </Label>
-  
-            <Input
-              id="username"
-              placeholder="Enter your username"
-              className="
-                h-14 
-                text-lg 
-                rounded-2xl
-                border-gray-300 
-                focus:ring-2 
-                focus:ring-indigo-500 
-                focus:border-indigo-500
-                transition-all
-              "
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+const AuthShell = ({ eyebrow, title, description, children, footer, sideNote }) => (
+  <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.14),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(20,184,166,0.18),_transparent_28%),linear-gradient(135deg,_#eff6ff_0%,_#ffffff_42%,_#f0fdfa_100%)]">
+    <div className="grid min-h-screen w-full lg:grid-cols-[1.08fr_0.92fr]">
+      <section className="relative hidden overflow-hidden lg:flex">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:46px_46px] opacity-30" />
+        <div className="relative flex w-full flex-col justify-between p-10 text-white">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/12 ring-1 ring-white/20 backdrop-blur">
+              <img src="/logo/PAR2.png" alt="Parv Financial Services" className="h-10 w-10 object-contain" />
+            </div>
+            <div>
+              <p className="text-2xl font-black tracking-tight">Parv Financial</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-blue-100/80">Services Pvt Ltd</p>
+            </div>
           </div>
-  
-          {/* Email Input */}
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email Address
-            </Label>
-  
-            <Input
-              id="email"
-              placeholder="yourname@example.com"
-              className="
-                h-14 
-                text-lg 
-                rounded-2xl
-                border-gray-300 
-                focus:ring-2 
-                focus:ring-indigo-500 
-                focus:border-indigo-500
-                transition-all
-              "
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+
+          <div className="max-w-xl space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-blue-50 backdrop-blur">
+              <ShieldCheck className="h-4 w-4" />
+              Password recovery workflow
+            </div>
+            <h1 className="text-5xl font-black leading-tight tracking-tight">
+              Securely recover access to your account.
+            </h1>
+            <p className="text-lg leading-8 text-blue-50/78">
+              Verify your identity with username, registered email, and OTP before setting a new password.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+                <p className="text-3xl font-black">Step 1</p>
+                <p className="mt-2 text-sm text-blue-100/75">Confirm your registered identity</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+                <p className="text-3xl font-black">Step 2</p>
+                <p className="mt-2 text-sm text-blue-100/75">Verify OTP delivered to email</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+                <p className="text-3xl font-black">Step 3</p>
+                <p className="mt-2 text-sm text-blue-100/75">Create your new password</p>
+              </div>
+            </div>
           </div>
-  
-        </CardContent>
-  
-        <CardFooter className="pb-6">
-          <Button
-            onClick={onNext}
-            className="
-              w-full 
-              h-14 
-              rounded-2xl 
-              text-lg 
-              font-semibold 
-              bg-indigo-600 
-              hover:bg-indigo-700 
-              transition-all 
-              shadow-lg 
-              hover:shadow-xl
-            "
-          >
-            Send OTP
-          </Button>
-        </CardFooter>
-      </Card>
+
+          <div className="text-sm text-blue-100/70">Protected recovery flow for Parv Financial Services users</div>
+        </div>
+      </section>
+
+      <section className="flex min-h-screen flex-col px-6 py-6 sm:px-10 lg:px-14">
+        <div className="flex items-center justify-between">
+          <Link href="/login" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition-colors hover:text-blue-700">
+            <ChevronLeft size={18} />
+            Back to login
+          </Link>
+          {sideNote ? (
+            <div className="rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-slate-500 shadow-sm">
+              {sideNote}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className="w-full max-w-xl">
+            <div className="mb-8 flex items-center gap-4 lg:hidden">
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-600 shadow-lg shadow-blue-200">
+                <img src="/logo/PAR2.png" alt="Parv Financial Services" className="h-8 w-8 object-contain" />
+              </div>
+              <div>
+                <p className="text-xl font-black tracking-tight text-slate-900">Parv Financial</p>
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Services Pvt Ltd</p>
+              </div>
+            </div>
+
+            <Card className="rounded-[2rem] border border-white/70 bg-white/85 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur">
+              <CardHeader className="space-y-3 px-8 pt-8">
+                <div className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-blue-700">
+                  <KeyRound className="h-3.5 w-3.5" />
+                  {eyebrow}
+                </div>
+                <div>
+                  <CardTitle className="text-4xl font-black tracking-tight text-slate-900">{title}</CardTitle>
+                  <CardDescription className="mt-2 text-sm leading-6 text-slate-500">{description}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="px-8 pb-2 pt-4">{children}</CardContent>
+              {footer ? <CardFooter className="px-8 pb-8 pt-4">{footer}</CardFooter> : null}
+            </Card>
+          </div>
+        </div>
+      </section>
     </div>
-  );
-  
-/* ------------------------- OTP INPUT CARD ------------------------- */
-const OTPInput = ({ otp, setOTP, onVerify }) => (
-  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-    <Card
-      className="
-        w-full 
-        max-w-xl
-        shadow-lg
-        rounded-3xl 
-        border border-gray-200 
-        bg-white/95 
-        backdrop-blur-sm
-        px-4 sm:px-6 lg:px-10
-      "
-    >
-      <CardHeader className="text-center space-y-3 pb-2 pt-6">
-        <CardTitle className="text-3xl font-bold text-gray-900">Verify OTP</CardTitle>
-        <CardDescription className="text-lg text-gray-600 max-w-sm mx-auto">
-          Enter the 6-digit OTP sent to your email.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="py-4 space-y-3">
-        <Label className="text-sm font-medium text-gray-700">OTP</Label>
-        <Input
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) => setOTP(e.target.value)}
-          maxLength={6}
-          className="
-            h-14 
-            text-xl 
-            tracking-widest 
-            text-center 
-            rounded-2xl
-            border-gray-300
-            focus:ring-2 
-            focus:ring-indigo-500 
-            focus:border-indigo-500
-            transition-all
-          "
-        />
-      </CardContent>
-
-      <CardFooter className="pb-6">
-        <Button
-          onClick={onVerify}
-          className="
-            w-full 
-            h-14 
-            rounded-2xl 
-            text-lg 
-            font-semibold 
-            bg-indigo-600 
-            hover:bg-indigo-700 
-            transition-all 
-            shadow-lg 
-            hover:shadow-xl
-          "
-        >
-          Verify OTP
-        </Button>
-      </CardFooter>
-    </Card>
   </div>
 );
 
-/* ------------------------- NEW PASSWORD CARD ------------------------- */
-const PasswordInput = ({ password, setPassword, onNext }) => (
-  <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-    <Card
-      className="
-        w-full 
-        max-w-xl
-        shadow-lg
-        rounded-3xl 
-        border border-gray-200 
-        bg-white/95 
-        backdrop-blur-sm
-        px-6 lg:px-10
-      "
-    >
-      <CardHeader className="text-center space-y-3 pb-2 pt-6">
-        <CardTitle className="text-3xl font-bold text-gray-900">Create New Password</CardTitle>
-        <CardDescription className="text-lg text-gray-600">
-          Enter your new password below.
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="py-4 space-y-4">
-        <Label className="text-sm font-medium text-gray-700">New Password</Label>
-        <Input
-          type="password"
-          placeholder="Enter new password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="
-            h-14 
-            text-lg 
-            rounded-2xl
-            border-gray-300 
-            focus:ring-2 
-            focus:ring-indigo-500 
-            focus:border-indigo-500
-            transition-all
-          "
-        />
-      </CardContent>
-
-      <CardFooter className="pb-6">
-        <Button
-          onClick={onNext}
-          className="
-            w-full 
-            h-14 
-            rounded-2xl 
-            text-lg 
-            font-semibold 
-            bg-indigo-600 
-            hover:bg-indigo-700 
-            shadow-lg 
-            hover:shadow-xl
-          "
-        >
-          Reset Password
-        </Button>
-      </CardFooter>
-    </Card>
+const FieldWrap = ({ label, icon: Icon, children }) => (
+  <div className="space-y-2">
+    <Label className="text-sm font-semibold text-slate-700">{label}</Label>
+    <div className="relative">
+      <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+      {children}
+    </div>
   </div>
 );
 
-/* ------------------------- SUCCESS MESSAGE ------------------------- */
+const EmailInput = ({ username, setUsername, email, setEmail, onNext, isLoading }) => (
+  <AuthShell
+    eyebrow="Reset Access"
+    title="Forgot password?"
+    description="Enter your username and registered email address to receive a verification OTP."
+    sideNote="Identity Check"
+    footer={
+      <Button
+        onClick={onNext}
+        disabled={isLoading}
+        className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700"
+      >
+        {isLoading ? (
+          <>
+            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            Sending OTP
+          </>
+        ) : (
+          "Send OTP"
+        )}
+      </Button>
+    }
+  >
+    <div className="space-y-5">
+      <FieldWrap label="Username" icon={UserCircle2}>
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your username"
+          className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
+      </FieldWrap>
+      <FieldWrap label="Email Address" icon={Mail}>
+        <Input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+        />
+      </FieldWrap>
+    </div>
+  </AuthShell>
+);
+
+const OTPInput = ({ otp, setOTP, onVerify, isLoading }) => (
+  <AuthShell
+    eyebrow="Verify OTP"
+    title="Check your inbox"
+    description="Enter the OTP delivered to your registered email address to continue."
+    sideNote="Step 2 of 3"
+    footer={
+      <Button
+        onClick={onVerify}
+        disabled={isLoading}
+        className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700"
+      >
+        {isLoading ? (
+          <>
+            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            Verifying
+          </>
+        ) : (
+          "Verify OTP"
+        )}
+      </Button>
+    }
+  >
+    <FieldWrap label="One-Time Password" icon={ShieldCheck}>
+      <Input
+        value={otp}
+        onChange={(e) => setOTP(e.target.value)}
+        maxLength={6}
+        placeholder="Enter 6-digit OTP"
+        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base tracking-[0.3em] shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+      />
+    </FieldWrap>
+  </AuthShell>
+);
+
+const PasswordInput = ({ password, setPassword, onNext, isLoading }) => (
+  <AuthShell
+    eyebrow="Set Password"
+    title="Create a new password"
+    description="Choose a strong password for your account. You will be redirected to login after reset."
+    sideNote="Step 3 of 3"
+    footer={
+      <Button
+        onClick={onNext}
+        disabled={isLoading}
+        className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700"
+      >
+        {isLoading ? (
+          <>
+            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            Updating password
+          </>
+        ) : (
+          "Reset Password"
+        )}
+      </Button>
+    }
+  >
+    <FieldWrap label="New Password" icon={KeyRound}>
+      <Input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Enter new password"
+        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+      />
+    </FieldWrap>
+  </AuthShell>
+);
+
 const SuccessMessage = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-    <Card className="max-w-lg w-full text-center rounded-3xl shadow-lg border bg-white/95 backdrop-blur-sm p-10">
-      <CardTitle className="text-3xl font-bold text-green-600">🎉 Password Reset Successful!</CardTitle>
-      <CardDescription className="text-lg text-gray-600 mt-3">
-        You can now log in with your new password.
-      </CardDescription>
-    </Card>
-  </div>
+  <AuthShell
+    eyebrow="Success"
+    title="Password updated"
+    description="Your password has been changed successfully. Redirecting you to login."
+    sideNote="Completed"
+    footer={
+      <Button asChild className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700">
+        <Link href="/login">Go to Login</Link>
+      </Button>
+    }
+  >
+    <div className="rounded-3xl border border-green-100 bg-green-50 px-5 py-5 text-sm font-medium text-green-700">
+      You can now use your new password to sign in to the Parv Financial dashboard.
+    </div>
+  </AuthShell>
 );
 
-/* ------------------------- ERROR MESSAGE ------------------------- */
-const ErrorMessage = () => <></>;
+const ErrorMessage = () => null;
 
-/* ------------------------- MAIN PAGE ------------------------- */
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const {
     step,
     username,
@@ -625,43 +267,61 @@ export default function ForgotPasswordPage() {
     handleSendOTP,
     handleVerifyOTP,
     handleChangePassword,
+    loadingSendOTP,
+    loadingVerifyOTP,
+    loadingChangePassword,
   } = useForgotPassword();
 
   useEffect(() => {
     setError("");
-  }, [step]);
+  }, [step, setError]);
+
+  useEffect(() => {
+    if (step !== 4) return;
+    const timer = setTimeout(() => {
+      router.push("/login");
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, [router, step]);
 
   const steps = {
-    1: <EmailInput username={username} setUsername={setUsername} email={email} setEmail={setEmail} onNext={handleSendOTP} />,
-    2: <OTPInput otp={otp} setOTP={setOTP} onVerify={handleVerifyOTP} />,
-    3: <PasswordInput password={password} setPassword={setPassword} onNext={handleChangePassword} />,
+    1: (
+      <EmailInput
+        username={username}
+        setUsername={setUsername}
+        email={email}
+        setEmail={setEmail}
+        onNext={handleSendOTP}
+        isLoading={loadingSendOTP}
+      />
+    ),
+    2: <OTPInput otp={otp} setOTP={setOTP} onVerify={handleVerifyOTP} isLoading={loadingVerifyOTP} />,
+    3: (
+      <PasswordInput
+        password={password}
+        setPassword={setPassword}
+        onNext={handleChangePassword}
+        isLoading={loadingChangePassword}
+      />
+    ),
     4: <SuccessMessage />,
     5: <ErrorMessage />,
   };
 
   return (
     <div className="relative">
-      {error && (
+      {error ? (
         <Alert
           variant="destructive"
-          className="
-            w-[350px] 
-            fixed 
-            top-10 
-            left-1/2 
-            -translate-x-1/2 
-            shadow-lg 
-            rounded-xl
-          "
+          className="fixed left-1/2 top-8 z-50 w-[min(92vw,420px)] -translate-x-1/2 rounded-2xl border-red-200 bg-white shadow-xl"
         >
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )}
+      ) : null}
 
       {steps[step]}
     </div>
   );
 }
-
