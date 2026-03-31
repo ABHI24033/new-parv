@@ -7,14 +7,13 @@ import HomeLoanPage from "@/components/Services/pages/HomeLoanPage";
 
 const Page= () => {
     return (
-        <div className=" bg-gray-100">
-             <UpperHeader/>
+        <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,#eff6ff_0%,#f8fafc_28%,#ffffff_100%)]">
+            <UpperHeader />
             <NavbarNew />
-            <main className="bg-gray-50 mx-auto">
+            <main className="mx-auto flex-1 w-full">
                 <Header
                     title={'Home Loans'}
-                    subTitle={'Get financing for whatever you need now. Achieve all your goals and aspirations with the right kind of help, exactly when you need it.'}
-                    img={'/About/home_loan_header.png'}
+                    subTitle={'Get financing for the home you love with transparent rates, quick processing, and end-to-end guidance.'}
                 />
                 <HomeLoanPage />
             </main>

@@ -5,78 +5,64 @@ import { ResultDisplay } from "./ResultDisplay";
 import LoanGraph from "./LoanGraph";
 
 export default function LoanCalculator() {
-    const [amount, setAmount] = useState(1000);
-    const [length, setLength] = useState(10); // in months
-    const [interest, setInterest] = useState(10); // percentage
+  const [amount, setAmount] = useState(500000);
+  const [length, setLength] = useState(60); // months
+  const [interest, setInterest] = useState(9.5); // percentage
 
-    // Calculate results
-    const monthlyInterestRate = interest / 100 / 12;
-    const monthlyPayment = useMemo(() => (
+  const monthlyInterestRate = interest / 100 / 12;
+  const monthlyPayment = useMemo(
+    () =>
+      (
         (amount * monthlyInterestRate) /
         (1 - Math.pow(1 + monthlyInterestRate, -length))
-    ).toFixed(2), [amount, interest, length]);
+      ).toFixed(2),
+    [amount, interest, length]
+  );
 
-    const totalPayable = (monthlyPayment * length).toFixed(2);
-    const totalInterest = (totalPayable - amount).toFixed(2);
+  const totalPayable = (monthlyPayment * length).toFixed(2);
+  const totalInterest = (totalPayable - amount).toFixed(2);
 
-    return (
-        <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg  space-y-6 my-6">
-            <p className="text-center text-sm md:text-lg text-gray-700 mb-6">
-                Welcome to Parv Finance's Loan Calculator. This tool helps you calculate monthly payments, the total payable amount, and interest rates based on your loan amount, term, and interest rate.
+  return (
+    <section className="mx-auto mt-10 w-full max-w-6xl rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
+      <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="space-y-6">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Plan in seconds</p>
+            <h2 className="text-2xl font-black text-slate-900">Adjust sliders to see your EMI</h2>
+            <p className="mt-2 text-sm leading-7 text-slate-600">
+              Explore how amount, tenure, and rate change your monthly outgo. Values are indicative—connect with us for personalised offers.
             </p>
-            <div className="flex gap-4 flex-col lg:flex-row items-center w-full">
+          </div>
 
-                {/* Slider Inputs */}
-                <div className="w-full space-y-6">
-                    <Slider label="Loan Amount" value={amount} min={10000} max={1000000} step={1000} onChange={setAmount} unit="₹" />
-                    <Slider label="Loan Term (Months)" value={length} min={6} max={60} step={1} onChange={setLength} unit="Months" />
-                    <Slider label="Interest Rate" value={interest} min={1} max={25} step={0.5} onChange={setInterest} unit="%" />
-                    <hr title="Write input for calculate" />
-                    <div className="space-y-3">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="amount">Loan Amount</label>
-                                <input
-                                    onChange={(e) => setAmount(e?.target?.value)}
-                                    value={amount<0?0:amount}
-                                    type="number"
-                                    id="amount"
-                                    placeholder="Principal Amount"
-                                    className="bg-gray-100 border p-2 rounded w-full outline-1 outline-blue-100 appearance-none"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="length">Loan Terms (months)</label>
-                                <input
-                                    onChange={(e) => setLength(e?.target?.value)}
-                                    value={length<0?0:length}
-                                    type="number"
-                                    id="length"
-                                    placeholder="Time in months"
-                                    className="bg-gray-100 border p-2 rounded w-full outline-1 outline-blue-100 appearance-none"
-                                />
-                            </div>
-                            <div className="flex flex-col">
-                                <label htmlFor="interest">Interest</label>
-                                <input
-                                    onChange={(e) => setInterest(e?.target?.value)}
-                                    value={interest}
-                                    type="number"
-                                    id="interest"
-                                    placeholder="Interest Amount"
-                                    className="bg-gray-100 border p-2 rounded outline-1 outline-blue-100 appearance-none"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div className="space-y-6 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+            <Slider label="Loan Amount" value={amount} min={50000} max={10000000} step={10000} onChange={setAmount} unit="₹" />
+            <Slider label="Loan Term (Months)" value={length} min={6} max={240} step={1} onChange={setLength} unit="Months" />
+            <Slider label="Interest Rate" value={interest} min={6} max={18} step={0.1} onChange={setInterest} unit="%" />
+          </div>
 
-                <div className="w-full flex flex-col md:flex-row justify-center">
-                    <ResultDisplay monthlyPayment={monthlyPayment} totalPayable={totalPayable} totalInterest={totalInterest} />
-                    <LoanGraph amount={amount} length={length} interest={interest} />
-                </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Amount</p>
+              <p className="text-lg font-black text-slate-900">₹{amount.toLocaleString("en-IN")}</p>
             </div>
-
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">EMI</p>
+              <p className="text-lg font-black text-slate-900">₹{Number(monthlyPayment).toLocaleString("en-IN")}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-600">Tenure</p>
+              <p className="text-lg font-black text-slate-900">{length} months</p>
+            </div>
+          </div>
         </div>
-    );
+
+        <div className="flex flex-col gap-5">
+          <ResultDisplay monthlyPayment={monthlyPayment} totalPayable={totalPayable} totalInterest={totalInterest} />
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <LoanGraph amount={amount} length={length} interest={interest} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

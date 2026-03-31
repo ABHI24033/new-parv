@@ -4,23 +4,21 @@ import NavbarNew from "@/components/common/Navbar";
 import UpperHeader from "@/components/common/UpperHeader";
 import PersonalLoanPage from "@/components/Services/pages/PersonalLoan";
 
+const PersonalLoan = () => {
+  return (
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,#eff6ff_0%,#f8fafc_28%,#ffffff_100%)]">
+      <UpperHeader />
+      <NavbarNew />
+      <main className="flex-1">
+        <Header
+          title={"Personal Loan"}
+          subTitle={"Fast, flexible personal loans for life's big moments—transparent rates and minimal documentation."}
+        />
+        <PersonalLoanPage />
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
-const PersoanlLoan = () => {
-    return (
-        <div className="">
-             <UpperHeader/>
-            <NavbarNew />
-            <main className="bg-gray-50">
-                <Header
-                    title={"Personal Loan"}
-                    subTitle={'Achieve Your Goals and Fulfill Your Dreams with a Personal Loan Designed to Meet Your Every Financial Need—Fast Approvals, Flexible Tenures, and Minimal Documentation!'}
-                    img={'/services/persoanl_loan2.jpg'}
-                />
-                <PersonalLoanPage />
-            </main>
-            <Footer />
-        </div>
-    )
-}
-
-export default PersoanlLoan;
+export default PersonalLoan;

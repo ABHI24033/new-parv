@@ -1,192 +1,9 @@
-// import React from "react";
-// import { BriefcaseBusiness, BusIcon, CastleIcon, HandCoinsIcon, User2Icon } from "lucide-react";
-// import { BigHeading, Heading } from "../common/Common";
-// import Link from "next/link";
-// import { ArrowRight } from "lucide-react";
-// import { Button } from "../ui/button";
-// import HomeLoanSection from "../Services/HomeLoanSection";
-// import BusinessLoanSection from "../Services/BusinessLoanSection";
-// import VehicleLoanSection from "../Services/VehicleLoan";
-// import PersonalLoanSection from "../Services/PersoanlLoan";
-// import GoldLoanSection from "../Services/GoldLoanSection";
-// import GroupLoanSection from "../Services/GroupLoanSection";
-
-// const loanDetails = [
-//   {
-//     type: "Home Loan",
-//     header: "Own Your Dream Home with Ease",
-//     subheader: "Affordable Home Loans for Every Aspiration",
-//     icon: CastleIcon,
-//     content: [
-//       "Flexible repayment options available.",
-//       "Loan tenure up to 30 years.",
-//       "Quick approvals and minimal documentation.",
-//       "Loans for purchases or renovations."
-//     ]
-//   },
-//   {
-//     type: "Vehicle Loan",
-//     header: "Drive Your Dreams Today",
-//     subheader: "Hassle-Free Loans for Two-Wheelers and Four-Wheelers",
-//     icon: BusIcon,
-//     content: [
-//       "Finance up to 90% cost.",
-//       "Flexible repayment tenures offered.",
-//       "Fast approvals for quick disbursement.",
-//       "Loans for new or used vehicles."
-//     ]
-//   },
-//   {
-//     type: "Personal Loan",
-//     header: "Instant Funds for Your Personal Needs",
-//     subheader: "Quick Approval, No Collateral Required",
-//     icon: User2Icon,
-//     content: [
-//       "Funds for emergencies or travel.",
-//       "Loans up to ₹25 lakh available.",
-//       "Repayment tenure up to 60 months.",
-//       "Easy online applications, instant approval."
-//     ]
-//   },
-//   {
-//     type: "Business Loan",
-//     header: "Empower Your Business Growth",
-//     subheader: "Customized Loans for Small and Large Businesses",
-//     icon: BriefcaseBusiness,
-//     content: [
-//       "Loans up to ₹50 lakh available.",
-//       "Flexible EMIs tailored to business needs.",
-//       "Pre-approved offers for quick access.",
-//       "Minimal paperwork, fast processing guaranteed."
-//     ]
-//   },
-//   {
-//     type: "Gold Loan",
-//     header: "Unlock the Value of Your Gold",
-//     subheader: "Instant Funds with Gold as Security",
-//     icon: HandCoinsIcon,
-//     content: [
-//       "Quick loans against gold ornaments.",
-//       "High loan-to-value ratio offered.",
-//       "No credit score requirements needed.",
-//       "Instant disbursement, secure gold storage."
-//     ]
-//   },
-//   // {
-//   //   type: "Loan Against Property",
-//   //   header: "Invest in Your Future",
-//   //   subheader: "Affordable Loans for Quality Education",
-//   //   icon: Building2Icon,
-//   //   content: [
-//   //     "Covers tuition fees and expenses.",
-//   //     "Loans for studying in India or abroad.",
-//   //     "Flexible repayment with moratorium period.",
-//   //     "Special offers for higher education courses."
-//   //   ]
-//   // }
-// ];
-
-// const Card = ({ data }) => {
-//   return (
-//     <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-all duration-300">
-//       <div className="flex items-center justify-between mb-4">
-//         <div className="bg-blue-100 text-blue-600 p-3 rounded-full">
-//           <data.icon size={24} />
-//         </div>
-//         <span className="text-sm font-medium bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-//           {data?.type}
-//         </span>
-//       </div>
-//       <h3 className="text-xl font-bold text-gray-800 mb-1">{data?.header}</h3>
-//       <p className="text-gray-500 text-sm mb-4">{data?.subheader}</p>
-//       <ul className="space-y-3">
-//         {data?.content?.map((item, index) => (
-//           <li className="flex items-start text-gray-600 text-sm" key={index}>
-//             <svg
-//               xmlns="http://www.w3.org/2000/svg"
-//               width="16"
-//               height="16"
-//               fill="currentColor"
-//               className="mt-1 mr-2 text-blue-500"
-//               viewBox="0 0 24 24"
-//             >
-//               <path d="M9 16.2l-3.5-3.5 1.41-1.41L9 13.38l7.09-7.09 1.41 1.41z" />
-//             </svg>
-//             {item}
-//           </li>
-//         ))}
-//       </ul>
-//       <Link href={`/services/${data.type.toLowerCase().replace(/ /g, '-')}`}>
-//         <Button className="mt-4 bg-blue-500 text-white text-xs px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-//           Learn More <ArrowRight className="inline-block ml-2" size={16} />
-//         </Button>
-//       </Link>
-//     </div>
-//   );
-// };
-
-// const Services = () => {
-//   return (
-//     // <div className="px-4 py-4 md:py-10 w-full bg-gradient-to-br from-royal-blue-50 to-white space-y-6 mx-auto font-[sans-serif]">
-//     <div className="px-4 py-4 md:py-10 w-full bg-gradient-to-tr from-blue-50 via-gray-50 to-teal-50 mx-auto font-[sans-serif]">
-//       <div className="text-start md:text-center w-full md:max-w-2xl mx-auto">
-//         <div className="flex justify-center my-6">
-//           <Heading text={"Services"} />
-//         </div>
-//         <BigHeading text="Simplify Your Success Today" />
-//         <p className="text-sm text-gray-600 mt-6">
-//           Discover innovative solutions designed to streamline your journey. Our
-//           exceptional services provide the tools and support you need to unlock
-//           potential, achieve goals, and excel effortlessly.
-//         </p>
-//       </div>
-
-//       {/* <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 max-w-7xl mx-auto"> */}
-//       {/* <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
-//         {loanDetails?.map((item, index) => (
-//           <Card data={item} key={index} />
-//         ))}
-//       </div> */}
-//       <HomeLoanSection />
-//       <BusinessLoanSection />
-//       <VehicleLoanSection />
-//       <PersonalLoanSection />
-//       <GoldLoanSection />
-//       <GroupLoanSection/>
-//     </div>
-//   );
-// };
-
-// export default Services;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import React from "react";
 import Slider from "react-slick";
 import Link from "next/link";
-import {
-  CastleIcon,
-  BusIcon,
-  User2Icon,
-  BriefcaseBusiness,
-  HandCoinsIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -194,113 +11,107 @@ import "slick-carousel/slick/slick-theme.css";
 const services = [
   {
     title: "Home Loan",
-    icon: CastleIcon,
-    description: "Affordable loans to buy or renovate your dream home.",
-    link: "/services/home-loan",
+    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    description: "Affordable loans to buy or renovate your dream home with flexible tenure.",
+    link: "/loan-enquiry",
   },
   {
     title: "Vehicle Loan",
-    icon: BusIcon,
-    description: "Finance your car or bike with flexible EMI options.",
-    link: "/services/vehicle-loan",
+    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    description: "Finance your car or bike efficiently with our quick approval process.",
+    link: "/loan-enquiry",
   },
   {
     title: "Personal Loan",
-    icon: User2Icon,
-    description: "Instant funds for travel, medical or emergencies.",
-    link: "/services/personal-loan",
+    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    description: "Instant funds for travel, medical emergencies, or lifestyle upgrades.",
+    link: "/loan-enquiry",
   },
   {
     title: "Business Loan",
-    icon: BriefcaseBusiness,
-    description: "Flexible business loans to grow your company.",
-    link: "/services/business-loan",
+    image: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    description: "Flexible working capital and business expansion loans to grow your company.",
+    link: "/loan-enquiry",
   },
   {
     title: "Gold Loan",
-    icon: HandCoinsIcon,
-    description: "Get instant cash against your gold ornaments.",
-    link: "/services/gold-loan",
+    image: "https://images.unsplash.com/photo-1610375461246-83df859d849d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    description: "Get instant liquidity against your gold ornaments with top security.",
+    link: "/loan-enquiry",
   },
 ];
 
 const Services = () => {
   const settings = {
-    dots: false,
+    dots: true,
     infinite: true,
-    speed: 500,
-    slidesToShow: 4,
+    speed: 600,
+    slidesToShow: 3,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2500,
+    autoplaySpeed: 3000,
+    arrows: false,
     responsive: [
       {
         breakpoint: 1024,
-        settings: { slidesToShow: 3 },
-      },
-      {
-        breakpoint: 768,
         settings: { slidesToShow: 2 },
       },
       {
-        breakpoint: 480,
+        breakpoint: 640,
         settings: { slidesToShow: 1 },
       },
     ],
   };
 
   return (
-    <section className="py-12 bg-gradient-to-tr from-blue-50 via-gray-50 to-teal-50">
-      <div className="max-w-7xl mx-auto px-4">
-
-        {/* Heading */}
-        <div className="text-center mb-10">
-          <h4 className="text-blue-600 font-semibold">Services</h4>
-          <h2 className="text-3xl font-bold mt-2">
-            Loan Solutions for Every Need
-          </h2>
-          <p className="text-gray-600 text-sm mt-4 max-w-xl mx-auto">
-            Explore our wide range of loan services designed to support
-            your personal and business financial goals.
-          </p>
+    <section className="relative">
+      <div className="rounded-[2rem] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:p-6 lg:p-8">
+        <div className="mb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Our Financial Solutions</h2>
+            <p className="mt-3 text-sm font-medium leading-6 text-slate-500">
+              Explore our comprehensive range of loan options designed to support your personal aspirations and business goals.
+            </p>
+          </div>
+          <Link href="/loan-enquiry" className="inline-flex rounded-full bg-blue-50 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.2em] text-blue-700 hover:bg-blue-100 transition-colors">
+            View All Services
+          </Link>
         </div>
 
-        {/* Slider */}
-        <Slider {...settings}>
-          {services.map((service, index) => {
-            const Icon = service.icon;
-
-            return (
-              <div key={index} className="px-3">
-                <div className="bg-white rounded-xl p-6 border hover:shadow-lg transition-all h-full">
-
-                  {/* Icon */}
-                  <div className="bg-blue-100 w-12 h-12 flex items-center justify-center rounded-full mb-4 text-blue-600">
-                    <Icon size={24} />
+        <Slider {...settings} className="services-slider pb-8">
+          {services.map((service) => (
+            <div key={service.title} className="px-3 pb-6">
+              <div className="group flex h-full min-h-[420px] flex-col overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+                {/* Real Image Header */}
+                <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                  <div className="absolute inset-0 bg-slate-900/10 mix-blend-multiply group-hover:opacity-0 transition-opacity duration-500 z-10" />
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute top-4 right-4 z-20">
+                    <span className="rounded-full bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-700 shadow-sm">
+                      Loan
+                    </span>
                   </div>
+                </div>
 
-                  {/* Title */}
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {service.title}
-                  </h3>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900">{service.title}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">{service.description}</p>
 
-                  {/* Description */}
-                  <p className="text-sm text-gray-500 mt-2 mb-4">
-                    {service.description}
-                  </p>
-
-                  {/* Button */}
-                  <Link href={service.link}>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  <Link href={service.link} className="mt-6 block w-full">
+                    <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 transition-colors group-hover:border-blue-600 group-hover:bg-blue-600 group-hover:text-white">
                       Apply Now
-                    </Button>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </Link>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </Slider>
-
       </div>
     </section>
   );

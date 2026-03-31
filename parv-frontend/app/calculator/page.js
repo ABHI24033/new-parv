@@ -20,7 +20,7 @@ function Connector() {
                 <meta property="og:description" content="Calculate your loan EMI easily with Parv Financial Services' EMI Calculator. Plan your loan repayments effectively!" />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://www.parvfinancialservices.com/calculator" />
-                <meta property="og:image" content="/About/calculator.png" />
+                <meta property="og:image" content="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" />
                 <meta name="robots" content="index, follow" />
                 {/* <!-- Google tag (gtag.js) --> */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17568164283"></script>
@@ -35,14 +35,16 @@ function Connector() {
           }}
         />
             </Head>
-            <div>
-                 <UpperHeader/>
+            <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,#eff6ff_0%,#f8fafc_28%,#ffffff_100%)]">
+                <UpperHeader />
                 <NavbarNew />
-                <main className="">
-                    <Header title={"EMI Calculator"} subTitle={"Your trusted financial Partner"} img={'/About/calculator.png'} />
-                    <LoanCalculator />
-                    <EMINote />
-                    <EmiAccordion />
+                <main className="flex-1">
+                    <Header title={"EMI Calculator"} subTitle={"Plan your EMI in seconds with transparent, rupee-first calculations."} />
+                    <div className="px-4 pb-16 sm:px-6 lg:px-8">
+                      <LoanCalculator />
+                      <EMINote />
+                      <EmiAccordion />
+                    </div>
                 </main>
                 <Footer />
             </div>

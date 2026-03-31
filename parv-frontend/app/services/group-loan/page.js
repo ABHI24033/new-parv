@@ -5,17 +5,16 @@ import UpperHeader from "@/components/common/UpperHeader";
 import GroupLoanPage from "@/components/Services/pages/GroupLoanPage";
 
 
-const GoldLoan = () => {
+const GroupLoan = () => {
     return (
-        <div>
-             <UpperHeader/>
+        <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,#eff6ff_0%,#f8fafc_28%,#ffffff_100%)]">
+            <UpperHeader />
             <NavbarNew />
-            <main className=" bg-gray-50">
-                {/* <Header
-                    title={"Gold Loan"}
-                    subTitle={'Your Partner in Success: Customized Business Loans Designed to Meet Your Unique Needs, Helping You Scale New Heights and Achieve Long-Term Stability.'}
-                    img={'/services/gold-loan.png'}
-                /> */}
+            <main className="flex-1">
+                <Header 
+                    title={"Group Loan"} 
+                    subTitle={"Empower your community with transparent, doorstep group loans and continuous support."}
+                />
                 <GroupLoanPage />
             </main>
             <Footer />
@@ -23,4 +22,4 @@ const GoldLoan = () => {
     )
 };
 
-export default GoldLoan;
+export default GroupLoan;

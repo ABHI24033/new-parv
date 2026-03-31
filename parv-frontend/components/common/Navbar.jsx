@@ -1,24 +1,17 @@
 'use client'
+
 import { useUserState } from "@/app/dashboard/store";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { PhoneCall, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Menu, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
-import { ChevronDown } from "lucide-react";
-import { ChevronUp } from "lucide-react";
-
 
 const NavLinks = [
-    {
-        name: "Home",
-        url: "/"
-    },
-    {
-        name: "About us",
-        url: "/about"
-    },
+    { name: "Home", url: "/" },
+    { name: "About", url: "/about" },
     {
         name: "Services",
         url: "/services",
@@ -31,230 +24,222 @@ const NavLinks = [
             { name: "Group Loan", url: "/services/group-loan" },
         ]
     },
-    {
-        name: "EMI Calculator",
-        url: "/calculator"
-    },
-    {
-        name: "DSA",
-        url: "/dsa"
-    },
-    {
-        name: "Loan Enquiry",
-        url: "/loan-enquiry"
-    },
-]
+    { name: "EMI Calculator", url: "/calculator" },
+    { name: "DSA", url: "/dsa" },
+    { name: "Contact", url: "/loan-enquiry" },
+];
 
-const Mobilenavbar = ({ openNav, toggleNav, paths }) => {
+const MobileNavbar = ({ openNav, toggleNav, paths }) => {
     const [openServices, setOpenServices] = useState(false);
+
     return (
-        <div>
-            <Sheet open={openNav} onOpenChange={toggleNav} >
-                <SheetContent className="transition-all duration-500">
-                    <SheetTitle></SheetTitle>
-                    <SheetHeader>
-                        <Link href="/" className="flex items-center space-x-1 rtl:space-x-reverse">
-                            <img src={'/logo/logo1.png'} className="h-10 w-28 bg-transparent" alt="Logo" />
+        <Sheet open={openNav} onOpenChange={toggleNav}>
+            <SheetContent className="w-[300px] bg-white border-l border-slate-200 p-0">
+                <SheetTitle className="sr-only">Navigation</SheetTitle>
+                <SheetHeader className="px-6 py-4 border-b border-slate-100">
+                    <Link href="/" className="flex items-center" onClick={() => toggleNav(false)}>
+                        <img src="/logo/logo1.png" className="h-8 w-auto object-contain" alt="Parv Financial" />
+                    </Link>
+                </SheetHeader>
+                <SheetDescription className="sr-only">Navigation menu</SheetDescription>
+                <nav className="flex flex-col p-4">
+                    {NavLinks.map((item, index) => {
+                        const pathname = item?.url?.split("/")[1];
+                        const isActive = paths.includes(pathname);
+
+                        if (item.subLinks) {
+                            return (
+                                <div key={index} className="mb-1">
+                                    <button
+                                        className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                        onClick={() => setOpenServices(!openServices)}
+                                    >
+                                        <span>{item.name}</span>
+                                        <ChevronDown 
+                                            className={`h-4 w-4 text-slate-400 transition-transform ${openServices ? 'rotate-180' : ''}`} 
+                                        />
+                                    </button>
+                                    {openServices && (
+                                        <div className="ml-3 mt-1 border-l-2 border-slate-100 pl-3 space-y-1">
+                                            {item.subLinks.map((sub, subIndex) => (
+                                                <Link
+                                                    key={subIndex}
+                                                    href={sub.url}
+                                                    className="block rounded-lg px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                                    onClick={() => toggleNav(false)}
+                                                >
+                                                    {sub.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <Link
+                                key={index}
+                                href={item.url}
+                                onClick={() => toggleNav(false)}
+                                className={`rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                                    isActive 
+                                        ? "bg-blue-50 text-blue-600" 
+                                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                                }`}
+                            >
+                                {item.name}
+                            </Link>
+                        );
+                    })}
+                    
+                    <div className="mt-4 pt-4 border-t border-slate-100">
+                        <Link href="/loan-enquiry" onClick={() => toggleNav(false)}>
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                                Apply Now
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
                         </Link>
-                    </SheetHeader>
-                    <SheetDescription className="transition-all duration-500">
-                        <ul className="flex flex-col p-4 space-y-2 font-medium">
-                            {NavLinks.map((item, index) => {
-                                const pathname = item?.url?.split("/")[1];
-                                const isActive = paths.includes(pathname);
-
-                                if (item.subLinks) {
-                                    return (
-                                        <li key={index}>
-                                            <button
-                                                className="flex justify-between w-full px-3 py-2 text-left text-slate-800 font-medium"
-                                                onClick={() => setOpenServices(!openServices)}
-                                            >
-                                                <span>{item.name}</span>
-                                                {openServices ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                            </button>
-                                            {openServices && (
-                                                <ul className="pl-6 space-y-1">
-                                                    {item.subLinks.map((sub, subIndex) => (
-                                                        <li key={subIndex}>
-                                                            <Link
-                                                                href={sub.url}
-                                                                className="block px-3 py-2 text-sm text-slate-700 hover:bg-blue-100 rounded"
-                                                            >
-                                                                {sub.name}
-                                                            </Link>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </li>
-                                    );
-                                }
-
-                                return (
-                                    <li key={index}>
-                                        <Link
-                                            href={item.url}
-                                            className={`block px-3 py-2 rounded ${isActive ? "bg-blue-100 text-blue-700" : "text-slate-800"}`}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </SheetDescription>
-                </SheetContent>
-            </Sheet>
-        </div>
-    )
+                    </div>
+                </nav>
+            </SheetContent>
+        </Sheet>
+    );
 }
 
-
 const NavbarNew = () => {
-  const [openNav, setOpenNav] = useState(false);
-  const toggleNav = () => setOpenNav(!openNav);
-  const [navColar, setNavColar] = useState(false);
+    const [openNav, setOpenNav] = useState(false);
+    const toggleNav = () => setOpenNav(!openNav);
+    const [navSolid, setNavSolid] = useState(false);
 
-  const pathName = usePathname();
-  const paths = pathName.split("/");
+    const pathName = usePathname();
+    const paths = pathName.split("/");
 
-  const userState = useUserState();
+    useUserState();
 
-  // Scroll listener to change background
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) setNavColar(true);
-      else setNavColar(false);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    useEffect(() => {
+        const handleScroll = () => {
+            setNavSolid(window.scrollY > 10);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-  return (
-    <>
-      <nav
-        className={`sticky top-0 z-30 transition-colors duration-300 border-b ${
-          navColar
-            ? "bg-gradient-to-l from-blue-100 to-teal-100 shadow-md border-gray-200 dark:bg-gray-900 dark:border-gray-600"
-            : "bg-gradient-to-r from-blue-100 to-teal-100 border-gray-200 dark:bg-gray-900 dark:border-gray-600"
-        }`}
-      >
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-1 rtl:space-x-reverse">
-            <img
-              src="/logo/logo1.png"
-              className="h-10 w-28 bg-transparent"
-              alt="Logo"
-            />
-          </Link>
-
-          {/* Right side (Apply Now + Hamburger) */}
-          <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <Link href="/loan-enquiry" className="hidden md:block">
-              <button
-                type="button"
-                className="text-white bg-teal-500 hover:bg-teal-600 dark:bg-blue-600 dark:hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 flex items-center gap-2 focus:outline-none"
-              >
-                Apply Now
-              </button>
-            </Link>
-
-            {/* Hamburger Menu */}
-            <button
-              type="button"
-              className="inline-flex lg:hidden items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600"
-              aria-controls="navbar-sticky"
-              aria-expanded={openNav}
-              onClick={toggleNav}
+    return (
+        <>
+            <header
+                className={`sticky top-0 z-50 transition-all duration-300 ${
+                    navSolid
+                        ? "bg-white/95 shadow-lg shadow-slate-200/50 backdrop-blur-md border-b border-slate-200/60"
+                        : "bg-white border-b border-slate-100"
+                }`}
             >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="w-5 h-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 17 14"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M1 1h15M1 7h15M1 13h15"
-                />
-              </svg>
-            </button>
-          </div>
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+                    {/* Logo */}
+                    <Link href="/" className="flex items-center py-1">
+                        <img
+                            src="/logo/logo1.png"
+                            className="h-9 w-auto object-contain transition-transform hover:scale-[1.02]"
+                            alt="Parv Financial Services"
+                        />
+                    </Link>
 
-          {/* Menu Links */}
-          <div
-            className={`${
-              openNav ? "block" : "hidden"
-            } items-center justify-between w-full lg:flex md:w-auto md:order-1`}
-            id="navbar-sticky"
-          >
-            <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg md:space-x-4 md:flex-row md:mt-0 md:border-0">
-              {NavLinks.map((item, index) => {
-                const pathname = item?.url?.split("/")[1];
-                return (
-                  <li key={index} className="relative">
-                    {item?.subLinks ? (
-                      <HoverCard openDelay={100} closeDelay={100}>
-                        <HoverCardTrigger asChild>
-                          <div className="group cursor-pointer block py-2 px-1 text-slate-800 relative">
-                            <span
-                              className={`flex items-center gap-1 ${
-                                paths.includes(pathname)
-                                  ? "md:text-blue-700 border-b border-blue-700"
-                                  : ""
-                              }`}
-                            >
-                              {item.name}
-                              <ChevronDown className="h-4 w-4 transform transition-transform duration-300 group-hover:rotate-180" />
-                            </span>
-                          </div>
-                        </HoverCardTrigger>
-                        <HoverCardContent
-                          className="w-64 p-2 flex flex-col space-y-1 shadow-lg"
-                          side="bottom"
-                          align="start"
+                    {/* Desktop Navigation - Center */}
+                    <nav className="hidden lg:flex items-center gap-1">
+                        {NavLinks.map((item, index) => {
+                            const pathname = item?.url?.split("/")[1];
+                            const isActive = paths.includes(pathname);
+
+                            if (item?.subLinks) {
+                                return (
+                                    <div key={index} className="relative">
+                                        <HoverCard openDelay={100} closeDelay={150}>
+                                            <HoverCardTrigger asChild>
+                                                <button
+                                                    className={`group flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                                                        isActive 
+                                                            ? "text-blue-600" 
+                                                            : "text-slate-600 hover:text-slate-900"
+                                                    }`}
+                                                >
+                                                    <span>{item.name}</span>
+                                                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform duration-200 group-hover:rotate-180" />
+                                                </button>
+                                            </HoverCardTrigger>
+                                            <HoverCardContent
+                                                className="w-56 rounded-xl border border-slate-200/80 bg-white p-2 shadow-xl shadow-slate-900/10"
+                                                side="bottom"
+                                                align="start"
+                                                sideOffset={8}
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    {item.subLinks.map((sub, subIndex) => (
+                                                        <Link
+                                                            key={subIndex}
+                                                            href={sub.url}
+                                                            className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-600"
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </HoverCardContent>
+                                        </HoverCard>
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <Link
+                                    key={index}
+                                    href={item.url}
+                                    className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                                        isActive 
+                                            ? "text-blue-600" 
+                                            : "text-slate-600 hover:text-slate-900"
+                                    }`}
+                                >
+                                    <span className="relative">
+                                        {item.name}
+                                        {isActive && (
+                                            <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-blue-600 rounded-full" />
+                                        )}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
+
+                    {/* Right: CTA + Mobile Menu */}
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/loan-enquiry"
+                            className="hidden md:inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition-all hover:shadow-lg hover:shadow-blue-300 hover:-translate-y-0.5 active:translate-y-0"
                         >
-                          {item.subLinks.map((sub, subIndex) => (
-                            <Link
-                              key={subIndex}
-                              href={sub.url}
-                              className="px-3 py-2 text-sm rounded-md hover:bg-blue-100 hover:text-blue-700 transition"
-                            >
-                              {sub.name}
-                            </Link>
-                          ))}
-                        </HoverCardContent>
-                      </HoverCard>
-                    ) : (
-                      <Link
-                        href={item.url}
-                        className={`block py-2 px-1 text-slate-800 ${
-                          paths.includes(pathname)
-                            ? "md:text-blue-700 border-b border-blue-700"
-                            : ""
-                        }`}
-                      >
-                        {item.name}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      </nav>
+                            Apply Now
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
 
-      {/* Mobile Menu Component */}
-      <Mobilenavbar openNav={openNav} toggleNav={toggleNav} paths={paths} />
-    </>
-  );
+                        {/* Mobile Menu Button */}
+                        <button
+                            type="button"
+                            className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                            aria-controls="mobile-menu"
+                            aria-expanded={openNav}
+                            onClick={toggleNav}
+                        >
+                            <span className="sr-only">Open main menu</span>
+                            <Menu className="h-5 w-5" />
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Spacer removed - sticky header flows naturally */}
+
+            <MobileNavbar openNav={openNav} toggleNav={toggleNav} paths={paths} />
+        </>
+    );
 };
 
 export default NavbarNew;

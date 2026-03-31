@@ -6,9 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useUserState } from '@/app/dashboard/store';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Send } from 'lucide-react';
+import { Send, Wallet, User, Info } from 'lucide-react';
 import { loanEnquiryApi } from '@/lib/api/loanEnquiry';
-import { FormSectionCard } from '@/components/forms/reusable/FormSectionCard';
 import { Label } from '../ui/label';
 
 const EnquiryForm = () => {
@@ -52,7 +51,7 @@ const EnquiryForm = () => {
         e.preventDefault();
         try {
             await loanEnquiryApi.create(formData);
-            toast.success("Message sent successfully!");
+            toast.success("Enquiry submitted successfully!");
             setFormData((prev) => ({
                 ...prev,
                 loanProduct: '',
@@ -72,25 +71,30 @@ const EnquiryForm = () => {
     };
 
     return (
-        <div className="p-2 lg:col-span-2">
+        <div>
             <Toaster />
             <form onSubmit={handleSubmit} className="space-y-6">
-
                 {/* Loan Information */}
-                <FormSectionCard
-                    title="Loan Information"
-                    description="Details about the loan you're interested in."
-                >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <Wallet className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-900">Loan Information</h2>
+                            <p className="text-sm text-slate-500">Details about the loan you're interested in</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Loan Product <span className="text-red-500">*</span>
                             </Label>
                             <Select
                                 value={formData.loanProduct}
                                 onValueChange={(val) => handleSelectChange("loanProduct", val)}
                             >
-                                <SelectTrigger className="w-full h-10 rounded-lg">
+                                <SelectTrigger className="w-full h-11 rounded-lg border-slate-200 focus:ring-blue-500">
                                     <SelectValue placeholder="Select Product" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -118,7 +122,7 @@ const EnquiryForm = () => {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Loan Amount <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -127,19 +131,19 @@ const EnquiryForm = () => {
                                 placeholder="Enter amount"
                                 value={formData.loanAmount}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Profession <span className="text-red-500">*</span>
                             </Label>
                             <Select
                                 value={formData.profession}
                                 onValueChange={(val) => handleSelectChange("profession", val)}
                             >
-                                <SelectTrigger className="w-full h-10 rounded-lg">
+                                <SelectTrigger className="w-full h-11 rounded-lg border-slate-200 focus:ring-blue-500">
                                     <SelectValue placeholder="Select profession" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -156,16 +160,22 @@ const EnquiryForm = () => {
                             </Select>
                         </div>
                     </div>
-                </FormSectionCard>
+                </div>
 
                 {/* Personal Information */}
-                <FormSectionCard
-                    title="Personal Information"
-                    description="Your contact details for follow-up."
-                >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <User className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
+                            <p className="text-sm text-slate-500">Your contact details for follow-up</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Full Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -174,12 +184,12 @@ const EnquiryForm = () => {
                                 placeholder="Your full name"
                                 value={formData.fullName}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Phone Number <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -188,12 +198,12 @@ const EnquiryForm = () => {
                                 placeholder="Mobile number"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 WhatsApp Number
                             </Label>
                             <Input
@@ -202,12 +212,12 @@ const EnquiryForm = () => {
                                 placeholder="WhatsApp number"
                                 value={formData.whatsappNo}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Email Address
                             </Label>
                             <Input
@@ -216,12 +226,12 @@ const EnquiryForm = () => {
                                 placeholder="Your email address"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 City/Town <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -230,12 +240,12 @@ const EnquiryForm = () => {
                                 placeholder="Your city"
                                 value={formData.city}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 Pincode <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -244,27 +254,33 @@ const EnquiryForm = () => {
                                 placeholder="6-digit pincode"
                                 value={formData.pincode}
                                 onChange={handleChange}
-                                className="h-10 rounded-lg"
+                                className="h-11 rounded-lg border-slate-200 focus:ring-blue-500"
                             />
                         </div>
                     </div>
-                </FormSectionCard>
+                </div>
 
                 {/* Source Information */}
-                <FormSectionCard
-                    title="Source Information"
-                    description="How did you find us?"
-                >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-6">
+                    <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                            <Info className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-slate-900">Source Information</h2>
+                            <p className="text-sm text-slate-500">How did you find us?</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="flex flex-col gap-1.5">
-                            <Label className="text-sm font-medium text-gray-700">
+                            <Label className="text-sm font-medium text-slate-700">
                                 How did you hear about us?
                             </Label>
                             <Select
                                 value={formData.source}
                                 onValueChange={(val) => handleSelectChange("source", val)}
                             >
-                                <SelectTrigger className="w-full h-10 rounded-lg">
+                                <SelectTrigger className="w-full h-11 rounded-lg border-slate-200 focus:ring-blue-500">
                                     <SelectValue placeholder="Select Source" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -286,13 +302,13 @@ const EnquiryForm = () => {
                             </Select>
                         </div>
                     </div>
-                </FormSectionCard>
+                </div>
 
                 {/* Submit */}
-                <div className="flex justify-end pt-4 border-t border-zinc-200">
+                <div className="flex justify-end pt-4">
                     <Button
                         type="submit"
-                        className="px-8 h-11 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
+                        className="h-12 px-8 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all"
                     >
                         <Send className="w-4 h-4 mr-2" />
                         Send Enquiry

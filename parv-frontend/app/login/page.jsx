@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ChevronLeft, Loader2Icon, ShieldCheck, KeyRound, UserCircle2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -10,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { useLogin } from "@/hooks/useAuth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const loginMutation = useLogin();
 
@@ -20,6 +23,15 @@ export default function LoginPage() {
     e.preventDefault();
     loginMutation.mutate({ username, password });
   };
+
+  // Keep loading state active until redirect completes
+  useEffect(() => {
+    if (loginMutation.isSuccess) {
+      setIsRedirecting(true);
+    }
+  }, [loginMutation.isSuccess]);
+
+  const isLoading = loginMutation.isPending || isRedirecting;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.14),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(20,184,166,0.18),_transparent_28%),linear-gradient(135deg,_#eff6ff_0%,_#ffffff_42%,_#f0fdfa_100%)]">
@@ -126,7 +138,8 @@ export default function LoginPage() {
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Enter your username"
                         required
-                        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                        disabled={isLoading}
+                        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 disabled:opacity-60"
                       />
                     </div>
                   </div>
@@ -149,12 +162,14 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
                         required
-                        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 pr-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                        disabled={isLoading}
+                        className="h-14 rounded-2xl border-slate-200 bg-slate-50 pl-12 pr-12 text-base shadow-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 disabled:opacity-60"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-700"
+                        disabled={isLoading}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition-colors hover:text-slate-700 disabled:opacity-50"
                         tabIndex={-1}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -169,13 +184,13 @@ export default function LoginPage() {
 
                   <Button
                     type="submit"
-                    disabled={loginMutation.isPending}
-                    className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700"
+                    disabled={isLoading}
+                    className="h-14 w-full rounded-2xl bg-blue-600 text-base font-bold shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 disabled:opacity-70"
                   >
-                    {loginMutation.isPending ? (
+                    {isLoading ? (
                       <>
                         <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                        Signing in
+                        {isRedirecting ? "Redirecting..." : "Signing in..."}
                       </>
                     ) : (
                       "Login to Dashboard"

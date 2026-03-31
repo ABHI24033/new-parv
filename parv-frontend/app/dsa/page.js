@@ -19,24 +19,22 @@ function Connector() {
                 <meta property="og:url" content="https://www.parvfinancialservices.com/dsa" />
                 <meta property="og:image" content="/dsa/dsa_banner.png" />
                 <meta name="robots" content="index, follow" />
-
-                {/* <!-- Google tag (gtag.js) --> */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17568164283"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-17568164283');
-            `,
-          }}
-        />
+                <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17568164283"></script>
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      window.dataLayer = window.dataLayer || [];
+                      function gtag(){dataLayer.push(arguments);}
+                      gtag('js', new Date());
+                      gtag('config', 'AW-17568164283');
+                    `,
+                  }}
+                />
             </Head>
-            <div>
-                 <UpperHeader/>
+            <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-white">
+                <UpperHeader />
                 <NavbarNew />
-                <main className="">
+                <main className="flex w-full flex-col">
                     <AboutDSAPage />
                 </main>
                 <Footer />

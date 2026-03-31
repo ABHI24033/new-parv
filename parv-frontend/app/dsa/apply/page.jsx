@@ -6,10 +6,10 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>
+    <div className="flex min-h-screen flex-col bg-white">
       <UpperHeader />
       <NavbarNew />
-      <main className="">
+      <main className="flex-1 bg-slate-50">
         {/* <AboutDSAPage /> */}
         <DSARegistrationPage />
       </main>
