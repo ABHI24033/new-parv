@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import api from "@/api/api";
 import toast from "react-hot-toast";
 
 /**
@@ -11,11 +11,15 @@ export function useUploadDoc() {
   return useMutation({
     mutationFn: async ({ file, folder }) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("image", file);
       if (folder) {
         formData.append("folder", folder);
       }
-      return await apiClient.upload("/files/upload", formData);
+      return await api.post("/upload-image", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
     },
     onSuccess: (response) => {
       if (response.success || response.url) {
@@ -36,7 +40,7 @@ export function useRemoveDoc() {
 
   return useMutation({
     mutationFn: async (publicId) => {
-      return await apiClient.delete(`/files/${publicId}`);
+      return await api.post("/remove-image", { publicId });
     },
     onSuccess: (response) => {
       if (response.success) {

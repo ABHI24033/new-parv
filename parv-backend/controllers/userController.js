@@ -58,11 +58,12 @@ export const createEmployee = async (req, res) => {
     const rolePrefixes = {
       DSA: "PDSA",
       RM: "RM",
-      FieldStaff: "FS",
+      Field_staff: "FS",
       Telecaller: "TC"
     };
 
     const prefix = rolePrefixes[role];
+    console.log("Prefix:", prefix); // Debug Log
 
     if (!prefix) {
       return res.status(400).json({
@@ -107,7 +108,7 @@ export const createEmployee = async (req, res) => {
       salt,
       email,
       role,
-      status: "pending",
+      status: "approved",
       createdAt: new Date()
     };
 
@@ -156,7 +157,7 @@ export const createEmployee = async (req, res) => {
   }
 };
 
-const ALLOWED_USER_STATUSES = new Set(["pending", "approved", "rejected"]);
+const ALLOWED_USER_STATUSES = new Set(["pending", "approved", "rejected", "inactive"]);
 
 const updateUserStatusRecord = async ({ userId, status, remarks }) => {
   const user = await User.findById(userId);
@@ -700,7 +701,7 @@ export const getFieldStaffData = async (req, res) => {
     const pageNumber = parseInt(req.query.pageNumber) || 1;
     const startAfterDocId = req.query.startAfterDocId || null;
 
-    let query = User.find({ role: 'FieldStaff' }).sort({ createdAt: -1 });
+    let query = User.find({ role: 'Field_staff' }).sort({ createdAt: -1 });
 
     // Apply pagination cursor if not first page
     if (startAfterDocId) {
@@ -715,7 +716,7 @@ export const getFieldStaffData = async (req, res) => {
     const result = await query.select('-password -salt');
 
     // Get total count
-    const totalCount = await User.countDocuments({ role: 'FieldStaff' });
+    const totalCount = await User.countDocuments({ role: 'Field_staff' });
     const totalPages = Math.ceil(totalCount / pageSize);
 
     // Get first & last visible docs
@@ -740,6 +741,35 @@ export const getFieldStaffData = async (req, res) => {
     });
   }
 };
+// Get Employee Data By Username (for Field Staff, Telecaller, RM profiles)
+export const getEmployeeByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select('-password -salt');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        data: null,
+        message: 'No employee found with this username'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: 'Employee data fetched successfully'
+    });
+  } catch (error) {
+    console.error('Get employee by username error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch employee data',
+      error: error.message
+    });
+  }
+};
+
 // Get DSA Data By ID/Username
 export const getUserDataById = async (req, res) => {
   try {
@@ -1015,6 +1045,37 @@ export const hardDeleteEmployee = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to permanently delete employee",
+      error: error.message
+    });
+  }
+};
+
+// GET USERS BY ROLE
+export const getUsersByRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+
+    if (!['DSA', 'Admin', 'RM', 'Field_staff', 'Telecaller'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role"
+      });
+    }
+
+    const users = await User.find({ role, status: { $ne: 'inactive' } })
+      .select('username full_name email')
+      .sort({ username: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+
+  } catch (error) {
+    console.error("Get users by role error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
       error: error.message
     });
   }

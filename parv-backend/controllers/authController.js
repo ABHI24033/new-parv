@@ -63,12 +63,12 @@ export const login = async (req, res) => {
     if (!user.verifyPassword(password))
       return res.status(401).json({ success: false, message: "Invalid credentials" });
 
-    // Check DSA Approval
-    if (user.role === "DSA" && user.status !== "approved") {
-      return res.status(403).json({
-        success: false,
-        message: "Your account is pending approval."
-      });
+    // Check User Status (Active/Inactive)
+    if (user.status !== "approved") {
+      const message = user.status === "inactive"
+        ? "Your account is inactive. Please contact admin."
+        : "Your account is pending approval.";
+      return res.status(403).json({ success: false, message });
     }
 
     // Remove old refreshTokens for this user
@@ -142,7 +142,11 @@ export const refreshToken = async (req, res) => {
       maxAge: 15 * 60 * 1000
     });
 
-    return res.status(200).json({ success: true, message: "Access token refreshed" });
+    return res.status(200).json({ 
+      success: true, 
+      message: "Access token refreshed",
+      token: newAccessToken  // Return token so frontend can store it
+    });
 
   } catch (err) {
     console.error("Refresh token error:", err);

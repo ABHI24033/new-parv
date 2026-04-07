@@ -8,11 +8,16 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secre
 // Check authentication middleware with auto-refresh
 export const checkAuthentication = async (req, res, next) => {
   try {
-    // Get access token from cookies or header
-    let accessToken = req.cookies.accessToken || req.headers.authorization?.replace('Bearer ', '');
-    const refreshToken = req.cookies.refreshToken;
+    // Get tokens from both cookies and header
+    const cookieAccessToken = req.cookies.accessToken;
+    const cookieRefreshToken = req.cookies.refreshToken;
+    const headerAuth = req.headers.authorization?.replace('Bearer ', '');
+    
+    // Try header token first (from localStorage), fallback to cookie
+    let accessToken = headerAuth || cookieAccessToken;
+    const refreshToken = cookieRefreshToken;
 
-    // If no access token, try to refresh
+    // If no access token at all, try to refresh using refresh token
     if (!accessToken && refreshToken) {
       try {
         // Verify refresh token
@@ -115,10 +120,10 @@ export const checkAuthentication = async (req, res, next) => {
 
     // Check if user is approved
     if (user.status !== 'approved') {
-      return res.status(403).json({
-        success: false,
-        message: 'Your account is pending approval.'
-      });
+      const message = user.status === 'inactive'
+        ? 'Your account is inactive. Please contact admin.'
+        : 'Your account is pending approval.';
+      return res.status(403).json({ success: false, message });
     }
 
     // Attach user to request

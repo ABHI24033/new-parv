@@ -74,7 +74,7 @@ export default function HeroSection() {
             {/* Trust Badge */}
             <div className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-xs font-semibold text-blue-700 mb-6">
               <Shield className="h-3.5 w-3.5" />
-              <span>RBI Registered Financial Services</span>
+              <span>PARV Financial Services</span>
             </div>
 
             {/* Main Headline */}

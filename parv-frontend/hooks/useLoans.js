@@ -1,43 +1,38 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import debounce from "lodash/debounce";
 import api from "@/api/api";
-import { debounce } from "lodash";
 
 export const useLoans = (loanType) => {
-    const [data, setData] = useState([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("all");
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams({
-                page,
-                limit,
-                ...(search && { search }),
-                ...(status !== "all" && { status })
-            });
+    const queryParams = useMemo(() => ({
+        page,
+        limit,
+        ...(search && { search }),
+        ...(status !== "all" && { status }),
+    }), [page, limit, search, status]);
 
+    const { data: queryData, isLoading: loading, refetch } = useQuery({
+        queryKey: ["loans", loanType, queryParams],
+        queryFn: async () => {
+            const params = new URLSearchParams(queryParams);
             const response = await api.get(`/loans/type/${loanType}?${params.toString()}`);
-            if (response.data.success) {
-                setData(response.data.data);
-                setTotalCount(response.data.totalCount || response.data.total);
-            }
-        } catch (error) {
-            console.error(`Error fetching ${loanType} loans:`, error);
-        } finally {
-            setLoading(false);
-        }
-    }, [loanType, page, limit, status, search]);
+            return response.data;
+        },
+        enabled: !!loanType,
+        staleTime: 2 * 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        placeholderData: (prev) => prev,
+    });
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const data = queryData?.success ? (queryData.data || []) : [];
+    const totalCount = queryData?.totalCount || queryData?.total || 0;
 
     const handleSearch = useCallback(
         debounce((value) => {
@@ -47,7 +42,7 @@ export const useLoans = (loanType) => {
         []
     );
 
-    const refreshData = () => fetchData();
+    const refreshData = () => refetch();
 
     return {
         data,

@@ -3,6 +3,7 @@ import React, { useState, useMemo } from "react";
 import { Slider } from "./Slider";
 import { ResultDisplay } from "./ResultDisplay";
 import LoanGraph from "./LoanGraph";
+import LoanBreakdownTable from "./LoanBreakdownTable";
 
 export default function LoanCalculator() {
   const [amount, setAmount] = useState(500000);
@@ -58,11 +59,24 @@ export default function LoanCalculator() {
 
         <div className="flex flex-col gap-5">
           <ResultDisplay monthlyPayment={monthlyPayment} totalPayable={totalPayable} totalInterest={totalInterest} />
+        </div>
+      </div>
+       
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <LoanBreakdownTable amount={amount} length={length} interest={interest} monthlyPayment={monthlyPayment} totalPayable={totalPayable} totalInterest={totalInterest} />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <LoanGraph amount={amount} length={length} interest={interest} />
+            <h3 className="text-lg font-semibold text-center mb-4">Loan Breakdown (Pie Chart)</h3>
+            <LoanGraph type="pie" amount={amount} length={length} interest={interest} />
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <LoanGraph type="bar" amount={amount} length={length} interest={interest} />
           </div>
         </div>
       </div>
+
     </section>
   );
 }

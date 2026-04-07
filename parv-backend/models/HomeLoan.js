@@ -138,7 +138,10 @@ const homeLoanSchema = new mongoose.Schema(
             ],
             default: "Application Received"
         },
-        isDeleted: { type: Boolean, default: false }
+        isDeleted: { type: Boolean, default: false },
+        createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        createdByName: String,
+        createdByRole: String
     },
     { timestamps: true }
 );

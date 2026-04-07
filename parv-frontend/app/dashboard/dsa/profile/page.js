@@ -23,6 +23,7 @@ const STATUS_OPTIONS = [
   { value: "pending", label: "Request" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 export default function Profile() {

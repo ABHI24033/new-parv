@@ -60,6 +60,14 @@ async function hardDeleteRM(id) {
 }
 
 /* ─────────────────────────────
+   TOGGLE RM STATUS
+───────────────────────────── */
+async function toggleRMStatus({ id, status }) {
+    const res = await api.patch(`users/${id}/status`, { status });
+    return res.data;
+}
+
+/* ─────────────────────────────
    HOOK: RM LIST
 ───────────────────────────── */
 export function useRMList(search = "") {
@@ -131,6 +139,20 @@ export function useHardDeleteRM() {
 
   return useMutation({
     mutationFn: hardDeleteRM,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rm-list"] });
+    },
+  });
+}
+
+/* ─────────────────────────────
+   HOOK: TOGGLE RM STATUS
+───────────────────────────── */
+export function useToggleRMStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: toggleRMStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rm-list"] });
     },

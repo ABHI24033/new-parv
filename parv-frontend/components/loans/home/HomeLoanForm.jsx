@@ -134,6 +134,8 @@ export function HomeLoanForm({ mode = "create", loanId = null, initialValues = n
         onSuccess: () => {
             if (isEditMode) {
                 router.push(`/dashboard/loans/${loanId}`);
+            } else {
+                setOpenSuccess(true);
             }
         },
     });

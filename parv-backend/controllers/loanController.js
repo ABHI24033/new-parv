@@ -115,7 +115,12 @@ const normalizeLoanPayload = (payload, existingDoc = null) => {
     return normalized;
 };
 
-const buildModelFilter = ({ status, search, startDate, endDate }, modelKey) => {
+const escapeRegex = (value) => {
+    if (typeof value !== "string") return "";
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
+const buildModelFilter = ({ status, search, loanId, connector, createdById, startDate, endDate }, modelKey) => {
     const filter = { isDeleted: false };
 
     if (status && status !== "all") {
@@ -135,15 +140,29 @@ const buildModelFilter = ({ status, search, startDate, endDate }, modelKey) => {
         }
     }
 
+    if (createdById) {
+        filter.createdById = createdById;
+    }
+
     if (search) {
+        const safeSearch = escapeRegex(search);
         filter.$or = [
-            { applicantName: { $regex: search, $options: "i" } },
-            { applicant_name: { $regex: search, $options: "i" } },
-            { group_name: { $regex: search, $options: "i" } },
-            { phone: { $regex: search, $options: "i" } },
-            { phone_no: { $regex: search, $options: "i" } },
-            { loanId: { $regex: search, $options: "i" } }
+            { applicantName: { $regex: safeSearch, $options: "i" } },
+            { applicant_name: { $regex: safeSearch, $options: "i" } },
+            { group_name: { $regex: safeSearch, $options: "i" } },
+            { phone: { $regex: safeSearch, $options: "i" } },
+            { phone_no: { $regex: safeSearch, $options: "i" } },
+            { loanId: { $regex: safeSearch, $options: "i" } },
+            { connectorName: { $regex: safeSearch, $options: "i" } }
         ];
+    }
+
+    if (loanId) {
+        filter.loanId = { $regex: escapeRegex(loanId), $options: "i" };
+    }
+
+    if (connector) {
+        filter.connectorName = { $regex: escapeRegex(connector), $options: "i" };
     }
 
     if (startDate || endDate) {
@@ -226,6 +245,13 @@ export const createLoan = async (req, res) => {
 
         if (!loanData.amount && loanData.loan_amount) loanData.amount = loanData.loan_amount;
 
+        // Set creator info from authenticated user
+        if (req.user) {
+            loanData.createdById = req.userId;
+            loanData.createdByName = req.user.full_name || req.user.username;
+            loanData.createdByRole = req.user.role;
+        }
+
         const loan = await Model.create(loanData);
         res.status(201).json({ success: true, data: loan });
     } catch (error) {
@@ -239,6 +265,8 @@ export const getAllLoans = async (req, res) => {
             page = 1,
             limit = 10,
             search = "",
+            loanId = "",
+            connector = "",
             status = "all",
             loanType = "all",
             sortOrder = "desc",
@@ -250,7 +278,10 @@ export const getAllLoans = async (req, res) => {
         const pageLimit = Math.min(Math.max(Number(limit) || 10, 1), 200);
         const query = {
             search: String(search || "").trim(),
+            loanId: String(loanId || "").trim(),
+            connector: String(connector || "").trim(),
             status: String(status || "all"),
+            createdById: req.query.createdById || null,
             startDate,
             endDate,
         };

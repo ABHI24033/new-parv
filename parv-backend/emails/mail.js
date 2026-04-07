@@ -6,10 +6,10 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: process.env.SMPT_MAIL,
+    user: process.env.SMPT_MAIL || 'abhishek24033c@gmail.com',
     // user: 'abhishek24033c@gmail.com',
-    // pass: "zxac ldkb zuch xiwc",
-    pass: process.env.SMPT_PASS,
+    // pass: "  ",
+    pass: process.env.SMPT_PASS || 'zxac ldkb zuch xiwc',
   },
 });
 

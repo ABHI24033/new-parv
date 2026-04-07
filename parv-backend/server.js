@@ -8,8 +8,12 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import loanRoutes from './routes/loanRoutes.js';
 import leadRoutes from './routes/leadRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
 import loanEnquiryRoutes from "./routes/loanEnquiryRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import jobApplicationRoutes from './routes/jobApplicationRoutes.js';
+import adminExportRoutes from './routes/adminExportRoutes.js';
+import adminFilteredRoutes from './routes/adminFilteredRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -46,12 +50,22 @@ app.use('/api/users', userRoutes);
 // Loan Routes
 app.use('/api/loans', loanRoutes);
 
+// Task Routes
+app.use('/api/tasks', taskRoutes);
+
 // Lead Routes
 app.use('/api/leads', leadRoutes);
 
 // Loan Enquiry Routes
 app.use("/api/loan-enquiry", loanEnquiryRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+// Job Application Routes
+app.use('/api/job-applications', jobApplicationRoutes);
+
+// Admin Routes - Filtering and Export
+app.use('/api/admin', adminExportRoutes);
+app.use('/api/admin', adminFilteredRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

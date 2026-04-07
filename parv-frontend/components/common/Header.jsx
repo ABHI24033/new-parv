@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   HomeIcon,
@@ -32,13 +33,12 @@ import { Input } from "@/components/ui/input";
 
 function DashboardHeader() {
   const { user, logout } = useAuth();
-  const [segments, setSegments] = useState([]);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const parts = window.location.pathname.split("/").filter(Boolean);
-    const filteredParts = parts[0] === "dashboard" ? parts.slice(1) : parts;
-    setSegments(filteredParts);
-  }, []);
+  const segments = useMemo(() => {
+    const parts = pathname.split("/").filter(Boolean);
+    return parts[0] === "dashboard" ? parts.slice(1) : parts;
+  }, [pathname]);
 
   const initials =
     user?.full_name

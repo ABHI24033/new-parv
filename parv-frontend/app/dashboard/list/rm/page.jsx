@@ -1,36 +1,36 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import RMTable from "@/components/employee/RMTable";
-// import {
-//   useRMList,
-//   useSoftDeleteRM,
-//   useHardDeleteRM,
-// } from "@/hooks/rm/useRMData";
 import SoftDeleteDialog from "@/components/common/SofftDeleteModal";
 import HardDeleteDialog from "@/components/common/HardDeleteModal";
+import UserLoansModal from "@/components/Dashboard/UserLoansModal";
 import toast from "react-hot-toast";
-import { useHardDeleteRM, useRMList, useSoftDeleteRM } from "@/hooks/rm/useRMData";
+import { 
+    useHardDeleteRM, 
+    useRMList, 
+    useSoftDeleteRM, 
+    useToggleRMStatus 
+} from "@/hooks/rm/useRMData";
 
 export default function RMListPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedUserName, setSelectedUserName] = useState("");
 
   const [openSoft, setOpenSoft] = useState(false);
   const [openHard, setOpenHard] = useState(false);
+  const [openLoans, setOpenLoans] = useState(false);
 
-  const { RMData, isLoading } = useRMList(search);
+  const { RMData, isLoading, loadMore, hasNextPage, isFetchingNext } = useRMList(search);
 
   const softDeleteMutation = useSoftDeleteRM();
   const hardDeleteMutation = useHardDeleteRM();
-
-  /* ─────────────────────────────
-     HANDLERS
-  ────────────────────────────── */
+  const toggleStatusMutation = useToggleRMStatus();
 
   const handleSoftDeleteConfirm = () => {
     if (!selectedId) return;
-
     softDeleteMutation.mutate(selectedId, {
       onSuccess: () => {
         toast.success("RM removed successfully");
@@ -42,7 +42,6 @@ export default function RMListPage() {
 
   const handleHardDeleteConfirm = () => {
     if (!selectedId) return;
-
     hardDeleteMutation.mutate(selectedId, {
       onSuccess: () => {
         toast.success("RM deleted permanently");
@@ -52,6 +51,24 @@ export default function RMListPage() {
     });
   };
 
+  const handleToggleStatus = (id, currentStatus) => {
+    const newStatus = currentStatus === 'approved' ? 'inactive' : 'approved';
+    toggleStatusMutation.mutate({ id, status: newStatus }, {
+      onSuccess: () => {
+        toast.success(`User marked as ${newStatus}`);
+      },
+      onError: (err) => {
+        toast.error(err.response?.data?.message || "Failed to update status");
+      }
+    });
+  };
+
+  const router = useRouter();
+
+  const handleViewLoans = (username) => {
+    router.push(`/dashboard/loans?connector=${username}`);
+  };
+
   return (
     <>
       <RMTable
@@ -59,6 +76,9 @@ export default function RMListPage() {
         isLoading={isLoading}
         search={search}
         setSearch={setSearch}
+        loadMore={loadMore}
+        hasNextPage={hasNextPage}
+        isFetchingNext={isFetchingNext}
         onSoftDelete={(id) => {
           setSelectedId(id);
           setOpenSoft(true);
@@ -67,9 +87,10 @@ export default function RMListPage() {
           setSelectedId(id);
           setOpenHard(true);
         }}
+        onToggleStatus={handleToggleStatus}
+        onViewLoans={handleViewLoans}
       />
 
-      {/* ───────── SOFT DELETE MODAL ───────── */}
       <SoftDeleteDialog
         open={openSoft}
         onOpenChange={setOpenSoft}
@@ -77,13 +98,13 @@ export default function RMListPage() {
         onConfirm={handleSoftDeleteConfirm}
       />
 
-      {/* ───────── HARD DELETE MODAL ───────── */}
       <HardDeleteDialog
         open={openHard}
         onOpenChange={setOpenHard}
         loading={hardDeleteMutation.isPending}
         onConfirm={handleHardDeleteConfirm}
       />
+
     </>
   );
 }

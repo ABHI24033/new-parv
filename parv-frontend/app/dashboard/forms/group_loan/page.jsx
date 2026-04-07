@@ -157,6 +157,8 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
     onSuccess: () => {
       if (isEditMode) {
         router.push(`/dashboard/loans/${loanId}`);
+      } else {
+        setOpenSuccess(true);
       }
     },
   });

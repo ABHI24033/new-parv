@@ -124,6 +124,8 @@ export function PersonalLoanForm({ mode = "create", loanId = null, initialValues
         onSuccess: () => {
             if (isEditMode) {
                 router.push(`/dashboard/loans/${loanId}`);
+            } else {
+                setOpenSuccess(true);
             }
         },
     });

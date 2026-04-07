@@ -1,7 +1,7 @@
 // lib/sidebar-configs.js
 "use client"; // This file can be used on the client side for imports
 
-import { Bell, ClipboardList } from "lucide-react";
+import { Bell, ClipboardList, Briefcase } from "lucide-react";
 import { ClipboardListIcon } from "lucide-react";
 import { Users2 } from "lucide-react";
 import { Users } from "lucide-react";
@@ -126,29 +126,7 @@ export const AdminSidebar = {
         },
       ],
     },
-    {
-      title: "Team members",
-      url: "#",
-      icon: Users2Icon,
-      items: [
-        {
-          title: "DSA",
-          url: "/dashboard/list/dsa",
-        },
-        {
-          title: "Relationship manager",
-          url: "/dashboard/list/rm",
-        },
-        {
-          title: "Field Staff",
-          url: "/dashboard/list/field-staff",
-        },
-        {
-          title: "Telecaller",
-          url: "/dashboard/list/telecaller",
-        },
-      ],
-    },
+
     {
       title: "Reports",
       url: "#",
@@ -177,11 +155,6 @@ export const AdminSidebar = {
       icon: HandCoinsIcon,
     },
     {
-      title: "Commissions",
-      url: "/dashboard/commissions",
-      icon: HandCoinsIcon,
-    },
-    {
       title: "Loan Enquiry Data",
       url: "/dashboard/loan-enquiry",
       icon: ClipboardListIcon,
@@ -195,6 +168,21 @@ export const AdminSidebar = {
       title: "Account Creation",
       url: "/dashboard/admin/signup",
       icon: UserPlus2Icon,
+    },
+    {
+      title: "Task Management",
+      url: "/dashboard/tasks",
+      icon: ClipboardList,
+    },
+    {
+      title: "Job Applications",
+      url: "/dashboard/admin/job-applications",
+      icon: Briefcase,
+    },
+    {
+      title: "Commissions",
+      url: "/dashboard/commissions",
+      icon: HandCoinsIcon,
     },
     {
       title: "Notifications",
@@ -296,48 +284,6 @@ export const RMSidebar = {
         },
       ],
     },
-    {
-      title: "Team members",
-      url: "#",
-      icon: Users2Icon,
-      items: [
-        {
-          title: "Connectors",
-          url: "/dashboard/view/connectors",
-        },
-        {
-          title: "Relationship manager",
-          url: "/dashboard/view/rm",
-        },
-        {
-          title: "Field Staff",
-          url: "/dashboard/view/fieldstaff",
-        },
-        {
-          title: "Telecaller",
-          url: "/dashboard/view/telecaller",
-        },
-      ],
-    },
-    {
-      title: "Reports",
-      url: "#",
-      icon: Users2Icon,
-      items: [
-        {
-          title: "Field staff Report",
-          url: "/dashboard/reports/field-staff",
-        },
-        {
-          title: "Tellecaller Reports",
-          url: "/dashboard/reports/telecaller",
-        },
-        {
-          title: "Loans Report",
-          url: "/dashboard/view/loans",
-        },
-      ],
-    },
   ],
   projects: [
     {
@@ -352,12 +298,12 @@ export const RMSidebar = {
     },
     {
       title: "Applied Loans",
-      url: "/dashboard/view/loans",
+      url: "/dashboard/loans",
       icon: HandCoinsIcon,
     },
     {
       title: "Loan Enquiry Data",
-      url: "/dashboard/admin/loan-enquiry",
+      url: "/dashboard/loan-enquiry",
       icon: ClipboardListIcon,
     },
     {
@@ -366,24 +312,14 @@ export const RMSidebar = {
       icon: BookUser,
     },
     {
-      title: "Blogs",
-      url: "/dashboard/admin/blogs",
-      icon: LucideNotebookPen,
+      title: "Task Management",
+      url: "/dashboard/tasks",
+      icon: ClipboardList,
     },
     {
-      title: "Testimonials",
-      url: "/dashboard/admin/testimonials",
-      icon: MessageSquareText,
-    },
-    {
-      title: "Contact us",
-      url: "/dashboard/admin/contact_data",
-      icon: Contact2Icon,
-    },
-    {
-      title: "Career applications",
-      url: "/dashboard/admin/careers",
-      icon: UserPlus2Icon,
+      title: "Notifications",
+      url: "/dashboard/notifications",
+      icon: Bell,
     },
   ],
 };
@@ -483,6 +419,11 @@ export const DSASidebar = {
       title: "My Income",
       url: "/dashboard/commissions",
       icon: HandCoinsIcon,
+    },
+    {
+      title: "Task Management",
+      url: "/dashboard/tasks",
+      icon: ClipboardListIcon,
     },
     {
       title: "Applied Loan",
@@ -588,6 +529,11 @@ export const TelecallerSidebar = {
       title: "Calling List",
       url: "/dashboard/telecaller/daily-task",
       icon: List,
+    },
+    {
+      title: "Task Management",
+      url: "/dashboard/tasks",
+      icon: ClipboardList,
     },
     {
       title: "Daily report",
@@ -696,6 +642,11 @@ export const FieldStaffSidebar = {
       title: "Daily Visit report",
       url: "/dashboard/field-staff/visit-report",
       icon: Bike,
+    },
+    {
+      title: "Task Management",
+      url: "/dashboard/tasks",
+      icon: ClipboardList,
     },
     {
       title: "Applied Loans",

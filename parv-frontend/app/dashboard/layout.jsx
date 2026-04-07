@@ -1,20 +1,11 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useEffect, Suspense } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { AppSidebar } from "@/components/common/app-sidebar";
 import { Header } from "@/components/common/Header";
 import Spinner from "@/components/common/Spinners";
@@ -24,14 +15,19 @@ import { useAuth } from "@/context/AuthContext";
 const Layout = ({ children }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && pathname !== "/login") {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, pathname]);
 
-  if (loading || !user) return <Spinner />;
+  // Only show full-page spinner during initial auth check
+  if (loading) return <Spinner />;
+
+  // If not authenticated, show nothing while redirect happens
+  if (!user) return null;
 
   return (
     <div className="flex bg-slate-50 min-h-screen">

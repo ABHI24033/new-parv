@@ -91,7 +91,9 @@ const LoanEnquiryAdminPage = () => {
       const res = await loanEnquiryApi.getAll();
       setEnquiries(res?.data?.data || []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to load enquiries.");
+      toast.error(
+        error?.response?.data?.message || "Failed to load enquiries.",
+      );
     } finally {
       setLoading(false);
     }
@@ -112,7 +114,7 @@ const LoanEnquiryAdminPage = () => {
       const updated = res?.data?.data;
 
       setEnquiries((prev) =>
-        prev.map((e) => (e?._id === id ? updated || { ...e, status } : e))
+        prev.map((e) => (e?._id === id ? updated || { ...e, status } : e)),
       );
       toast.success("Status updated successfully");
     } catch (error) {
@@ -132,7 +134,9 @@ const LoanEnquiryAdminPage = () => {
         setEnquiries((prev) => prev.filter((e) => e?._id !== selectedDeleteId));
         toast.success("Enquiry deleted successfully");
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to delete enquiry.");
+        toast.error(
+          error?.response?.data?.message || "Failed to delete enquiry.",
+        );
       } finally {
         setDeleteModalOpen(false);
         setSelectedDeleteId(null);
@@ -150,95 +154,96 @@ const LoanEnquiryAdminPage = () => {
       ) : enquiries?.length === 0 ? (
         <p className="text-gray-500 text-sm">No enquiries found.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg shadow-md">
-          <table className="min-w-full text-sm border border-gray-200">
-            <thead className="bg-gray-50 text-gray-700 text-xs uppercase">
+        <div className="overflow-x-auto rounded-lg shadow-md border border-gray-200">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="py-2 px-3 border-b">DSA Name</th>
-                <th className="py-2 px-3 border-b">DSA ID</th>
-                <th className="py-2 px-3 border-b">Loan Product</th>
-                <th className="py-2 px-3 border-b">Loan Amount</th>
-                <th className="py-2 px-3 border-b">Profession</th>
-                <th className="py-2 px-3 border-b">Full Name</th>
-                <th className="py-2 px-3 border-b">Phone</th>
-                <th className="py-2 px-3 border-b">WhatsApp</th>
-                <th className="py-2 px-3 border-b">Email</th>
-                <th className="py-2 px-3 border-b">City</th>
-                <th className="py-2 px-3 border-b">Pincode</th>
-                <th className="py-2 px-3 border-b">Source</th>
-                <th className="py-2 px-3 border-b">Status</th>
-                <th className="py-2 px-3 border-b">Created At</th>
-                <th className="py-2 px-3 border-b">Actions</th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Loan Product
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Loan Amount
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Full Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Phone
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  City
+                </th>
+
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Created At
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-200">
               {enquiries?.map((item) => (
                 <tr key={item?._id} className="hover:bg-gray-50">
-                  <td className="py-1 px-2 text-center">
-                    {item?.DSAName || "-"}
-                  </td>
-                  <td className="py-1 px-2 text-center">{item?.DSAID || "-"}</td>
-                  <td className="py-1 px-2 text-center">
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                     {item?.loanProduct || "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                     {item?.loanAmount || "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.profession || "-"}
-                  </td>
-                  <td className="py-1 px-2 text-center">
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                     {item?.fullName || "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">{item?.phone || "-"}</td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.whatsappNo || "-"}
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    {item?.phone || "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.email || "-"}
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                    {item?.city || "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">{item?.city || "-"}</td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.pincode || "-"}
-                  </td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.source || "-"}
-                  </td>
-                  <td className="py-1 px-2 text-center">
-                    {item?.status || "pending"}
-                  </td>
-                  <td className="py-1 px-2 text-center">
+
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
                     {item?.createdAt ? formatDateToString(item.createdAt) : "-"}
                   </td>
-                  <td className="py-1 px-2 text-center">
+                  <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <MoreVertical className="w-5 h-5" />
+                          <MoreVertical className="w-5 h-5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => handleOpenDetails(item)}
-                          className="cursor-pointer"
+                          className="cursor-pointer flex items-center"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           View details
                         </DropdownMenuItem>
 
-                        {statusOptions.map((s) => (
-                          <DropdownMenuItem
-                            key={s}
-                            onClick={() => handleUpdateStatus(item?._id, s)}
-                            className="cursor-pointer"
-                          >
-                            Set {s}
-                          </DropdownMenuItem>
-                        ))}
-
                         <DropdownMenuItem
                           onClick={() => confirmDelete(item?._id)}
-                          className="cursor-pointer hover:text-red-400 hover:bg-red-50"
+                          className="cursor-pointer flex items-center text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash className="w-4 h-4 mr-2" />
                           Delete
@@ -273,4 +278,3 @@ const LoanEnquiryAdminPage = () => {
 };
 
 export default LoanEnquiryAdminPage;
-

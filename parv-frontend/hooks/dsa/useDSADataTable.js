@@ -62,6 +62,14 @@ async function hardDeleteDSA(id) {
 }
 
 /* ─────────────────────────────
+   TOGGLE DSA STATUS
+───────────────────────────── */
+async function toggleDSAStatus({ id, status }) {
+  const res = await api.patch(`users/${id}/status`, { status });
+  return res.data;
+}
+
+/* ─────────────────────────────
    HOOK: DSA LIST
 ───────────────────────────── */
 export function useDSAList(search = "") {
@@ -139,3 +147,16 @@ export function useHardDeleteDSA() {
   });
 }
 
+/* ─────────────────────────────
+   HOOK: TOGGLE DSA STATUS
+───────────────────────────── */
+export function useToggleDSAStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: toggleDSAStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["dsa-list"] });
+    },
+  });
+}

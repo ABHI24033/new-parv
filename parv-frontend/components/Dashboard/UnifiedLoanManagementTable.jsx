@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import api from "@/api/api";
 import DeleteAlertModal from "@/components/common/DeleteAlertModal";
 import { useAuth } from "@/context/AuthContext";
+import MonthFilter from "@/components/dashboard/filters/MonthFilter";
+import ExcelExportButton from "@/components/dashboard/filters/ExcelExportButton";
 import {
   Select,
   SelectContent,
@@ -96,13 +98,22 @@ const UnifiedLoanManagementTable = ({
   setPage,
   limit,
   setLimit,
+  search,
   handleSearch,
+  loanIdFilter,
+  handleLoanIdChange,
+  connectorFilter,
+  handleConnectorChange,
   status,
   setStatus,
   loanType,
   setLoanType,
+  month,
+  year,
+  handleMonthChange,
   sortOrder,
   setSortOrder,
+  resetFilters,
   refreshData,
 }) => {
   const { user } = useAuth();
@@ -132,19 +143,63 @@ const UnifiedLoanManagementTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-        <div className="flex flex-col lg:flex-row gap-2 w-full md:w-auto">
-          <div className="relative w-full lg:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
+            <p className="text-sm text-slate-500">Manage and track your loan applications with advanced filtering.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="h-8 gap-2 bg-slate-50 hover:bg-slate-100" onClick={refreshData}>
+              Refresh
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 gap-2 text-slate-600 hover:text-slate-900" onClick={resetFilters}>
+              Clear
+            </Button>
+            <ExcelExportButton
+              endpoint="admin/export/applied-loans"
+              fileName={`loan_export_${month || 'all'}_${year || 'all'}.xlsx`}
+              filters={{
+                month: month || undefined,
+                year: month ? year : undefined,
+                status: status !== 'all' ? status : undefined,
+                loanType: loanType !== 'all' ? loanType : undefined,
+                loanId: loanIdFilter || undefined,
+                connector: connectorFilter || undefined,
+              }}
+              disabled={loading}
+              className="h-8"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 pt-2">
+          <div className="relative flex-grow min-w-[200px] lg:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="Search name or phone..."
-              className="pl-10"
+              placeholder="Search general..."
+              className="pl-9 h-9 border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/20"
+              value={search}
               onChange={(e) => handleSearch?.(e.target.value)}
             />
           </div>
+          
+          <Input
+            placeholder="Loan ID"
+            className="h-9 border-slate-200 w-[100px]"
+            value={loanIdFilter}
+            onChange={(e) => handleLoanIdChange?.(e.target.value)}
+          />
+
+          <Input
+            placeholder="Connector"
+            className="h-9 border-slate-200 w-[120px]"
+            value={connectorFilter}
+            onChange={(e) => handleConnectorChange?.(e.target.value)}
+          />
+
           <Select value={loanType} onValueChange={(v) => (setLoanType?.(v), setPage?.(1))}>
-            <SelectTrigger className="w-full lg:w-40">
+            <SelectTrigger className="h-9 border-slate-200 w-[140px] bg-white">
               <SelectValue placeholder="Loan Type" />
             </SelectTrigger>
             <SelectContent>
@@ -155,8 +210,9 @@ const UnifiedLoanManagementTable = ({
               ))}
             </SelectContent>
           </Select>
+
           <Select value={status} onValueChange={(v) => (setStatus?.(v), setPage?.(1))}>
-            <SelectTrigger className="w-full lg:w-40">
+            <SelectTrigger className="h-9 border-slate-200 w-[150px] bg-white">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -167,12 +223,19 @@ const UnifiedLoanManagementTable = ({
               ))}
             </SelectContent>
           </Select>
+
+          <MonthFilter
+            selectedMonth={month}
+            selectedYear={year}
+            onMonthChange={(m, y) => handleMonthChange?.(m, y)}
+          />
+
           <Button
             variant="outline"
-            className="w-full lg:w-auto"
+            className="h-9 border-slate-200 whitespace-nowrap bg-white hover:bg-slate-50 px-3"
             onClick={() => setSortOrder?.(sortOrder === "asc" ? "desc" : "asc")}
           >
-            <ArrowUpDown className="mr-2 h-4 w-4" />
+            <ArrowUpDown className="mr-2 h-4 w-4 text-slate-500" />
             {sortOrder === "asc" ? "Oldest" : "Newest"}
           </Button>
         </div>

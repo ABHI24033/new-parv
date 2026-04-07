@@ -143,7 +143,7 @@ export function WhoIsDSA() {
                         <div className="rounded-2xl bg-slate-50 p-8 border border-slate-100">
                             <div className="grid gap-4">
                                 {[
-                                    { label: "Commission", value: "Up to 2%", desc: "On loan disbursal" },
+                                    { label: "Commission", value: "Up to 5%", desc: "On loan disbursal" },
                                     { label: "Payment Cycle", value: "Monthly", desc: "Direct bank transfer" },
                                     { label: "Support", value: "24/7", desc: "Dedicated manager" },
                                     { label: "Products", value: "6+", desc: "Loan categories" },
@@ -191,6 +191,129 @@ export function HowItWorks() {
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export function IncentivesSection() {
+    const incentives = [
+        { icon: DollarSign, title: "Performance Bonus", description: "Earn additional bonuses for exceeding targets and achieving milestones." },
+        { icon: Gift, title: "Free Gifts & Rewards", description: "Get exclusive gifts, gadgets, and rewards for your outstanding performance." },
+        { icon: Rocket, title: "Foreign Tours", description: "Win exciting foreign trips and vacations for top performers." },
+        { icon: Handshake, title: "Domestic Tours", description: "Enjoy domestic travel packages and experiences as rewards." },
+    ];
+
+    return (
+        <section className="py-16 bg-white">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-xs font-semibold text-blue-700 mb-4">
+                        <Gift className="h-3.5 w-3.5" />
+                        <span>Incentives</span>
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+                        Exciting Rewards & Incentives
+                    </h2>
+                    <p className="mt-4 max-w-2xl mx-auto text-base text-slate-600">
+                        Go beyond commissions with our comprehensive incentive program
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {incentives.map((incentive, index) => {
+                        const Icon = incentive.icon;
+                        return (
+                            <div key={index} className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-blue-200 text-center">
+                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white mx-auto">
+                                    <Icon className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                                    {incentive.title}
+                                </h3>
+                                <p className="text-sm leading-6 text-slate-600">{incentive.description}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export function TestimonialsSection() {
+    const testimonials = [
+        {
+            name: "Rajesh Kumar",
+            role: "DSA Partner",
+            content: "Joining Parv Financial Services as a DSA was the best decision. I've earned over ₹2 lakhs in commissions in just 6 months!",
+            image: "/testimonials/rajesh.jpg" // placeholder
+        },
+        {
+            name: "Priya Sharma",
+            role: "Top Performer DSA",
+            content: "The incentives and rewards are amazing. I won a foreign trip last year and got multiple bonuses. Highly recommended!",
+            image: "/testimonials/priya.jpg"
+        },
+        {
+            name: "Amit Singh",
+            role: "DSA Since 2022",
+            content: "Flexible work and great support from the team. The training programs helped me grow my business significantly.",
+            image: "/testimonials/amit.jpg"
+        }
+    ];
+
+    return (
+        <section className="py-16 bg-slate-50">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-xs font-semibold text-blue-700 mb-4">
+                        <User className="h-3.5 w-3.5" />
+                        <span>Success Stories</span>
+                    </div>
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+                        What Our DSA Partners Say
+                    </h2>
+                    <p className="mt-4 max-w-2xl mx-auto text-base text-slate-600">
+                        Real stories from successful DSA partners
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {testimonials.map((testimonial, index) => (
+                        <div key={index} className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <User className="h-6 w-6 text-blue-600" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-slate-900">{testimonial.name}</h4>
+                                    <p className="text-sm text-slate-500">{testimonial.role}</p>
+                                </div>
+                            </div>
+                            <p className="text-slate-600 italic">"{testimonial.content}"</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export function BannerSection() {
+    return (
+        <section className="py-12 bg-gradient-to-r from-blue-600 to-indigo-700">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="text-center">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                        Earn More with Us
+                    </h2>
+                    <p className="text-lg text-blue-100 mb-6">
+                        Unlimited Income Opportunity Awaits
+                    </p>
+                    <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
+                        <TrendingUp className="h-5 w-5 text-white" />
+                        <span className="text-white font-semibold">Join the Success Network</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -385,6 +508,9 @@ export default function AboutDSAPage() {
             <HeroSection />
             <WhoIsDSA />
             <BenefitsSection />
+            <IncentivesSection />
+            <BannerSection />
+            <TestimonialsSection />
             <HowItWorks />
             <ProductsSection />
             <EligibilitySection />

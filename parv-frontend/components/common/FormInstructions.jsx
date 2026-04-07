@@ -70,7 +70,7 @@ const FormInstructions = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {instructionData.points.map((point, index) => (
+                {instructionData?.points.map((point, index) => (
                     <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden group">
                         <CardContent className="p-6">
                             <div className="flex items-start gap-4">

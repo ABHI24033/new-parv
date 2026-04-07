@@ -3,6 +3,7 @@ const router = express.Router();
 import {
   getDSAData,
   getUserDataById,
+  getEmployeeByUsername,
   approveDSAForm,
   getLoanDataByType,
   getRMData,
@@ -17,7 +18,8 @@ import {
   getDisbursedLoans,
   getCommissionHistory,
   assignCommission,
-  updateCommissionPaymentStatus
+  updateCommissionPaymentStatus,
+  getUsersByRole
 } from '../controllers/userController.js';
 import { checkAuthentication, checkAdmin } from '../middleware/auth.js';
 
@@ -35,6 +37,14 @@ router.get('/dsa', getDSAData);
 router.get('/rm', getRMData);
 router.get('/telecaller', getTelecallerData);
 router.get('/field-staff', getFieldStaffData);
+router.get('/role/:role', checkAuthentication, checkAdmin, getUsersByRole);
+
+// Employee profile routes (by username)
+router.get('/field-staff/:username', getEmployeeByUsername);
+router.get('/telecaller/:username', getEmployeeByUsername);
+router.get('/rm/:username', getEmployeeByUsername);
+
+// Generic user by username (must be after specific routes)
 router.get('/:username', getUserDataById);
 
 router.put("/:id", updateEmployee);

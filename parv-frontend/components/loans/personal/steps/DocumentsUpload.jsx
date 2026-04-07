@@ -5,32 +5,36 @@ import { Label } from "@/components/ui/label";
 export function DocumentsUpload({ formData, errors, handleFileChange, isUploading, isRemoving, handleRemoveDocsFromCloudaniry }) {
 
     const documents = [
-        { id: "applicant_selfie", label: "Applicant Selfie" },
-        { id: "aadhar_front", label: "Aadhar Front" },
-        { id: "aadhar_back", label: "Aadhar Back" },
-        { id: "Personal_pan", label: "Personal PAN" },
-        { id: "salary_slip_1", label: "Salary Slip 1" },
-        { id: "salary_slip_2", label: "Salary Slip 2" },
-        { id: "salary_slip_3", label: "Salary Slip 3" },
-        { id: "offer_letter", label: "Offer Letter" },
+        { id: "applicant_selfie", label: "Applicant Selfie / Photo",required:true },
+        { id: "aadhar_front", label: "Aadhar Front",required:true },
+        { id: "aadhar_back", label: "Aadhar Back",required:true },
+        { id: "Personal_pan", label: "Personal PAN",required:true },
+        { id: "salary_slip_1", label: "Salary Slip 1",required:true },
+        { id: "salary_slip_2", label: "Salary Slip 2",required:false },
+        { id: "salary_slip_3", label: "Salary Slip 3",required:false },
+        { id: "offer_letter", label: "Offer Letter",required:false },
     ];
 
     const coApplicantDocuments = [
-        { id: "coapplicant_aadhar_front", label: "Co-applicant Aadhar Front" },
-        { id: "coapplicant_aadhar_back", label: "Co-applicant Aadhar Back" },
-        { id: "coapplicant_pan", label: "Co-applicant PAN" },
+        { id: "coapplicant_aadhar_front", label: "Co-applicant Aadhar Front",required:false },
+        { id: "coapplicant_aadhar_back", label: "Co-applicant Aadhar Back",required:false },
+        { id: "coapplicant_pan", label: "Co-applicant PAN",required:false },
     ];
 
     const otherDocuments = [
-        { id: "other_doc1", label: "Other Doc 1" },
-        { id: "other_doc2", label: "Other Doc 2" },
-        { id: "other_doc3", label: "Other Doc 3" },
+        { id: "other_doc1", label: "Other Doc 1",required:false },
+        { id: "other_doc2", label: "Other Doc 2",required:false },
+        { id: "other_doc3", label: "Other Doc 3",required:false },
     ];
 
     const renderDocument = (doc) => (
         <div key={doc.id} className="space-y-3">
             <Label className="font-semibold text-zinc-700">
-                {doc.label} <span className="text-red-500">*</span>
+                {doc.label} 
+                {
+                    doc.required ?<span className="text-red-500">*</span> :""
+                }
+                
             </Label>
             <FormFileUpload
                 id={doc.id}

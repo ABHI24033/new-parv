@@ -1,61 +1,33 @@
-// "use client";
-// import FieldStaffTable from "@/components/employee/FieldStaffTable";
-// import { useFieldStaffList } from "@/hooks/fieldStaff/useFieldStaffDataTable";
-// // import FieldStaffTable from "@/components/employee/FieldStaffTable";
-// // import { useFieldStaffList } from "@/hooks/FieldStaff/useFieldStaffData";
-// import { useState } from "react";
-
-// export default function FieldStaffListPage() {
-//     const [search, setSearch] = useState("");
-//     const {FieldStaffData,isLoading,isFetchingNext,}=useFieldStaffList(search);
-//     return (
-//         <FieldStaffTable
-//             data={FieldStaffData}
-//             isLoading={isLoading}
-//             setSearch={setSearch}
-//             search={search}
-
-//         />
-//     )
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import FieldStaffTable from "@/components/employee/FieldStaffTable";
 import {
   useFieldStaffList,
   useSoftDeleteFieldStaff,
   useHardDeleteFieldStaff,
+  useToggleFieldStaffStatus,
 } from "@/hooks/fieldStaff/useFieldStaffDataTable";
 import SoftDeleteDialog from "@/components/common/SofftDeleteModal";
 import HardDeleteDialog from "@/components/common/HardDeleteModal";
+import UserLoansModal from "@/components/Dashboard/UserLoansModal";
 import toast from "react-hot-toast";
 
 export default function FieldStaffListPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedUserName, setSelectedUserName] = useState("");
 
   const [openSoft, setOpenSoft] = useState(false);
   const [openHard, setOpenHard] = useState(false);
+  const [openLoans, setOpenLoans] = useState(false);
 
-  const { FieldStaffData, isLoading } = useFieldStaffList(search);
+  const { FieldStaffData, isLoading, loadMore, hasNextPage, isFetchingNext } = useFieldStaffList(search);
 
   const softDeleteMutation = useSoftDeleteFieldStaff();
   const hardDeleteMutation = useHardDeleteFieldStaff();
+  const toggleStatusMutation = useToggleFieldStaffStatus();
 
   /* ─────────────────────────────
      HANDLERS
@@ -63,7 +35,6 @@ export default function FieldStaffListPage() {
 
   const handleSoftDeleteConfirm = () => {
     if (!selectedId) return;
-
     softDeleteMutation.mutate(selectedId, {
       onSuccess: () => {
         toast.success("Field staff deactivated successfully");
@@ -75,7 +46,6 @@ export default function FieldStaffListPage() {
 
   const handleHardDeleteConfirm = () => {
     if (!selectedId) return;
-
     hardDeleteMutation.mutate(selectedId, {
       onSuccess: () => {
         toast.success("Field staff deleted permanently");
@@ -85,6 +55,24 @@ export default function FieldStaffListPage() {
     });
   };
 
+  const handleToggleStatus = (id, currentStatus) => {
+    const newStatus = currentStatus === 'approved' ? 'inactive' : 'approved';
+    toggleStatusMutation.mutate({ id, status: newStatus }, {
+      onSuccess: () => {
+        toast.success(`User marked as ${newStatus}`);
+      },
+      onError: (err) => {
+        toast.error(err.response?.data?.message || "Failed to update status");
+      }
+    });
+  };
+
+  const router = useRouter();
+
+  const handleViewLoans = (username) => {
+    router.push(`/dashboard/loans?connector=${username}`);
+  };
+
   return (
     <>
       <FieldStaffTable
@@ -92,6 +80,9 @@ export default function FieldStaffListPage() {
         isLoading={isLoading}
         search={search}
         setSearch={setSearch}
+        loadMore={loadMore}
+        hasNextPage={hasNextPage}
+        isFetchingNext={isFetchingNext}
         onSoftDelete={(id) => {
           setSelectedId(id);
           setOpenSoft(true);
@@ -100,9 +91,10 @@ export default function FieldStaffListPage() {
           setSelectedId(id);
           setOpenHard(true);
         }}
+        onToggleStatus={handleToggleStatus}
+        onViewLoans={handleViewLoans}
       />
 
-      {/* ───────── SOFT DELETE MODAL ───────── */}
       <SoftDeleteDialog
         open={openSoft}
         onOpenChange={setOpenSoft}
@@ -110,13 +102,13 @@ export default function FieldStaffListPage() {
         onConfirm={handleSoftDeleteConfirm}
       />
 
-      {/* ───────── HARD DELETE MODAL ───────── */}
       <HardDeleteDialog
         open={openHard}
         onOpenChange={setOpenHard}
         loading={hardDeleteMutation.isPending}
         onConfirm={handleHardDeleteConfirm}
       />
+
     </>
   );
 }

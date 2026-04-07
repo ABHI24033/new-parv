@@ -168,10 +168,18 @@ export const loanApplicationSchema = z
       ),
     salary_slip_2: z
       .any()
+      .optional()
       .refine(
-        (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
-        "Salary Slip 2 is required."
+        (val) => !val || val instanceof File || (typeof val === "string" && val.startsWith("http")),
+        "Invalid file format."
       ),
+    // salary_slip_2: z
+    //   .any()
+    //   .optional()
+    //   .refine(
+    //     (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
+    //     "Salary Slip 2 is required."
+    //   ),
     salary_slip_3: z
       .any()
       .optional()

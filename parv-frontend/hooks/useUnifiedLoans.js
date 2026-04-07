@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { debounce } from "lodash";
+import { useCallback, useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import debounce from "lodash/debounce";
 import api from "@/api/api";
 
 export const LOAN_TYPE_OPTIONS = [
@@ -24,47 +25,66 @@ export const STATUS_OPTIONS = [
   { value: "Disbursed", label: "Disbursed" },
   { value: "Rejected", label: "Rejected" },
 ];
+import { useSearchParams } from "next/navigation";
 
 export const useUnifiedLoans = () => {
-  const [data, setData] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const [search, setSearch] = useState("");
+  const [loanIdFilter, setLoanIdFilter] = useState("");
+  const [connectorFilter, setConnectorFilter] = useState(searchParams?.get("connector") || "");
   const [status, setStatus] = useState("all");
   const [loanType, setLoanType] = useState("all");
-  const [sortOrder, setSortOrder] = useState("desc"); // desc=newest first
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState(String(new Date().getFullYear()));
+  const [sortOrder, setSortOrder] = useState("desc");
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page,
-        limit,
-        status,
-        loanType,
-        sortOrder,
-        ...(search ? { search } : {}),
-      };
+  // Build params for the query key & fetch
+  const queryParams = useMemo(() => {
+    const params = {
+      page,
+      limit,
+      status,
+      loanType,
+      sortOrder,
+      ...(search ? { search } : {}),
+      ...(loanIdFilter ? { loanId: loanIdFilter } : {}),
+      ...(connectorFilter ? { connector: connectorFilter } : {}),
+    };
 
-      const response = await api.get("/loans", { params });
-      if (response.data?.success) {
-        setData(response.data.data || []);
-        setTotalCount(response.data.totalCount || response.data.total || 0);
-      }
-    } catch (error) {
-      console.error("Error fetching unified loans:", error);
-    } finally {
-      setLoading(false);
+    if (month && year) {
+      const startDate = new Date(Number(year), Number(month) - 1, 1);
+      const endDate = new Date(Number(year), Number(month), 0);
+      endDate.setHours(23, 59, 59, 999);
+      params.startDate = startDate.toISOString();
+      params.endDate = endDate.toISOString();
     }
-  }, [page, limit, search, status, loanType, sortOrder]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    return params;
+  }, [page, limit, search, status, loanType, month, year, sortOrder, loanIdFilter, connectorFilter]);
+
+  const { data: queryData, isLoading: loading, refetch } = useQuery({
+    queryKey: ["unified-loans", queryParams],
+    queryFn: async () => {
+      const response = await api.get("/loans", { params: queryParams });
+      return response.data;
+    },
+    staleTime: 2 * 60 * 1000,    // remain fresh for 2 min
+    gcTime: 5 * 60 * 1000,       // cache for 5 min
+    keepPreviousData: true,       // show old data while fetching new page
+    placeholderData: (prev) => prev,
+  });
+
+  const data = queryData?.success ? (queryData.data || []) : [];
+  const totalCount = queryData?.totalCount || queryData?.total || 0;
+
+  const handleMonthChange = useCallback((value, selectedYear) => {
+    setMonth(value === "all" ? "" : value || "");
+    if (selectedYear) setYear(String(selectedYear));
+    setPage(1);
+  }, []);
 
   const handleSearch = useCallback(
     debounce((value) => {
@@ -74,7 +94,28 @@ export const useUnifiedLoans = () => {
     []
   );
 
-  const refreshData = () => fetchData();
+  const handleLoanIdChange = useCallback((value) => {
+    setLoanIdFilter(value);
+    setPage(1);
+  }, []);
+
+  const handleConnectorChange = useCallback((value) => {
+    setConnectorFilter(value);
+    setPage(1);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setSearch("");
+    setLoanIdFilter("");
+    setConnectorFilter("");
+    setStatus("all");
+    setLoanType("all");
+    setMonth("");
+    setYear(String(new Date().getFullYear()));
+    setPage(1);
+  }, []);
+
+  const refreshData = () => refetch();
 
   return {
     data,
@@ -86,13 +127,20 @@ export const useUnifiedLoans = () => {
     setLimit,
     search,
     handleSearch,
+    loanIdFilter,
+    handleLoanIdChange,
+    connectorFilter,
+    handleConnectorChange,
     status,
     setStatus,
     loanType,
     setLoanType,
     sortOrder,
     setSortOrder,
+    month,
+    year,
+    handleMonthChange,
+    resetFilters,
     refreshData,
   };
 };
-

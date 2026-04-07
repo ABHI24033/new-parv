@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 const FormLayout = ({ title, children, description, icon: Icon }) => {
   return (
     <div className="w-full max-w-7xl mx-auto px-4">
-      <Card className="border-none bg-white shadow-none ring-0">
-        <CardContent className="pb-20 md:pb-0 px-0">
+      <Card className="border-none bg-transparent py-0 shadow-none ring-0">
+        <CardContent className="pb-20 md:pb-0 px-0 py-0 ">
           {children}
         </CardContent>
       </Card>

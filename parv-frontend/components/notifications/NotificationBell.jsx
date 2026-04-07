@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Bell, Check, Trash2 } from "lucide-react";
+import React from "react";
+import { Bell, Check } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,49 +18,42 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 export function NotificationBell() {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchNotifications = async () => {
-    try {
+  const { data } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
       const res = await notificationApi.getAll();
-      setNotifications(res.data.data);
-      setUnreadCount(res.data.unreadCount);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    }
-  };
+      return res.data;
+    },
+    staleTime: 60 * 1000,         // fresh for 60s
+    refetchInterval: 60 * 1000,   // poll every 60s
+    refetchIntervalInBackground: false,
+  });
 
-  useEffect(() => {
-    fetchNotifications();
-    // Optional: Set up interval for polling or use socket.io for real-time
-    const interval = setInterval(fetchNotifications, 60000); // Poll every 60s
-    return () => clearInterval(interval);
-  }, []);
+  const notifications = data?.data || [];
+  const unreadCount = data?.unreadCount || 0;
 
-  const handleMarkRead = async (id) => {
-    try {
-      await notificationApi.markRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, read: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
+  const markReadMutation = useMutation({
+    mutationFn: (id) => notificationApi.markRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: () => {
       toast.error("Failed to mark notification as read");
-    }
-  };
+    },
+  });
 
-  const handleMarkAllRead = async () => {
-    try {
-      await notificationApi.markAllRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      setUnreadCount(0);
+  const markAllReadMutation = useMutation({
+    mutationFn: () => notificationApi.markAllRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("All notifications marked as read");
-    } catch (error) {
+    },
+    onError: () => {
       toast.error("Failed to mark all as read");
-    }
-  };
+    },
+  });
 
   return (
     <DropdownMenu>
@@ -84,7 +78,7 @@ export function NotificationBell() {
               variant="ghost"
               size="sm"
               className="text-xs h-auto p-0 hover:bg-transparent text-blue-600"
-              onClick={handleMarkAllRead}
+              onClick={() => markAllReadMutation.mutate()}
             >
               Mark all as read
             </Button>
@@ -116,7 +110,7 @@ export function NotificationBell() {
                       className="h-4 w-4 h-auto p-0"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleMarkRead(n._id);
+                        markReadMutation.mutate(n._id);
                       }}
                     >
                       <Check className="h-3 w-3" />

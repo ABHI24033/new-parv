@@ -387,7 +387,6 @@ import { useUserState } from "../../store";
 import { submitTelecallerSummary } from "@/lib/actions/file_action";
 import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
-import { set } from "lodash";
 
 const emojiMap = {
     "0": "🙁", // Very Bad

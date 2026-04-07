@@ -197,7 +197,7 @@ export default function MultiStepAccountForm() {
                 <SelectContent>
                   <SelectItem value="RM">Relationship Manager (RM)</SelectItem>
                   <SelectItem value="Telecaller">Telecaller</SelectItem>
-                  <SelectItem value="Field Staff">Field Staff</SelectItem>
+                  <SelectItem value="Field_staff">Field Staff</SelectItem>
                 </SelectContent>
               </Select>
             </FormField>
@@ -335,13 +335,13 @@ export default function MultiStepAccountForm() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6">
-      <div className="mb-8 flex flex-col items-center text-center">
+      {/* <div className="mb-8 flex flex-col items-center text-center">
         <div className="mb-4 rounded-2xl bg-blue-600 p-3 shadow-lg shadow-blue-200">
           <UserPlus className="size-7 text-white" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">Create New Account</h1>
         <p className="mt-2 text-base font-medium text-slate-500">Follow the simple steps to set up a new member profile.</p>
-      </div>
+      </div> */}
 
       <LoanFormShell
         steps={steps}

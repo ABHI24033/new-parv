@@ -17,19 +17,22 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, ArrowUpDown, User, Trash, Edit2, Trash2 } from "lucide-react";
+import { MoreVertical, ArrowUpDown, User, Trash, Edit2, Trash2, FileText } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 export default function DSATable({
     data = [],
     isLoading,
-    isFetchingNext,
-    loadMore,
-    hasNextPage,
     search,
     setSearch,
+    loadMore,
+    hasNextPage,
+    isFetchingNext,
     onSoftDelete,
-    onHardDelete
+    onHardDelete,
+    onToggleStatus,
+    onViewLoans
 }) {
 
     const [sortKey, setSortKey] = useState("full_name");
@@ -106,6 +109,7 @@ export default function DSATable({
 
                             <TableHead>Email</TableHead>
                             <TableHead>Address</TableHead>
+                            <TableHead>Status</TableHead>
 
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -132,6 +136,21 @@ export default function DSATable({
                                     <TableCell>{user?.gender}</TableCell>
                                     <TableCell>{user?.email}</TableCell>
                                     <TableCell>{user?.present_address}</TableCell>
+                                    <TableCell>
+                                        <Badge 
+                                            variant="outline" 
+                                            className={`cursor-pointer capitalize  ${
+                                                user?.status === 'approved' 
+                                                ? 'bg-green-100 text-green-700 border-green-200' 
+                                                : user?.status === 'inactive'
+                                                ? 'bg-red-100 text-red-700 border-red-200'
+                                                : 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                                            }`}
+                                            onClick={() => onToggleStatus && onToggleStatus(user?._id, user?.status)}
+                                        >
+                                            {user?.status || 'pending'}
+                                        </Badge>
+                                    </TableCell>
 
                                     <TableCell className="text-right">
                                         <DropdownMenu>
@@ -142,9 +161,17 @@ export default function DSATable({
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>
                                                     <Link href={`/dashboard/dsa/profile?username=${user.username}`} className="flex items-center gap-2">
-                                                        <User />
-                                                        View
+                                                        <User className="w-4 h-4" />
+                                                        View Profile
                                                     </Link>
+                                                </DropdownMenuItem>
+
+                                                <DropdownMenuItem 
+                                                    onClick={() => onViewLoans && onViewLoans(user?.username, user?.full_name)}
+                                                    className="flex items-center gap-2 cursor-pointer"
+                                                >
+                                                    <FileText className="w-4 h-4 text-blue-600" />
+                                                    View Applied Loans
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem>
@@ -185,19 +212,6 @@ export default function DSATable({
                     </TableBody>
                 </Table>
             </div>
-
-            {/* Load More Button (Infinite Pagination) */}
-            {hasNextPage && (
-                <div className="flex justify-center pt-3">
-                    <Button
-                        variant="outline"
-                        onClick={loadMore}
-                        disabled={isFetchingNext}
-                    >
-                        {isFetchingNext ? "Loading..." : "Load More"}
-                    </Button>
-                </div>
-            )}
         </div>
     );
 }
