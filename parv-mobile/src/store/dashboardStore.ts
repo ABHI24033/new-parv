@@ -26,6 +26,11 @@ interface DashboardStats {
     applications: number;
   }>;
   typeWise: Record<string, { count: number; amount: number }>;
+  commissionStats?: {
+    totalEarnings: number;
+    totalPaid: number;
+    totalPending: number;
+  };
 }
 
 interface DashboardState {

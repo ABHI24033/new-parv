@@ -1,7 +1,7 @@
 import Footer from '@/components/common/Footer';
 import NavbarNew from '@/components/common/Navbar';
 import UpperHeader from '@/components/common/UpperHeader';
-import { Scale, FileText, AlertCircle, CheckCircle, DollarSign, Users, Ban, RefreshCw, MessageSquare } from "lucide-react";
+import { Scale, FileText, AlertCircle, CheckCircle, IndianRupee, Users, Ban, RefreshCw, MessageSquare } from "lucide-react";
 import Head from 'next/head';
 
 export const metadata = {
@@ -104,7 +104,7 @@ export default function TermsOfService() {
                                 <div className="rounded-2xl bg-white p-6 lg:p-8 shadow-sm border border-slate-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                                            <DollarSign className="h-5 w-5" />
+                                            <IndianRupee className="h-5 w-5" />
                                         </div>
                                         <h2 className="text-xl font-bold text-slate-900">4. Loan Terms and Conditions</h2>
                                     </div>

@@ -13,6 +13,7 @@ export function DocumentsUpload({ formData, errors, handleFileChange, isUploadin
         { id: "salary_slip_2", label: "Salary Slip 2",required:false },
         { id: "salary_slip_3", label: "Salary Slip 3",required:false },
         { id: "offer_letter", label: "Offer Letter",required:false },
+        { id: "bank_statement", label: "Bank Statement",required:true },
     ];
 
     const coApplicantDocuments = [

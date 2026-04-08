@@ -91,6 +91,7 @@ const personalLoanSchema = new mongoose.Schema(
         other_doc1: String,
         other_doc2: String,
         other_doc3: String,
+        bank_statement: { type: String, required: true },
         documents: [String],
 
         loanType: { type: String, default: "Personal" },

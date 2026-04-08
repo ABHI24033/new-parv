@@ -155,6 +155,7 @@ export function ReviewSubmit({ formData, setStep, loanHistory }) {
                             ["guarantor_pan", "Guar PAN"],
                             ["vehicle_quotation", "Quotation"],
                             ["owner_book", "Owner Book"],
+                            ["bank_statement", "Bank Statement"],
                         ].map(([id, label]) => formData[id] && (
                             <div key={id} className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-100 rounded-full text-green-700 text-xs font-bold">
                                 <CheckCircle2 className="w-3.5 h-3.5" /> {label}

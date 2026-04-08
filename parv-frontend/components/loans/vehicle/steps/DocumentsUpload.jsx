@@ -40,6 +40,7 @@ export function DocumentsUpload({ formData, errors, handleFileChange, isUploadin
         { id: "guarantor_pan", label: "Guarantor PAN" },
         { id: "vehicle_quotation", label: "Vehicle Quotation" },
         { id: "owner_book", label: "Owner Book" },
+        { id: "bank_statement", label: "Bank Statement" },
     ];
 
     return (

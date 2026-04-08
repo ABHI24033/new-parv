@@ -64,7 +64,7 @@ export function PersonalLoanForm({ mode = "create", loanId = null, initialValues
         office_state: "", office_pincode: "", applicant_selfie: undefined, aadhar_front: undefined, aadhar_back: undefined,
         Personal_pan: undefined, coapplicant_aadhar_front: undefined, coapplicant_aadhar_back: undefined,
         coapplicant_pan: undefined, salary_slip_1: undefined, salary_slip_2: undefined, salary_slip_3: undefined,
-        offer_letter: undefined, other_doc1: undefined, other_doc2: undefined, other_doc3: undefined,
+        offer_letter: undefined, bank_statement: undefined, other_doc1: undefined, other_doc2: undefined, other_doc3: undefined,
         references: [
             { name: "", relation: "", phone: "", village: "", street: "", district: "", pincode: "", profession: "" },
         ],
@@ -84,7 +84,7 @@ export function PersonalLoanForm({ mode = "create", loanId = null, initialValues
         3: ["current_company_name", "designation", "salary_account_bank", "job_tenure", "savings_account_bank", "job_experience", "monthly_income", "office_building_name", "office_street_name", "office_city", "office_district", "office_state", "office_pincode"],
         4: ["has_current_loan"],
         5: ["references"],
-        6: ["applicant_selfie", "aadhar_front", "aadhar_back", "Personal_pan", "salary_slip_1", "salary_slip_2", "salary_slip_3", "offer_letter"],
+        6: ["applicant_selfie", "aadhar_front", "aadhar_back", "Personal_pan", "salary_slip_1", "salary_slip_2", "salary_slip_3", "offer_letter", "bank_statement"],
         7: [],
     };
 
@@ -116,7 +116,7 @@ export function PersonalLoanForm({ mode = "create", loanId = null, initialValues
         fileFields: [
             "applicant_selfie", "aadhar_front", "aadhar_back", "Personal_pan", "coapplicant_aadhar_front",
             "coapplicant_aadhar_back", "coapplicant_pan", "salary_slip_1", "salary_slip_2", "salary_slip_3",
-            "offer_letter", "other_doc1", "other_doc2", "other_doc3"
+            "offer_letter", "bank_statement", "other_doc1", "other_doc2", "other_doc3"
         ],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },

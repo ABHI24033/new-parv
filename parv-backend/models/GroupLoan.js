@@ -36,6 +36,7 @@ const groupLoanSchema = new mongoose.Schema(
         applicantName: { type: String, required: true },
         phone: { type: String },
         documents: [String],
+        bank_statement: { type: String, required: true },
         id_of_connector: String,
         name_of_connector: String,
         group_size: String,

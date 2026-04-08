@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { dsaContent } from "./DSAData";
 import { User, Network, BookOpen, Rocket, Briefcase, TrendingUp, Handshake, GraduationCap, Gift } from "lucide-react";
-import { CheckCircle, FileText, Users, DollarSign } from "lucide-react";
+import { CheckCircle, FileText, Users, IndianRupee } from "lucide-react";
 import { CreditCard, Home, Shield } from "lucide-react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -167,7 +167,7 @@ export function WhoIsDSA() {
 
 export function HowItWorks() {
     const { title, steps } = dsaContent.howItWorks;
-    const icons = [<FileText size={24} />, <Users size={24} />, <CheckCircle size={24} />, <DollarSign size={24} />];
+    const icons = [<FileText size={24} />, <Users size={24} />, <CheckCircle size={24} />, <IndianRupee size={24} />];
 
     return (
         <section className="py-16 bg-white">
@@ -199,7 +199,7 @@ export function HowItWorks() {
 
 export function IncentivesSection() {
     const incentives = [
-        { icon: DollarSign, title: "Performance Bonus", description: "Earn additional bonuses for exceeding targets and achieving milestones." },
+        { icon: IndianRupee, title: "Performance Bonus", description: "Earn additional bonuses for exceeding targets and achieving milestones." },
         { icon: Gift, title: "Free Gifts & Rewards", description: "Get exclusive gifts, gadgets, and rewards for your outstanding performance." },
         { icon: Rocket, title: "Foreign Tours", description: "Win exciting foreign trips and vacations for top performers." },
         { icon: Handshake, title: "Domestic Tours", description: "Enjoy domestic travel packages and experiences as rewards." },
@@ -436,7 +436,7 @@ export function ProductsSection() {
         <Home size={24} />,
         <Briefcase size={24} />,
         <Shield size={24} />,
-        <DollarSign size={24} />,
+        <IndianRupee size={24} />,
     ];
 
     return (

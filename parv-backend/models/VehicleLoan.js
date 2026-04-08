@@ -129,6 +129,7 @@ const vehicleLoanSchema = new mongoose.Schema(
         guarantor_pan: String,
         vehicle_quotation: String,
         owner_book: String,
+        bank_statement: { type: String, required: true },
         documents: [String],
 
         loanType: { type: String, default: "Vehicle" },

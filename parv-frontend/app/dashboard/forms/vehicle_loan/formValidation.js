@@ -200,6 +200,12 @@ export const loanApplicationSchema = z
     guarantor_pan: z.any().optional(),
     vehicle_quotation: z.any().optional(),
     owner_book: z.any().optional(),
+    bank_statement: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.length > 0),
+        "Bank Statement is required."
+      ),
     references: z
       .array(
         z.object({
@@ -444,6 +450,7 @@ export const stepFields = {
     "guarantor_pan",
     "vehicle_quotation",
     "owner_book",
+    "bank_statement",
   ],
   7: [],
 };

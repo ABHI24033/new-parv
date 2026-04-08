@@ -9,11 +9,11 @@ import {
   addLeadRemark
 } from '../controllers/leadController.js';
 
+import { checkAuthentication } from '../middleware/auth.js';
 const router = express.Router();
 
-// Example if auth middleware was needed:
-// const { protect, authorize } = require('../middleware/auth');
-// router.use(protect);
+// All lead routes require authentication
+router.use(checkAuthentication);
 
 router.route('/')
   .post(createLead)

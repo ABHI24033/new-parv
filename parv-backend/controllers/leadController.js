@@ -5,7 +5,23 @@ let startAfterDocId; // Reference for pagination if needed, simulating standard 
 // Create a new lead
 export const createLead = async (req, res) => {
   try {
-    const lead = new Lead(req.body);
+    const leadData = { 
+      leadStatus: "new", // Default status
+      ...req.body 
+    };
+    
+    // Captured from authentication middleware
+    if (req.user) {
+      leadData.createdById = req.userId;
+      leadData.createdByName = req.user.full_name || req.user.username;
+      leadData.createdByRole = req.user.role;
+      
+      if (req.user.role === "DSA") {
+        leadData.dsa_username = req.user.username;
+      }
+    }
+
+    const lead = new Lead(leadData);
     await lead.save();
     res.status(201).json({
       success: true,

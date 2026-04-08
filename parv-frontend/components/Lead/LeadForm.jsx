@@ -23,7 +23,10 @@ export default function LeadForm({ setOpen, defaultValues, onSuccess }) {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(formSchema),
-        defaultValues: defaultValues || {}, // ✅ preload form values if editing
+        defaultValues: {
+            leadStatus: "new",
+            ...defaultValues
+        }, // ✅ preload form values if editing
     });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -236,24 +239,6 @@ export default function LeadForm({ setOpen, defaultValues, onSuccess }) {
                                 { value: "car loan", label: "Car Loan" },
                                 { value: "refinance", label: "Refinance" },
                                 { value: "micro loan", label: "Micro Loan" },
-                            ]}
-                        />
-                        <FormSelect
-                            label="Lead Status"
-                            id="leadStatus"
-                            value={watch("leadStatus") || ""}
-                            onChange={(value) => setValue("leadStatus", value)}
-                            error={errors?.leadStatus?.message}
-                            required
-                            options={[
-                                { value: "new", label: "New" },
-                                { value: "call not connected", label: "Call Not Connected" },
-                                { value: "unqualified lead", label: "Unqualified Lead" },
-                                { value: "rejected", label: "Rejected" },
-                                { value: "qualified lead", label: "Qualified Lead" },
-                                { value: "customer denied", label: "Customer Denied" },
-                                { value: "documents pending", label: "Documents pending" },
-                                { value: "move to application", label: "Move to Application" },
                             ]}
                         />
                         <FormInput

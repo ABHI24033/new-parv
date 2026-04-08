@@ -163,6 +163,7 @@ export function ReviewSubmit({ formData, setStep, loanHistory }) {
                             ["coapplicant_aadhar_front", "Co-app Aadhar Front"],
                             ["coapplicant_aadhar_back", "Co-app Aadhar Back"],
                             ["coapplicant_pan", "Co-app PAN"],
+                            ["bank_statement", "Bank Statement"],
                             ["other_doc1", "Other 1"],
                             ["other_doc2", "Other 2"],
                             ["other_doc3", "Other 3"],

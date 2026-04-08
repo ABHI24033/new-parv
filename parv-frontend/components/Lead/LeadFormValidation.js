@@ -38,7 +38,7 @@ export const formSchema = z.object({
 
   loanProduct: z.string().nonempty("Loan Product is required"),
 
-  leadStatus: z.string().nonempty("Lead Status is required"),
+  leadStatus: z.string().default("new"),
 
   callingDate: z
     .string()

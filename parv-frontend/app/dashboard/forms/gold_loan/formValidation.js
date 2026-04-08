@@ -132,6 +132,12 @@ export const loanApplicationSchema = z
         (val) => val instanceof File || typeof val == "string",
         "Present address proof (electricity bill) is required."
       ),
+    bank_statement: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
+        "Bank Statement is required."
+      ),
     references: z
       .array(
         z.object({
@@ -249,7 +255,7 @@ export const stepFields = {
   3: ["saving_account_bank_name", "saving_account_turnover"],
   4: ["total_loan_amount", "loan_start_date", "loan_provider_bank", "monthly_emi"],
   5: ["references"],
-  6: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity"],
+  6: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity", "bank_statement"],
   7: [],
 };
 

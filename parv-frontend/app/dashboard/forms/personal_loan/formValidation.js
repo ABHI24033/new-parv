@@ -210,7 +210,12 @@ export const loanApplicationSchema = z
       ),
     coapplicant_aadhar_back: z.any().optional(),
     coapplicant_pan: z.any().optional(),
-    bank_statement: z.any().optional(),
+    bank_statement: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
+        "Bank Statement is required."
+      ),
     references: z
       .array(
         z.object({
@@ -389,7 +394,6 @@ export const stepFields = {
     "have_tan_no",
     "tan_no",
     "has_bank_statement",
-    "bank_statement",
     "has_current_loan",
     "existing_loans",
     "total_loan_amount",
@@ -409,6 +413,7 @@ export const stepFields = {
     "salary_slip_1",
     "salary_slip_2",
     "salary_slip_3",
+    "bank_statement",
     "other_doc1",
     "other_doc2",
     "other_doc3",

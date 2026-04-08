@@ -82,7 +82,7 @@ const businessLoanSchema = new mongoose.Schema(
         form_3: String,
         itr_2023_2024: String,
         itr_2024_2025: String,
-        bank_statement: String,
+        bank_statement: { type: String, required: true },
         shop_front: String,
         house_electricity: String,
         other_doc: String,

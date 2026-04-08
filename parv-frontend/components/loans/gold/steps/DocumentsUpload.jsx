@@ -10,6 +10,7 @@ export function DocumentsUpload({ formData, errors, handleFileChange, isUploadin
         { id: "aadhar_back", label: "Aadhar Back" },
         { id: "personal_pan_upload", label: "Personal PAN" },
         { id: "house_electricity", label: "House Electricity Bill" },
+        { id: "bank_statement", label: "Bank Statement" },
     ];
 
     return (

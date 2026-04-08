@@ -50,6 +50,7 @@ const stepFields = {
     "members.documents.aadhar_front",
     "members.documents.aadhar_back",
     "members.documents.photo",
+    "members.documents.bank_statement",
   ],
   7: [],
 };
@@ -106,6 +107,7 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
           husband_aadhar_back: undefined,
           husband_voter_id: undefined,
           joint_photo: undefined,
+          bank_statement: undefined,
         },
       },
     ],
@@ -248,6 +250,7 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
             husband_aadhar_back: undefined,
             husband_voter_id: undefined,
             joint_photo: undefined,
+            bank_statement: undefined,
           },
         },
       ],
@@ -678,6 +681,7 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
                       ["husband_aadhar_back", "Husband Aadhar Back"],
                       ["husband_voter_id", "Husband Voter ID"],
                       ["joint_photo", "Joint Photo"],
+                      ["bank_statement", "Bank Statement"],
                     ].map(([id, label]) => (
                       <div key={id} className="space-y-2">
                         <Label className="mb-2">{label} <span className="text-red-500">*</span></Label>
@@ -825,8 +829,8 @@ const GroupLoan = ({ mode = "create", loanId = null, initialValues = null }) => 
                     return (
                       <div key={i} className="flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-100 rounded-xl">
                         <span className="text-[11px] font-bold text-zinc-600">Member {i + 1}</span>
-                        <span className={`text-[10px] font-bold ${docCount >= 9 ? 'text-green-600' : 'text-orange-500'}`}>
-                          {docCount}/9 Docs Uploaded
+                        <span className={`text-[10px] font-bold ${docCount >= 10 ? 'text-green-600' : 'text-orange-500'}`}>
+                          {docCount}/10 Docs Uploaded
                         </span>
                       </div>
                     );

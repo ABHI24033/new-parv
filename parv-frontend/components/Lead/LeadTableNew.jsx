@@ -21,12 +21,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  MoreVertical, 
-  Eye, 
-  Trash2, 
-  Search, 
-  Download, 
+import {
+  MoreVertical,
+  Eye,
+  Trash2,
+  Search,
+  Download,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -38,7 +38,7 @@ import {
   IndianRupee,
   FileText
 } from "lucide-react";
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -46,7 +46,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -111,11 +111,11 @@ export default function LeadTableNew() {
 
   const getStatusBadge = (status) => {
     const s = status?.toLowerCase();
-    if (s?.includes("positive") || s?.includes("won") || s?.includes("interested")) 
+    if (s?.includes("positive") || s?.includes("won") || s?.includes("interested"))
       return <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200 capitalize">{status}</Badge>;
-    if (s?.includes("negative") || s?.includes("lost") || s?.includes("rejected")) 
+    if (s?.includes("negative") || s?.includes("lost") || s?.includes("rejected"))
       return <Badge variant="destructive" className="capitalize">{status}</Badge>;
-    if (s?.includes("warm") || s?.includes("pending") || s?.includes("follow")) 
+    if (s?.includes("warm") || s?.includes("pending") || s?.includes("follow"))
       return <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200 capitalize">{status}</Badge>;
     return <Badge variant="secondary" className="capitalize">{status}</Badge>;
   };
@@ -135,7 +135,7 @@ export default function LeadTableNew() {
         l.date
       ].join(","))
     ].join("\n");
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -143,6 +143,9 @@ export default function LeadTableNew() {
     a.download = `leads_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
+
+  console.log(leads);
+
 
   return (
     <div className="space-y-6">
@@ -159,8 +162,8 @@ export default function LeadTableNew() {
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value, currentPage: 1 }))}
               />
             </div>
-            <Select 
-              value={filters.loanProduct} 
+            <Select
+              value={filters.loanProduct}
               onValueChange={(val) => setFilters(prev => ({ ...prev, loanProduct: val, currentPage: 1 }))}
             >
               <SelectTrigger className="h-10 bg-slate-50 border-slate-200">
@@ -177,9 +180,9 @@ export default function LeadTableNew() {
                 <SelectItem value="Mortgage Loan">Mortgage Loan</SelectItem>
               </SelectContent>
             </Select>
-            <Select 
-               value={filters.leadStatus} 
-               onValueChange={(val) => setFilters(prev => ({ ...prev, leadStatus: val, currentPage: 1 }))}
+            <Select
+              value={filters.leadStatus}
+              onValueChange={(val) => setFilters(prev => ({ ...prev, leadStatus: val, currentPage: 1 }))}
             >
               <SelectTrigger className="h-10 bg-slate-50 border-slate-200">
                 <SelectValue placeholder="Status" />
@@ -197,7 +200,7 @@ export default function LeadTableNew() {
               <Button variant="outline" onClick={handleExport} className="flex-1 h-10 gap-2">
                 <Download className="h-4 w-4" /> Export
               </Button>
-              <Button variant="secondary" onClick={() => setFilters({search: "", loanProduct: "all", leadStatus: "all", currentPage: 1, pageSize: 10})} className="h-10">
+              <Button variant="secondary" onClick={() => setFilters({ search: "", loanProduct: "all", leadStatus: "all", currentPage: 1, pageSize: 10 })} className="h-10">
                 Reset
               </Button>
             </div>
@@ -213,6 +216,7 @@ export default function LeadTableNew() {
             <TableHeader className="bg-slate-50/50">
               <TableRow>
                 <TableHead className="font-semibold text-slate-700">Lead Name</TableHead>
+                <TableHead className="font-semibold text-slate-700">Created By</TableHead>
                 <TableHead className="font-semibold text-slate-700">Contact</TableHead>
                 <TableHead className="font-semibold text-slate-700">Loan Product</TableHead>
                 <TableHead className="font-semibold text-slate-700">Profession</TableHead>
@@ -244,6 +248,17 @@ export default function LeadTableNew() {
                 leads.map((lead) => (
                   <TableRow key={lead._id} className="hover:bg-slate-50/80 transition-colors group">
                     <TableCell className="font-medium text-slate-900 py-4">{lead.leadName}</TableCell>
+                    <TableCell className="text-slate-600">
+                      {lead.dsa_username ? (
+                        <div className="flex flex-col">
+                          {/* <span className="font-medium text-blue-600">{lead.dsa_username}</span> */}
+                          <span className="font-medium text-blue-600">{lead.createdByName}</span>
+                          <span className="text-[10px] text-slate-400 capitalize">{lead.dsa_username}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic">{lead.createdByName || "System"}</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-slate-600">{lead.contactNo}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 font-medium text-slate-700">
@@ -260,7 +275,7 @@ export default function LeadTableNew() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right pr-6">
-                      <div className="flex justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-1 md:group-hover:opacity-100 transition-opacity">
                         <LeadDialog lead={lead} />
                         <RemarksModal
                           leadId={lead?._id}
@@ -315,6 +330,7 @@ export default function LeadTableNew() {
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="font-bold text-slate-900">{lead.leadName}</h3>
+                      <p className="text-[10px] text-blue-600 font-medium">By: {lead.dsa_username || lead.createdByName || "Admin"}</p>
                       <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
                         <Phone className="h-3 w-3" /> {lead.contactNo}
                       </p>
@@ -334,13 +350,13 @@ export default function LeadTableNew() {
                   <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100">
                     <span className="text-[10px] text-slate-400">ID: {lead._id.slice(-6)}</span>
                     <div className="flex gap-2">
-                       <LeadDialog lead={lead} />
-                       <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setEditLead(lead)}>
-                         <Pencil className="h-3.5 w-3.5" />
-                       </Button>
-                       <Button size="icon" variant="outline" className="h-8 w-8 text-red-600 border-red-50" onClick={() => setDeleteId(lead._id)}>
-                         <Trash2 className="h-3.5 w-3.5" />
-                       </Button>
+                      <LeadDialog lead={lead} />
+                      <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setEditLead(lead)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="outline" className="h-8 w-8 text-red-600 border-red-50" onClick={() => setDeleteId(lead._id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -370,11 +386,11 @@ export default function LeadTableNew() {
               <ChevronLeft className="h-4 w-4 mr-1" /> Previous
             </Button>
             <div className="flex items-center gap-1 mx-2">
-               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === pagination.totalPages || Math.abs(p - pagination.currentPage) <= 1)
                 .map((p, idx, arr) => (
                   <React.Fragment key={p}>
-                    {idx > 0 && arr[idx-1] !== p - 1 && <span className="text-slate-300">...</span>}
+                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-slate-300">...</span>}
                     <Button
                       variant={pagination.currentPage === p ? "default" : "outline"}
                       size="sm"
@@ -385,7 +401,7 @@ export default function LeadTableNew() {
                     </Button>
                   </React.Fragment>
                 ))
-               }
+              }
             </div>
             <Button
               variant="outline"
@@ -427,10 +443,10 @@ export default function LeadTableNew() {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button 
-               onClick={handleDelete} 
-               disabled={isDeleting}
-               className="bg-red-600 hover:bg-red-700"
+            <Button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
             >
               {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
               Delete

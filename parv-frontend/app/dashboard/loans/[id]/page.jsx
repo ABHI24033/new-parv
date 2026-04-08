@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
-import { FileText, ExternalLink, CalendarDays, CircleDollarSign, UserCircle2 } from "lucide-react";
+import { FileText, ExternalLink, CalendarDays, IndianRupee, UserCircle2 } from "lucide-react";
 
 const getStatusVariant = (st) => {
   switch (String(st || "").toLowerCase()) {
@@ -110,9 +110,10 @@ const pickFields = (data, keys) =>
         key.includes("emi") ||
         key.includes("cost") ||
         key.includes("loan_you_need");
+      const isValueUrl = typeof raw === "string" && /^https?:\/\//i.test(raw);
       return {
         label: labelize(k),
-        value: looksLikeMoney ? formatINR(raw) : String(raw),
+        value: isValueUrl ? "File Uploaded" : (looksLikeMoney ? formatINR(raw) : String(raw)),
       };
     });
 
@@ -234,6 +235,7 @@ export default function LoanDetailsPage() {
       "current_account_bank_name",
       "current_account_turnover",
       "file_income_tax",
+      "bank_statement",
     ]);
 
     return { personal, group, connector, loanInfo, addresses, employment };
@@ -418,7 +420,7 @@ export default function LoanDetailsPage() {
             <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
               <div className="text-xs uppercase text-emerald-700 font-semibold">Amount</div>
               <div className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-gray-800">
-                <CircleDollarSign className="h-4 w-4 text-emerald-600" />
+                <IndianRupee className="h-4 w-4 text-emerald-600" />
                 {formatINR(data.loan_amount || data.amount || data.loanAmount || "-")}
               </div>
             </div>

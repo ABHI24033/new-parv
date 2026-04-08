@@ -391,9 +391,14 @@ export const assignCommission = async (req, res) => {
 
     if (record) {
       record.income = income;
-      // If status is still pending, we update unpaid
-      if (record.status === 'Pending') {
-        record.unpaid = income;
+      // Keep unpaid balance in sync: total income - what's already paid
+      record.unpaid = Math.max(0, income - (record.paid || 0));
+      
+      // Update status based on new balance
+      if (record.unpaid === 0 && record.income > 0) {
+        record.status = 'Paid';
+      } else {
+        record.status = 'Pending';
       }
     } else {
       record = new DSAIncome({
@@ -403,6 +408,7 @@ export const assignCommission = async (req, res) => {
         loanType,
         loanAmount,
         income,
+        paid: 0,
         unpaid: income,
         status: 'Pending'
       });
@@ -423,39 +429,46 @@ export const assignCommission = async (req, res) => {
 
 /**
  * Update commission payment status (Admin Only)
+ * Now supports partial payments
  */
 export const updateCommissionPaymentStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, paymentDate, paymentMode } = req.body;
+    const { amountPaid, paymentDate, paymentMode } = req.body;
 
     const record = await DSAIncome.findById(id);
     if (!record) {
       return res.status(404).json({ success: false, message: "Commission record not found" });
     }
 
-    record.status = status;
-    if (status === 'Paid') {
-      record.paid = record.income;
-      record.unpaid = 0;
-      record.paymentDate = paymentDate || new Date();
-      record.paymentMode = paymentMode || 'UPI';
+    const payValue = Number(amountPaid) || 0;
+    
+    // Update paid amount (accumulative)
+    record.paid = (record.paid || 0) + payValue;
+    
+    // Recalculate unpaid balance
+    record.unpaid = Math.max(0, record.income - record.paid);
+    
+    // Update status based on balance
+    if (record.unpaid === 0) {
+      record.status = 'Paid';
     } else {
-      record.paid = 0;
-      record.unpaid = record.income;
-      record.paymentDate = null;
+      record.status = 'Pending';
     }
+
+    record.paymentDate = paymentDate || new Date();
+    record.paymentMode = paymentMode || 'UPI';
 
     await record.save();
 
     res.status(200).json({
       success: true,
-      message: `Commission marked as ${status}`,
+      message: payValue > 0 ? `Paid ₹${payValue} successfully` : "Payment status updated",
       data: record
     });
   } catch (error) {
     console.error("Update commission status error:", error);
-    res.status(500).json({ success: false, message: "Failed to update status" });
+    res.status(500).json({ success: false, message: "Failed to update payment" });
   }
 };
 
@@ -483,7 +496,7 @@ export const getCommissionHistory = async (req, res) => {
 
     const history = await DSAIncome.find(filter).sort({ createdAt: -1 });
 
-    // Aggregate stats
+    // Aggregate stats correctly for the dashboard
     const stats = history.reduce((acc, curr) => {
       acc.totalEarnings += (curr.income || 0);
       acc.totalPaid += (curr.paid || 0);

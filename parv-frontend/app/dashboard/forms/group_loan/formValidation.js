@@ -73,6 +73,7 @@ const memberSchema = z.object({
     husband_aadhar_back: fileSchema,
     husband_voter_id: fileSchema,
     joint_photo: fileSchema,
+    bank_statement: fileSchemaRequired,
   }),
 });
 

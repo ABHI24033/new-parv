@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bell, Users, Calendar, DollarSign, Search } from "lucide-react";
+import { Bell, Users, Calendar, IndianRupee, Search } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useRMDashboard } from "@/hooks/useRMDashboard";
 
@@ -140,7 +140,7 @@ export default function RMDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><DollarSign className="w-5 h-5" /> Quick Actions</CardTitle>
+              <CardTitle className="flex items-center gap-2"><IndianRupee className="w-5 h-5" /> Quick Actions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-2">

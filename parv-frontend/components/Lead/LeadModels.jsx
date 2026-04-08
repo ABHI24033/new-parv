@@ -31,7 +31,14 @@ const LeadDetails = ({ lead }) => (
     <LeadDetailItem label="State" value={lead.state} />
     <LeadDetailItem label="City" value={lead.city} />
     <LeadDetailItem label="Pincode" value={lead.pincode} />
-    <LeadDetailItem label="Remarks" value={lead.remarks} />
+    <LeadDetailItem 
+      label="Applied By" 
+      value={lead.dsa_username || lead.createdByName || "Admin/System"} 
+    />
+    <LeadDetailItem 
+      label="Remarks" 
+      value={Array.isArray(lead.remarks) ? lead.remarks.map(r => r.text).join(", ") : lead.remarks} 
+    />
   </div>
 );
 

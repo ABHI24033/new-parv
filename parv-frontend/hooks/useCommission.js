@@ -54,11 +54,11 @@ export function useCommission() {
     },
   });
 
-  // 4. Update Payment Status Mutation
+  // 4. Update Payment Status Mutation (supports partial payment)
   const updatePaymentStatus = useMutation({
-    mutationFn: async ({ id, status, paymentDate, paymentMode }) => {
+    mutationFn: async ({ id, amountPaid, paymentDate, paymentMode }) => {
       const res = await api.patch(`/users/commissions/${id}/status`, {
-        status,
+        amountPaid,
         paymentDate,
         paymentMode,
       });

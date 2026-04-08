@@ -106,7 +106,7 @@ const homeLoanSchema = new mongoose.Schema(
         form_3: String,
         itr_1: String,
         itr_2: String,
-        bank_statement: String,
+        bank_statement: { type: String, required: true },
         shop_front: String,
         house_electricity: String,
         lpc: String,

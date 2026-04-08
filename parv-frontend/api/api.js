@@ -43,8 +43,10 @@ function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
 
-    // avoid reload loops when already on login page
-    if (window.location.pathname !== "/login") {
+    // Only redirect to login if the user is in a protected route (dashboard)
+    const isProtectedRoute = window.location.pathname.startsWith("/dashboard");
+    
+    if (isProtectedRoute && window.location.pathname !== "/login") {
       window.location.href = "/login";
     }
   }

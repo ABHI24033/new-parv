@@ -169,6 +169,12 @@ export const loanApplicationSchema = z
     form_3: z.any().optional(), // Conditional in superRefine
     itr_2023_2024: z.any().optional(), // Conditional in superRefine
     itr_2024_2025: z.any().optional(), // Conditional in superRefine
+    bank_statement: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
+        "Bank Statement is required."
+      ),
 
     address_proof: z
       .any()

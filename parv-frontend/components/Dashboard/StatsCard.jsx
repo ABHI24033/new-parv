@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, FileText, Clock, TrendingUp } from 'lucide-react';
-import { IndianRupee } from 'lucide-react';
+import { IndianRupee, FileText, Clock, TrendingUp } from 'lucide-react';
 import { HandCoinsIcon } from 'lucide-react';
 import { Briefcase } from 'lucide-react';
 import { Home } from 'lucide-react';

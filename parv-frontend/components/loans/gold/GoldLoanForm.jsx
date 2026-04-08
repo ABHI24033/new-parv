@@ -56,7 +56,7 @@ export function GoldLoanForm({ mode = "create", loanId = null, initialValues = n
         permanent_street_name: "", permanent_landmark: "", permanent_city: "", permanent_district: "", permanent_state: "",
         permanent_pincode: "", same_as_permanent_address: false, saving_account_bank_name: "", saving_account_turnover: "",
         applicant_selfie: undefined, aadhar_front: undefined, aadhar_back: undefined, personal_pan_upload: undefined,
-        house_electricity: undefined, references: [
+        house_electricity: undefined, bank_statement: undefined, references: [
             { name: "", relation: "", phone: "", village: "", street: "", district: "", pincode: "", profession: "" },
         ],
     };
@@ -80,7 +80,7 @@ export function GoldLoanForm({ mode = "create", loanId = null, initialValues = n
         mutation: activeMutation,
         persistenceKey: "goldLoanForm",
         folderPrefix: "goldloan",
-        fileFields: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity"],
+        fileFields: ["applicant_selfie", "aadhar_front", "aadhar_back", "personal_pan_upload", "house_electricity", "bank_statement"],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },
         persistenceEnabled: !isEditMode,

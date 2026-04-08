@@ -142,6 +142,7 @@ export function VehicleLoanForm({ mode = "create", loanId = null, initialValues 
         guarantor_pan: "",
         vehicle_quotation: "",
         owner_book: "",
+        bank_statement: "",
         references: [
             {
                 name: "",
@@ -183,7 +184,7 @@ export function VehicleLoanForm({ mode = "create", loanId = null, initialValues 
             "business_proof", "itr_1", "itr_2", "another_1", "another_2", "another_3",
             "sale_deed", "mutation", "rashid", "lpc", "property_pic", "property_map",
             "chain_deed", "guarantor_aadhar_front", "guarantor_aadhar_back",
-            "guarantor_pan", "vehicle_quotation", "owner_book"
+            "guarantor_pan", "vehicle_quotation", "owner_book", "bank_statement"
         ],
         formSteps,
         extraPersistenceData: { loanHistory, setLoanHistory },

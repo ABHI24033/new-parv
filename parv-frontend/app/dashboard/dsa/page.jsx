@@ -8,7 +8,7 @@ import Spinner from "@/components/common/Spinners";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CircleDollarSign, CreditCard, FileText, TrendingUp } from "lucide-react";
+import { IndianRupee, CreditCard, FileText, TrendingUp } from "lucide-react";
 
 const formatMoney = (value) =>
   new Intl.NumberFormat("en-IN", {
@@ -111,17 +111,48 @@ export default function DSADashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="border-0 shadow-sm">
+      <section className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <Card className="border-0 shadow-sm bg-blue-50/50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-500">Total Applications</CardTitle>
+            <CardTitle className="text-sm font-semibold text-blue-600 uppercase tracking-wider">Total Income</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-black text-slate-900">{dashboardData?.totalApplications || 0}</div>
-              <p className="text-sm text-slate-500 mt-1">Applications linked to your DSA ID</p>
+              <div className="text-3xl font-black text-blue-900">
+                {formatMoney(commissionData?.stats?.totalEarnings)}
+              </div>
+              <p className="text-xs text-blue-500 mt-1">Total commission assigned</p>
             </div>
-            <FileText className="h-10 w-10 text-blue-600" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm border-t-2 border-t-emerald-500">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-500">Paid Amount</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div>
+              <div className="text-3xl font-black text-emerald-600">
+                {formatMoney(commissionData?.stats?.totalPaid)}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Directly into bank account</p>
+            </div>
+            <CreditCard className="h-6 w-6 text-emerald-600" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm border-t-2 border-t-amber-500">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-slate-500">Pending Amount</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <div>
+              <div className="text-3xl font-black text-amber-600">
+                {formatMoney(commissionData?.stats?.totalPending)}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Balance to be cleared</p>
+            </div>
+            <TrendingUp className="h-6 w-6 text-amber-600" />
           </CardContent>
         </Card>
 
@@ -132,39 +163,22 @@ export default function DSADashboardPage() {
           <CardContent className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-black text-slate-900">{dashboardData?.approvedApplications || 0}</div>
-              <p className="text-sm text-slate-500 mt-1">Loans completed and eligible for payout</p>
+              <p className="text-xs text-slate-500 mt-1">Eligible for payouts</p>
             </div>
-            <CreditCard className="h-10 w-10 text-emerald-600" />
+            <IndianRupee className="h-6 w-6 text-blue-600" />
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-500">Paid Commission</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-500">Total Leads</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-black text-slate-900">
-                {formatMoney(commissionData?.stats?.totalPaid)}
-              </div>
-              <p className="text-sm text-slate-500 mt-1">Already paid by admin</p>
+              <div className="text-3xl font-black text-slate-900">{dashboardData?.totalApplications || 0}</div>
+              <p className="text-xs text-slate-500 mt-1">Total active applications</p>
             </div>
-            <CircleDollarSign className="h-10 w-10 text-green-600" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-500">Pending Commission</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between">
-            <div>
-              <div className="text-3xl font-black text-slate-900">
-                {formatMoney(commissionData?.stats?.totalPending)}
-              </div>
-              <p className="text-sm text-slate-500 mt-1">Assigned but not paid yet</p>
-            </div>
-            <TrendingUp className="h-10 w-10 text-amber-600" />
+            <FileText className="h-6 w-6 text-slate-400" />
           </CardContent>
         </Card>
       </section>

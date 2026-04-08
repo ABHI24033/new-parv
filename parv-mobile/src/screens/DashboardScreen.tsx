@@ -87,30 +87,34 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.statsGrid}>
-        <StatCard
-          title="Total Disbursed"
-          value={fmt(stats?.totalAmount)}
-          icon={IndianRupee}
-          color={Colors.success}
-        />
-        <StatCard
-          title="Applications"
-          value={stats?.totalApplications || 0}
-          icon={FileText}
-          color={Colors.accent}
-        />
-        <StatCard
-          title="Total Leads"
-          value={stats?.leads?.total || 0}
-          icon={TrendingUp}
-          color="#8B5CF6"
-        />
-        <StatCard
-          title="Team Size"
-          value={stats?.users?.total || 0}
-          icon={Users}
-          color="#F59E0B"
-        />
+        {user?.role === 'DSA' && (
+          <>
+            <StatCard
+              title="Total Income"
+              value={fmt(stats?.commissionStats?.totalEarnings)}
+              icon={IndianRupee}
+              color={Colors.accent}
+            />
+            <StatCard
+              title="Paid Amount"
+              value={fmt(stats?.commissionStats?.totalPaid)}
+              icon={Activity}
+              color={Colors.success}
+            />
+            <StatCard
+              title="Pending"
+              value={fmt(stats?.commissionStats?.totalPending)}
+              icon={TrendingUp}
+              color="#F59E0B"
+            />
+            <StatCard
+              title="Applications"
+              value={stats?.totalApplications || 0}
+              icon={FileText}
+              color="#8B5CF6"
+            />
+          </>
+        )}
       </View>
 
       <View style={styles.section}>

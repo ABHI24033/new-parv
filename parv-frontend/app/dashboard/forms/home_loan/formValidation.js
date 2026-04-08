@@ -167,7 +167,12 @@ export const loanApplicationSchema = z
     itr_1: z.any().optional(), // Optional, or conditional
     itr_2: z.any().optional(), // Optional, or conditional
     company_image: z.any().optional(),
-    bank_statement: z.any().optional(),
+    bank_statement: z
+      .any()
+      .refine(
+        (val) => val instanceof File || (typeof val === "string" && val.startsWith("http")),
+        "Bank Statement is required."
+      ),
     shop_front: z.any().optional(),
     house_electricity: z.any().optional(),
     other_doc: z.any().optional(),

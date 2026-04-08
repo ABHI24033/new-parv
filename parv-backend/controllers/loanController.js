@@ -7,6 +7,7 @@ import PersonalLoan from "../models/PersonalLoan.js";
 import VehicleLoan from "../models/VehicleLoan.js";
 import Lead from "../models/Lead.js";
 import User from "../models/User.js";
+import DSAIncome from "../models/DSAIncome.js";
 import { generateLoanId } from "../utils/generateLoanId.js";
 
 const LOAN_MODELS = [
@@ -485,10 +486,14 @@ export const deleteLoan = async (req, res) => {
 
 export const getDashboardStats = async (req, res) => {
     try {
+        const isAdmin = req.userRole === "Admin";
+        const connectorFilter = isAdmin ? {} : { id_of_connector: req.user.username };
+        const dsaIncomeFilter = isAdmin ? {} : { connectorId: req.user.username };
+
         // --- Per-type stats ---
         const typeStats = await Promise.all(
             LOAN_MODELS.map(async ({ key, label, Model }) => {
-                const filter = { isDeleted: false };
+                const filter = { isDeleted: false, ...connectorFilter };
                 const [count, amountAgg] = await Promise.all([
                     Model.countDocuments(filter),
                     Model.aggregate([
@@ -520,7 +525,7 @@ export const getDashboardStats = async (req, res) => {
         const monthlyTrend = await Promise.all(
             LOAN_MODELS.map(async ({ Model }) => {
                 return Model.aggregate([
-                    { $match: { isDeleted: false, createdAt: { $gte: twelveMonthsAgo } } },
+                    { $match: { isDeleted: false, ...connectorFilter, createdAt: { $gte: twelveMonthsAgo } } },
                     {
                         $group: {
                             _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
@@ -557,7 +562,7 @@ export const getDashboardStats = async (req, res) => {
         // --- Recent 5 applications (across all models) ---
         const recentDocs = await Promise.all(
             LOAN_MODELS.map(async ({ key, Model }) => {
-                const docs = await Model.find({ isDeleted: false })
+                const docs = await Model.find({ isDeleted: false, ...connectorFilter })
                     .sort({ createdAt: -1 })
                     .limit(5)
                     .lean();
@@ -569,21 +574,35 @@ export const getDashboardStats = async (req, res) => {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5);
 
+        // --- Commission Stats ---
+        const commissionHistory = await DSAIncome.find(dsaIncomeFilter);
+        const commissionStats = commissionHistory.reduce((acc, curr) => {
+            acc.totalEarnings += (curr.income || 0);
+            acc.totalPaid += (curr.paid || 0);
+            acc.totalPending += (curr.unpaid || 0);
+            return acc;
+        }, { totalEarnings: 0, totalPaid: 0, totalPending: 0 });
+
         // --- Lead stats ---
         const [totalLeads, leadsBySource] = await Promise.all([
-            Lead.countDocuments(),
-            Lead.aggregate([{ $group: { _id: "$leadSource", count: { $sum: 1 } } }])
+            Lead.countDocuments(connectorFilter),
+            Lead.aggregate([
+                { $match: connectorFilter },
+                { $group: { _id: "$leadSource", count: { $sum: 1 } } }
+            ])
         ]);
         const leadSource = {};
         leadsBySource.forEach(({ _id, count }) => { leadSource[_id || "Unknown"] = count; });
 
-        // --- User stats ---
-        const usersByRole = await User.aggregate([
-            { $group: { _id: "$role", count: { $sum: 1 } } }
-        ]);
-        const userRoles = {};
-        usersByRole.forEach(({ _id, count }) => { userRoles[_id || "Unknown"] = count; });
-        const totalUsers = usersByRole.reduce((s, r) => s + r.count, 0);
+        // --- User stats (Only relevant for Admin) ---
+        let usersData = { total: 0, byRole: {} };
+        if (isAdmin) {
+            const usersByRole = await User.aggregate([
+                { $group: { _id: "$role", count: { $sum: 1 } } }
+            ]);
+            usersData.total = usersByRole.reduce((s, r) => s + r.count, 0);
+            usersByRole.forEach(({ _id, count }) => { usersData.byRole[_id || "Unknown"] = count; });
+        }
 
         res.json({
             success: true,
@@ -593,8 +612,9 @@ export const getDashboardStats = async (req, res) => {
                 typeWise,
                 monthly,
                 recentApplications,
+                commissionStats,
                 leads: { total: totalLeads, bySource: leadSource },
-                users: { total: totalUsers, byRole: userRoles }
+                users: usersData
             }
         });
     } catch (error) {

@@ -62,6 +62,7 @@ const goldLoanSchema = new mongoose.Schema(
         house_electricity: String,
         other_doc1: String,
         other_doc2: String,
+        bank_statement: { type: String, required: true },
         documents: [String],
 
         loanType: { type: String, default: "Gold" },

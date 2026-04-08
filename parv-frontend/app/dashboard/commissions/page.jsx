@@ -118,7 +118,7 @@ export default function CommissionPage() {
 
   // Assignment Modal State
   const [assignModal, setAssignModal] = useState({ open: false, loan: null, amount: "" });
-  const [paymentModal, setPaymentModal] = useState({ open: false, commission: null, mode: "UPI" });
+  const [paymentModal, setPaymentModal] = useState({ open: false, commission: null, amount: "", mode: "UPI" });
 
   const handleAssign = () => {
     if (!assignModal.loan?.connectorId) {
@@ -140,23 +140,24 @@ export default function CommissionPage() {
   };
 
   const handleMarkPaid = () => {
+    if (!paymentModal.amount || isNaN(paymentModal.amount)) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
     updatePaymentStatus.mutate({
       id: paymentModal.commission._id,
-      status: "Paid",
+      amountPaid: Number(paymentModal.amount),
       paymentMode: paymentModal.mode,
       paymentDate: new Date()
     }, {
-      onSuccess: () => setPaymentModal({ open: false, commission: null, mode: "UPI" })
+      onSuccess: () => setPaymentModal({ open: false, commission: null, amount: "", mode: "UPI" })
     });
   };
 
   const handleMarkPending = (commission) => {
-    updatePaymentStatus.mutate({
-      id: commission._id,
-      status: "Pending",
-      paymentMode: null,
-      paymentDate: null
-    });
+    if (!isAdmin) return;
+    toast.error("Status reset is restricted. Use update payment for corrections.");
   };
 
   if (loadingHistory && activeTab === "history") return <Spinner />;
@@ -176,53 +177,55 @@ export default function CommissionPage() {
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-t-4 border-t-blue-500 shadow-lg shadow-blue-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Earnings</CardTitle>
-            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-              <Wallet className="h-5 w-5 text-blue-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">₹{stats.totalEarnings.toLocaleString()}</div>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
-              <Navigation className="w-3 h-3 rotate-180" /> Lifetime revenue generated
-            </p>
-          </CardContent>
-        </Card>
+      {/* Summary Stats (Only for DSA) */}
+      {!isAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-t-4 border-t-blue-500 shadow-lg shadow-blue-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Earnings</CardTitle>
+              <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                <Wallet className="h-5 w-5 text-blue-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-slate-900">₹{stats.totalEarnings.toLocaleString()}</div>
+              <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                <Navigation className="w-3 h-3 rotate-180" /> Lifetime revenue generated
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-t-4 border-t-green-500 shadow-lg shadow-green-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Paid Commission</CardTitle>
-            <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">₹{stats.totalPaid.toLocaleString()}</div>
-            <p className="text-xs text-green-600 mt-1.5 flex items-center gap-1">
-              Successfully disbursed and paid
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="border-t-4 border-t-green-500 shadow-lg shadow-green-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Paid Commission</CardTitle>
+              <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-slate-900">₹{stats.totalPaid.toLocaleString()}</div>
+              <p className="text-xs text-green-600 mt-1.5 flex items-center gap-1">
+                Successfully disbursed and paid
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-t-4 border-t-amber-500 shadow-lg shadow-amber-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Pending Payouts</CardTitle>
-            <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
-              <Clock className="h-5 w-5 text-amber-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">₹{stats.totalPending.toLocaleString()}</div>
-            <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
-              Action required from Admin
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="border-t-4 border-t-amber-500 shadow-lg shadow-amber-500/5 bg-white/80 backdrop-blur-sm group hover:translate-y-[-2px] transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wider">Pending Payouts</CardTitle>
+              <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-slate-900">₹{stats.totalPending.toLocaleString()}</div>
+              <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
+                Action required from Admin
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <Card className="border-none shadow-xl shadow-slate-200/50 bg-white overflow-hidden">
@@ -296,10 +299,10 @@ export default function CommissionPage() {
             <TableHeader>
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="font-semibold text-slate-600 pl-6 h-12">Loan ID</TableHead>
-                <TableHead className="font-semibold text-slate-600 h-12">Customer Name</TableHead>
-                <TableHead className="font-semibold text-slate-600 h-12">Loan Details</TableHead>
-                <TableHead className="font-semibold text-slate-600 h-12">DSA Details</TableHead>
-                <TableHead className="font-semibold text-slate-600 h-12 text-right">Commission</TableHead>
+                <TableHead className="font-semibold text-slate-600 h-12">Customer Name / Date</TableHead>
+                <TableHead className="font-semibold text-slate-600 h-12 text-center">Total Comm.</TableHead>
+                <TableHead className="font-semibold text-slate-600 h-12 text-center">Paid Amount</TableHead>
+                <TableHead className="font-semibold text-slate-600 h-12 text-center">Pending</TableHead>
                 <TableHead className="font-semibold text-slate-600 h-12 text-center">Status</TableHead>
                 {isAdmin && <TableHead className="font-semibold text-slate-600 h-12 text-right pr-6">Action</TableHead>}
               </TableRow>
@@ -313,23 +316,16 @@ export default function CommissionPage() {
                     <TableCell className="font-mono text-xs font-semibold text-blue-600 pl-6">{loan.loanId}</TableCell>
                     <TableCell>
                       <div className="font-medium text-slate-900">{loan.applicantName}</div>
+                      <div className="text-xs text-slate-400">{loan.connectorId || "Direct"}</div>
                     </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-semibold text-slate-700">₹{Number(loan.loanAmount).toLocaleString()}</div>
-                      <div className="text-xs text-slate-400">{loan.loanType}</div>
+                    <TableCell className="text-center font-bold text-slate-900">
+                      {loan.commission ? `₹${loan.commission.income.toLocaleString()}` : "-"}
                     </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-medium text-slate-700">{loan.connectorId || "Direct"}</div>
-                      {loan.connectorName ? (
-                        <div className="text-xs text-slate-400">{loan.connectorName}</div>
-                      ) : null}
+                    <TableCell className="text-center text-green-600 font-semibold">
+                      {loan.commission ? `₹${(loan.commission.paid || 0).toLocaleString()}` : "-"}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {loan.commission ? (
-                        <div className="font-bold text-slate-900">₹{loan.commission.income.toLocaleString()}</div>
-                      ) : (
-                        <span className="text-slate-300 italic text-sm">Not assigned</span>
-                      )}
+                    <TableCell className="text-center text-amber-600 font-semibold">
+                      {loan.commission ? `₹${(loan.commission.unpaid || 0).toLocaleString()}` : "-"}
                     </TableCell>
                     <TableCell className="text-center">
                       {loan.commission ? (
@@ -350,7 +346,7 @@ export default function CommissionPage() {
                             onClick={() => setAssignModal({ open: true, loan, amount: loan.commission?.income || "" })}
                           >
                             <IndianRupee className="w-3.5 h-3.5" /> 
-                            {!loan.connectorId ? "No DSA" : loan.commission ? "Edit" : "Assign"}
+                            {!loan.connectorId ? "No DSA" : loan.commission ? "Update Total" : "Assign"}
                           </Button>
                       </TableCell>
                     )}
@@ -365,15 +361,14 @@ export default function CommissionPage() {
                       <div className="font-medium text-slate-900">{record.applicantName}</div>
                       <div className="text-[10px] text-slate-400">{formatDisplayDate(record.createdAt)}</div>
                     </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-bold text-slate-700">₹{record.loanAmount?.toLocaleString()}</div>
-                      <div className="text-xs text-slate-400">{record.loanType}</div>
+                    <TableCell className="text-center font-bold text-slate-900">
+                      ₹{record.income.toLocaleString()}
                     </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-medium text-slate-700">{record.connectorId}</div>
+                    <TableCell className="text-center text-green-600 font-semibold">
+                      ₹{(record.paid || 0).toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="font-bold text-slate-900 text-base">₹{record.income.toLocaleString()}</div>
+                    <TableCell className="text-center text-amber-600 font-semibold">
+                      ₹{(record.unpaid || 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge className={`rounded-lg px-3 py-1 border-none shadow-sm ${record.status === "Paid" ? "bg-green-500 text-white" : "bg-amber-500 text-white"}`}>
@@ -385,23 +380,16 @@ export default function CommissionPage() {
                     </TableCell>
                     {isAdmin && (
                       <TableCell className="text-right pr-6">
-                        {record.status === "Pending" ? (
+                        {record.status !== "Paid" ? (
                           <Button 
                             size="sm" 
                             className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 rounded-lg h-8 gap-1.5"
-                            onClick={() => setPaymentModal({ open: true, commission: record, mode: "UPI" })}
+                            onClick={() => setPaymentModal({ open: true, commission: record, amount: record.unpaid || "", mode: "UPI" })}
                           >
-                            Mark Paid
+                            Record Payment
                           </Button>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-amber-200 text-amber-700 hover:bg-amber-50 rounded-lg h-8"
-                            onClick={() => handleMarkPending(record)}
-                          >
-                            Mark Pending
-                          </Button>
+                          <span className="text-xs text-slate-400 italic">Fully Paid</span>
                         )}
                       </TableCell>
                     )}
@@ -456,16 +444,27 @@ export default function CommissionPage() {
       </Dialog>
 
       {/* Payment Modal */}
-      <Dialog open={paymentModal.open} onOpenChange={(val) => !val && setPaymentModal({ open: false, commission: null, mode: "UPI" })}>
+      <Dialog open={paymentModal.open} onOpenChange={(val) => !val && setPaymentModal({ open: false, commission: null, amount: "", mode: "UPI" })}>
         <DialogContent className="sm:max-w-[425px] rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Record Commission Payment</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Record Payment</DialogTitle>
             <DialogDescription>
-              Marking commission of <strong>₹{paymentModal.commission?.income.toLocaleString()}</strong> as Paid.
+              Record a partial or full payment for commission of <strong>₹{paymentModal.commission?.income.toLocaleString()}</strong>.
+              <br />Balance remaining: <span className="text-amber-600 font-bold">₹{paymentModal.commission?.unpaid.toLocaleString()}</span>
             </DialogDescription>
           </DialogHeader>
-          <div className="py-6 space-y-4">
-             <div className="space-y-2">
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-600 ml-1">Amount to Pay (INR)</label>
+              <Input 
+                type="number" 
+                value={paymentModal.amount} 
+                onChange={(e) => setPaymentModal({ ...paymentModal, amount: e.target.value })}
+                placeholder={`Max: ₹${paymentModal.commission?.unpaid}`}
+                className="h-12 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-green-500/20 text-lg font-bold"
+              />
+            </div>
+            <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-600 ml-1">Payment Mode</label>
               <Select value={paymentModal.mode} onValueChange={(val) => setPaymentModal({ ...paymentModal, mode: val })}>
                 <SelectTrigger className="h-12 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20">
@@ -481,10 +480,10 @@ export default function CommissionPage() {
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setPaymentModal({ open: false, commission: null, mode: "UPI" })} className="rounded-xl px-6 border-slate-200">Cancel</Button>
+            <Button variant="outline" onClick={() => setPaymentModal({ open: false, commission: null, amount: "", mode: "UPI" })} className="rounded-xl px-6 border-slate-200">Cancel</Button>
             <Button 
               onClick={handleMarkPaid} 
-              disabled={updatePaymentStatus.isPending}
+              disabled={updatePaymentStatus.isPending || !paymentModal.amount}
               className="bg-green-600 hover:bg-green-700 text-white px-8 rounded-xl shadow-lg shadow-green-600/20"
             >
               {updatePaymentStatus.isPending ? "Processing..." : "Confirm Payment"}
