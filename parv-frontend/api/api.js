@@ -2,7 +2,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL ||
+    // "http://localhost:5000/api" || 
+    'https://parvfinancialservices-backend.onrender.com/api',
   withCredentials: true // send cookies automatically
 });
 
@@ -45,7 +47,7 @@ function handleLogout() {
 
     // Only redirect to login if the user is in a protected route (dashboard)
     const isProtectedRoute = window.location.pathname.startsWith("/dashboard");
-    
+
     if (isProtectedRoute && window.location.pathname !== "/login") {
       window.location.href = "/login";
     }
@@ -60,7 +62,7 @@ api.interceptors.response.use(
 
     // If access token expired (401) and not already retrying
     if (error.response?.status === 401 && !originalRequest._retry) {
-      
+
       // If already refreshing, queue this request
       if (isRefreshing) {
         return new Promise((resolve) => {
@@ -87,18 +89,18 @@ api.interceptors.response.use(
 
         isRefreshing = false;
         onTokenRefreshed();
-        
+
         // Retry the original request
         return api(originalRequest);
       } catch (err) {
         isRefreshing = false;
         refreshSubscribers = [];
-        
+
         console.log("Refresh token failed, logging out...");
-        
+
         // Clear all auth data and redirect to login
         handleLogout();
-        
+
         return Promise.reject(err);
       }
     }
